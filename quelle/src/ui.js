@@ -246,6 +246,130 @@ function bindGrow(wrap, ta) {
   return sync;
 }
 
+/* ----- Haptik-Folge (Tagesziel vibriert mehrfach) ----- */
+function haptics(n, gap) {
+  if (navigator.vibrate) { const p = []; for (let i = 0; i < n; i++) p.push(i === n - 1 && n > 2 ? 22 : 10, gap || 70); try { navigator.vibrate(p); } catch (e) {} return; }
+  for (let i = 0; i < n; i++) setTimeout(haptic, i * (gap || 70));
+}
+
+/* ----- Licht beim Abhaken: Photonen, Ringe, Blitz. Je wichtiger, desto mehr. ----- */
+const FX = (() => {
+  let cv = null, cx = null, raf = 0, dpr = 1, W = 0, H = 0;
+  const parts = [];
+  const C = { ice: [190, 240, 255], cyan: [98, 217, 255], white: [255, 255, 255], violet: [170, 150, 255], red: [255, 62, 86], gold: [255, 214, 140] };
+  function size() { if (!cv) return; dpr = Math.min(3, window.devicePixelRatio || 1); W = window.innerWidth; H = window.innerHeight; cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
+  function ensure() {
+    if (cv) return !!cx;
+    cv = document.createElement('canvas');
+    cv.id = 'fx'; cv.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(cv);
+    try { cx = cv.getContext('2d'); } catch (e) { cx = null; }
+    size();
+    window.addEventListener('resize', size);
+    return !!cx;
+  }
+  const mix = (a, b, k) => [0, 1, 2].map(i => Math.round(a[i] + (b[i] - a[i]) * k));
+  const rgba = (c, a) => 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',' + Math.max(0, Math.min(1, a)).toFixed(3) + ')';
+  const outE = k => 1 - Math.pow(1 - k, 3);
+  const rnd = (a, b) => a + Math.random() * (b - a);
+  function push(p) { p.t0 = performance.now() + (p.delay || 0); parts.push(p); }
+
+  function draw(now) {
+    cx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    cx.clearRect(0, 0, W, H);
+    cx.globalCompositeOperation = 'lighter';
+    for (let i = parts.length - 1; i >= 0; i--) {
+      const p = parts[i], age = now - p.t0;
+      if (age < 0) continue;
+      const k = age / p.life;
+      if (k >= 1) { parts.splice(i, 1); continue; }
+      const col = p.to ? mix(p.c, p.to, Math.min(1, k * 1.6)) : p.c;
+      if (p.type === 'flash') {
+        const r = p.r0 + (p.r1 - p.r0) * outE(k), a = p.a * (1 - k) * (1 - k);
+        const g = cx.createRadialGradient(p.x, p.y, 0, p.x, p.y, r);
+        g.addColorStop(0, rgba([255, 255, 255], a)); g.addColorStop(.25, rgba(col, a * .8)); g.addColorStop(1, rgba(col, 0));
+        cx.fillStyle = g; cx.beginPath(); cx.arc(p.x, p.y, r, 0, 6.283); cx.fill();
+      } else if (p.type === 'ring') {
+        const r = p.r0 + (p.r1 - p.r0) * outE(k), a = p.a * (1 - k);
+        cx.strokeStyle = rgba(col, a * .35); cx.lineWidth = p.w * 3.2 * (1 - k) + .5; cx.beginPath(); cx.arc(p.x, p.y, r, 0, 6.283); cx.stroke();
+        cx.strokeStyle = rgba(col, a); cx.lineWidth = p.w * (1 - k * .7); cx.beginPath(); cx.arc(p.x, p.y, r, 0, 6.283); cx.stroke();
+      } else if (p.type === 'spark') {
+        const dt = Math.min(age, p.life) / 1000, f = Math.exp(-p.drag * dt);
+        const d = p.v * (1 - f) / p.drag, x = p.x + Math.cos(p.ang) * d, y = p.y + Math.sin(p.ang) * d - (p.rise || 0) * dt * dt * 60;
+        const len = Math.max(1.5, p.v * f * .028), a = p.a * (1 - k * k);
+        const tx = x - Math.cos(p.ang) * len, ty = y - Math.sin(p.ang) * len;
+        cx.lineCap = 'round';
+        cx.strokeStyle = rgba(col, a * .3); cx.lineWidth = p.w * 3; cx.beginPath(); cx.moveTo(tx, ty); cx.lineTo(x, y); cx.stroke();
+        cx.strokeStyle = rgba(mix(col, [255, 255, 255], .55), a); cx.lineWidth = p.w; cx.beginPath(); cx.moveTo(tx, ty); cx.lineTo(x, y); cx.stroke();
+      } else if (p.type === 'mote') {
+        const dt = age / 1000, x = p.x + Math.sin(dt * p.wob + p.ph) * 6, y = p.y - p.v * dt;
+        const a = p.a * Math.sin(Math.PI * k);
+        const g = cx.createRadialGradient(x, y, 0, x, y, p.r);
+        g.addColorStop(0, rgba(col, a)); g.addColorStop(1, rgba(col, 0));
+        cx.fillStyle = g; cx.beginPath(); cx.arc(x, y, p.r, 0, 6.283); cx.fill();
+      } else if (p.type === 'sweep') {
+        const e = outE(k), cxp = p.x + (p.w + 160) * e - 80, a = p.a * Math.sin(Math.PI * Math.min(1, k * 1.15));
+        const g = cx.createLinearGradient(cxp - 90, 0, cxp + 90, 0);
+        g.addColorStop(0, rgba(col, 0)); g.addColorStop(.5, rgba(col, a)); g.addColorStop(1, rgba(col, 0));
+        cx.save(); cx.beginPath();
+        if (cx.roundRect) cx.roundRect(p.x, p.y, p.w, p.h, p.rad || 0); else cx.rect(p.x, p.y, p.w, p.h);
+        cx.clip(); cx.fillStyle = g; cx.fillRect(p.x, p.y, p.w, p.h); cx.restore();
+      }
+    }
+  }
+  function loop(now) {
+    draw(now);
+    if (parts.length) raf = requestAnimationFrame(loop);
+    else { raf = 0; cx.setTransform(1, 0, 0, 1, 0, 0); cx.clearRect(0, 0, cv.width, cv.height); }
+  }
+
+  /* o: { prio 0–2, over: überfällig, goal: Tagesziel, rect: Zeile/Karte zum Überstreichen } */
+  function burst(x, y, o) {
+    o = o || {};
+    const lvl = o.goal ? 3 : (o.prio == null ? 1 : o.prio);
+    haptics(o.goal ? 3 : lvl === 2 ? 2 : 1, o.goal ? 85 : 75);
+    if (reduced() || !ensure()) return;
+    const base = o.goal ? C.cyan : lvl === 2 ? C.cyan : lvl === 1 ? C.ice : C.white;
+    const from = o.over ? C.red : null;
+    const sc = [0.62, 1, 1.5, 2.3][lvl];
+    const col = c => from ? { c: from, to: c } : { c };
+    push(Object.assign({ type: 'flash', x, y, r0: 6, r1: 16 + 18 * sc, a: lvl === 0 ? .5 : .9, life: 260 + 90 * sc }, col(base)));
+    push(Object.assign({ type: 'ring', x, y, r0: 12, r1: 24 + 22 * sc, w: 1.6 + .4 * sc, a: lvl === 0 ? .55 : .9, life: 380 + 90 * sc }, col(base)));
+    if (lvl >= 2) push(Object.assign({ type: 'ring', x, y, r0: 10, r1: 22 + 14 * sc, w: 1.2, a: .7, life: 420 + 80 * sc, delay: 90 }, col(C.white)));
+    if (o.goal) {
+      push(Object.assign({ type: 'ring', x, y, r0: 14, r1: 150, w: 2.2, a: .75, life: 820, delay: 40 }, col(C.cyan)));
+      push(Object.assign({ type: 'ring', x, y, r0: 8, r1: 96, w: 1.2, a: .6, life: 700, delay: 170 }, col(C.violet)));
+      push({ type: 'flash', x, y, r0: 20, r1: 220, a: .22, life: 520, c: C.cyan, delay: 30 });
+    }
+    const n = Math.round(6 * sc + (o.goal ? 10 : 0));
+    for (let i = 0; i < n; i++) {
+      const ang = (i / n) * 6.283 + rnd(-.25, .25), pick = Math.random() < .35 ? C.white : base;
+      push(Object.assign({ type: 'spark', x, y, ang, v: rnd(150, 260) * Math.sqrt(sc), drag: rnd(5, 7.5), w: rnd(1, 1.7) + (lvl >= 2 ? .3 : 0), a: rnd(.7, 1), life: rnd(320, 460) * Math.sqrt(sc), delay: rnd(0, 40) }, col(pick)));
+    }
+    if (o.goal) for (let i = 0; i < 8; i++) {
+      const ang = rnd(0, 6.283);
+      push({ type: 'spark', x, y, ang, v: rnd(380, 560), drag: 4.2, w: 1.1, a: .9, life: rnd(560, 760), c: Math.random() < .5 ? C.violet : C.white, delay: rnd(60, 160) });
+    }
+    if (o.over) {
+      /* Erlösung: das Rot steigt als Licht auf und löst sich in Blau */
+      const m = 4 + lvl * 3;
+      for (let i = 0; i < m; i++) push({ type: 'mote', x: x + rnd(-14, 40), y: y + rnd(-8, 8), v: rnd(26, 52), wob: rnd(3, 6), ph: rnd(0, 6), r: rnd(4, 8), a: rnd(.35, .6), life: rnd(800, 1150), c: C.red, to: C.ice, delay: rnd(40, 220) });
+    }
+    if (o.rect && lvl >= 1) {
+      const r = o.rect;
+      push(Object.assign({ type: 'sweep', x: r.left, y: r.top, w: r.width, h: r.height, rad: o.goal ? 26 : 0, a: o.goal ? .22 : lvl === 2 ? .16 : .09, life: o.goal ? 720 : 560, delay: 40 }, col(o.goal ? C.cyan : base)));
+    }
+    if (!raf) raf = requestAnimationFrame(loop);
+  }
+  return { burst };
+})();
+/* Mitte des Abhak-Kreises einer Zeile */
+function checkPoint(el) {
+  const i = el && el.querySelector('.check i');
+  const r = (i || el).getBoundingClientRect();
+  return i ? { x: r.left + r.width / 2, y: r.top + r.height / 2 } : { x: r.left + 29, y: r.top + r.height / 2 };
+}
+
 /* ----- Wischen nach rechts = erledigt ----- */
 let suppressClick = 0;
 function bindSwipe(container, onComplete) {
@@ -292,7 +416,6 @@ function bindSwipe(container, onComplete) {
     if (!cancelled && (st.armed || (st.v > 0.6 && st.dx > 36))) {
       st.w.dataset.busy = '1';
       st.w.classList.add('armed');
-      haptic();
       const fly = reduced() ? 0 : 240;
       st.row.style.transition = 'transform ' + fly + 'ms cubic-bezier(.3,0,.7,1), opacity ' + fly + 'ms ease';
       st.row.style.transform = 'translate3d(' + (st.w.offsetWidth + 24) + 'px,0,0)';

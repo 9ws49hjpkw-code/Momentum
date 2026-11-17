@@ -12,11 +12,13 @@ const A = {
     if (Date.now() - suppressClick < 400) return;
     const w = b.closest('.rw'), id = b.dataset.id, t = S.tasks.get(id);
     if (!t || !w || w.dataset.busy) return;
-    haptic();
-    if (t.done) { setDone(id, false); renderAll(); return; }
+    if (t.done) { haptic(); setDone(id, false); renderAll(); return; }
     w.dataset.busy = '1';
     animating++;
+    const pt = checkPoint(w);
+    FX.burst(pt.x, pt.y, { prio: t.prio, over: groupOf(t, today()) === 'over', rect: w.getBoundingClientRect() });
     setDone(id, true);
+    renderBeams();
     w.classList.add('is-done', 'pop');
     wait(reduced() ? 60 : 470).then(() => collapseRow(w)).then(() => {
       animEnd();
@@ -33,9 +35,14 @@ const A = {
   goalCheck(b) {
     const day = today(), goals = liveGoals(day), g = goals.find(x => x.id === b.dataset.gid);
     if (!g) return;
-    const done = !goalDone(g), row = b.closest('.goal');
-    haptic();
+    const done = !goalDone(g), row = b.closest('.goal'), card = b.closest('.goals');
+    if (done) {
+      const pt = checkPoint(row);
+      FX.burst(pt.x, pt.y, { goal: true, rect: card.getBoundingClientRect() });
+      if (!reduced()) { card.classList.remove('quake'); void card.offsetWidth; card.classList.add('quake'); setTimeout(() => card.classList.remove('quake'), 460); }
+    } else haptic();
     if (g.taskId) setDone(g.taskId, done); else { g.done = done; saveGoals(day, goals); }
+    renderBeams();
     row.classList.remove('pop');
     row.classList.toggle('is-done', done);
     b.setAttribute('aria-label', done ? 'Wieder öffnen' : 'Erledigen');
@@ -83,7 +90,12 @@ const A = {
   },
 
   /* Erfassen */
-  eType(b) { E.type = b.dataset.type; syncEntry(); },
+  eType(b) {
+    E.type = b.dataset.type;
+    const ta = eText();
+    if (E.type === 'task' && /\n/.test(ta.value)) { ta.value = ta.value.replace(/\s*\n+\s*/g, ' '); $('#e-grow').dataset.v = ta.value; }
+    syncEntry();
+  },
   eWhen(b) { E.when = b.dataset.when; syncEntry(); },
   ePrio(b) { E.prio = +b.dataset.prio; syncEntry(); },
   eTopic(b) { E.topicId = E.topicId === b.dataset.id ? null : b.dataset.id; syncEntry(); },
@@ -98,6 +110,7 @@ const A = {
   },
   eGo() {
     E.mode = 'fromIdea'; E.type = 'task'; E.when = null;
+    { const ta = eText(); ta.value = oneLine(ta.value); $('#e-grow').dataset.v = ta.value; }
     const sec = $('#e-secondary'); sec.replaceChildren(); sec.hidden = true;
     syncEntry();
   },
@@ -189,9 +202,10 @@ function bindEvents() {
   /* Erfassen */
   const ta = eText();
   bindGrow($('#e-grow'), ta);
-  ta.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); saveEntry(); } });
+  ta.addEventListener('keydown', e => { if (e.key === 'Enter' && E.type === 'task' && !e.isComposing) { e.preventDefault(); saveEntry(); } });
   ta.addEventListener('input', () => {
-    if (ta.value.indexOf('\n') >= 0) { ta.value = ta.value.replace(/\n+/g, ' '); $('#e-grow').dataset.v = ta.value; }
+    if (E.type === 'task' && ta.value.indexOf('\n') >= 0) { ta.value = ta.value.replace(/\n+/g, ' '); $('#e-grow').dataset.v = ta.value; }
+    if (E.type !== 'task') keepEndVisible(ta);
     $('#e-save').setAttribute('aria-disabled', String(!entryValid()));
   });
   const dateEl = $('#e-date');
@@ -232,10 +246,13 @@ function bindEvents() {
 
   /* Wischen */
   const swipeDone = (w, fly) => {
-    const id = w.dataset.id;
-    if (!S.tasks.has(id)) return;
+    const id = w.dataset.id, t = S.tasks.get(id);
+    if (!t) return;
     animating++;
+    const r = w.getBoundingClientRect();
+    FX.burst(r.left + 29, r.top + r.height / 2, { prio: t.prio, over: groupOf(t, today()) === 'over', rect: r });
     setDone(id, true);
+    renderBeams();
     wait(fly).then(() => collapseRow(w)).then(() => {
       animEnd();
       toast('Erledigt', { action: 'Rückgängig', onAction: () => { setDone(id, false); renderAll(); } });
@@ -318,6 +335,11 @@ function startupImage() {
   } catch (e) {}
 }
 
+/* ===== Start-Animation abräumen ===== */
+function endIntro(ms) {
+  setTimeout(() => { document.body.classList.remove('intro'); const el = $('#intro'); if (el) el.remove(); }, ms);
+}
+
 /* ===== Start ===== */
 async function boot() {
   try {
@@ -328,6 +350,7 @@ async function boot() {
       h('h1', null, 'Speicher nicht erreichbar'),
       h('p', null, 'Momentum kann auf diesem Gerät gerade nichts sichern. Schließ die App ganz und öffne sie neu. Im privaten Modus von Safari funktioniert sie nicht.'))));
     document.body.classList.add('ready');
+    endIntro(0);
     return;
   }
   try {
@@ -342,9 +365,11 @@ async function boot() {
       h('h1', null, 'Start hat nicht geklappt'),
       h('p', null, 'Schließ Momentum ganz und öffne es neu. Deine Daten sind auf dem iPhone gespeichert und bleiben erhalten.'))));
     document.body.classList.add('ready');
+    endIntro(0);
     return;
   }
   document.body.classList.add('ready');
+  endIntro(reduced() ? 0 : 900);
   if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
   setInterval(wake, 20000);
   registerSW();

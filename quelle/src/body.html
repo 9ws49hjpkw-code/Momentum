@@ -1,26 +1,27 @@
 <div id="ambient" aria-hidden="true"></div>
+<div id="intro" aria-hidden="true"><svg viewBox="0 0 120 120"><circle class="in-hud" cx="60" cy="60" r="50"/><circle class="in-ring" cx="60" cy="60" r="30"/><path class="in-check" d="M47 61l9 9 19-21"/></svg></div>
 
 <div id="app">
   <main>
-    <section class="view active" id="v-today" aria-label="Heute"><div class="scroll"><div class="inner">
+    <section class="view active" id="v-today" data-v="today" aria-label="Heute"><div class="vbg"></div><div class="scroll"><div class="inner">
       <div id="today-top"></div>
       <header class="hero"><div><h1 id="today-title"></h1><p id="today-sub"></p></div><button class="icon-btn" data-act="settings" aria-label="Einstellungen"><span class="ic" data-ic="sliders"></span></button></header>
-      <div class="beam"></div>
+      <div class="beam"><i class="b-track"></i><i class="b-done"></i><i class="b-over"></i><i class="b-c"><i class="b-light"></i><i class="b-dot"></i></i><span class="b-cap"></span></div>
       <div id="today"></div>
     </div></div></section>
-    <section class="view" id="v-tasks" aria-label="Aufgaben"><div class="scroll"><div class="inner">
+    <section class="view" id="v-tasks" data-v="tasks" aria-label="Aufgaben"><div class="vbg"></div><div class="scroll"><div class="inner">
       <header class="hero"><div><h1>Aufgaben</h1><p id="tasks-sub"></p></div></header>
-      <div class="beam"></div>
+      <div class="beam"><i class="b-track"></i><i class="b-done"></i><i class="b-over"></i><i class="b-c"><i class="b-light"></i><i class="b-dot"></i></i><span class="b-cap"></span></div>
       <div id="tasks"></div>
     </div></div></section>
-    <section class="view" id="v-ideas" aria-label="Ideen"><div class="scroll"><div class="inner">
+    <section class="view" id="v-ideas" data-v="ideas" aria-label="Ideen"><div class="vbg"></div><div class="scroll"><div class="inner">
       <header class="hero"><div><h1>Ideen</h1><p id="ideas-sub"></p></div></header>
-      <div class="beam"></div>
+      <div class="beam"><i class="b-track"></i><i class="b-done"></i><i class="b-over"></i><i class="b-c"><i class="b-light"></i><i class="b-dot"></i></i><span class="b-cap"></span></div>
       <div id="ideas"></div>
     </div></div></section>
-    <section class="view" id="v-journal" aria-label="Journal"><div class="scroll"><div class="inner">
+    <section class="view" id="v-journal" data-v="journal" aria-label="Journal"><div class="vbg"></div><div class="scroll"><div class="inner">
       <header class="hero"><div><h1>Journal</h1><p id="j-date"></p></div></header>
-      <div class="beam"></div>
+      <div class="beam"><i class="b-track"></i><i class="b-done"></i><i class="b-over"></i><i class="b-c"><i class="b-light"></i><i class="b-dot"></i></i><span class="b-cap"></span></div>
       <div class="glass jcard" id="j-editor"></div>
       <div class="jbar"><span class="jstate" id="j-state"></span><button class="btn btn-primary" id="j-save" data-act="jSave" aria-disabled="true">Speichern</button></div>
       <section class="sec" id="j-past">
@@ -47,7 +48,7 @@
     <div class="grab" data-drag></div>
     <div class="sheet-head" id="e-head" data-drag hidden><h2 id="e-title"></h2><button class="icon-btn" data-act="closeTop" aria-label="Schließen"><span class="ic" data-ic="close"></span></button></div>
     <div class="sheet-body">
-      <div class="grow e-text" id="e-grow"><textarea id="e-text" rows="1" maxlength="280" placeholder="Was geht dir durch den Kopf?" enterkeyhint="done" autocapitalize="sentences" autocomplete="off" aria-label="Text"></textarea></div>
+      <div class="grow e-text" id="e-grow"><textarea id="e-text" rows="1" placeholder="Was geht dir durch den Kopf?" enterkeyhint="done" autocapitalize="sentences" autocomplete="off" aria-label="Text"></textarea></div>
       <div class="fold" id="e-type-fold"><div>
         <div class="seg" id="e-seg" data-i="0"><i></i><button data-act="eType" data-type="task" class="on">Aufgabe</button><button data-act="eType" data-type="idea">Idee</button></div>
       </div></div>

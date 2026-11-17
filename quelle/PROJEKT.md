@@ -17,12 +17,25 @@ Prinzip: Werkzeug, nicht Aufenthaltsort. Schnell rein, Kopf sortieren, wieder ra
 - test/: Playwright-Tests t1–t9, monkey.js (Zufallstest), gallery.js (Screenshots, 393x852). Testen den gebauten Repo-Root (oder MOMENTUM_DIR). t7 prüft, dass ein Update die Daten behält.
 - Wenn nur index.html vorliegt: sie ist selbst-enthalten und kann direkt bearbeitet werden.
 
-## Features (Stand 1.0.0)
+## Features (Stand 1.1.0)
 Tabs: Heute, Aufgaben, Ideen, Journal + zentrales "+" (Capture-Sheet). Einstellungen oben rechts auf Heute.
 Aufgaben (Wann Pflicht, Priorität, Thema), Gruppen Überfällig/Heute/Demnächst/Später, Swipe = erledigt + Rückgängig.
 Heute: max. 3 Tagesziele, "Tag planen", fällige Ideen ("Was wird daraus?": Angehen/Weiter parken/Verwerfen).
 Journal: ein Eintrag pro Tag, 3 Felder, Suche, "Morgen planen?".
 Themen: Klavier, Film/Foto, Sport (verwaltbar). Export/Import JSON.
+
+## Neu in 1.1 (17.11.2026)
+- Lichtlinie unter jeder Überschrift = Tagesbilanz: blau erledigt, matt offen, rot überfällig, Beschriftung „x/y erledigt · n überfällig“.
+  Lichtpunkt je Bereich an eigener Stelle (Heute links, Aufgaben 1/3, Ideen 2/3, Journal rechts), eigene Lichtfarbe
+  (Heute Eisblau, Aufgaben Violett, Ideen Bernstein, Journal Mint), atmet leicht, gleitet beim Tabwechsel.
+- Aufgaben-Tab: eigener Hologramm-Hintergrund (violettes Licht, feine Scanlinien). Ideen/Journal: leichte Tönung.
+- Kreise: Hoch eisblau leuchtend, Normal strahlend weiß, Niedrig gedämpft. Überfällig: rot, nach Prio abgestuft, Gruppe rot umrahmt.
+- Themenfarben neu (8 klar getrennte, kein Rot). Zeilen mit Thema farbig getönt + Farbstreifen links.
+- Ideen: Enter = neue Zeile, kein Zeichenlimit (Aufgaben weiter einzeilig, 280). Import kürzt nicht mehr.
+- Abhak-Licht (Canvas #fx): Ringe, Photonen, Blitz; stärker nach Prio; Tagesziel mit Schockwelle + Vibration; Überfällig rot → blau.
+- Start-Animation (#intro, ca. 0,55 s): Komet-Ring zeichnet sich und löst sich auf.
+- test/t10.js prüft das alles.
+
 Nicht bauen: Login, Cloud, Push, KI, Gamification, Statistik-Dashboards, Light Mode.
 
 ## Design

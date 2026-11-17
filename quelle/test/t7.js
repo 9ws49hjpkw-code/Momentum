@@ -7,7 +7,8 @@ const ok = (c, m) => { if (!c) { fails++; console.log('  ✗ ' + m); } else cons
   const V1 = L.APP, V2 = require('path').join(L.TMP, 'v2');
   fs.rmSync(V2, { recursive: true, force: true }); fs.cpSync(V1, V2, { recursive: true });
   const html = fs.readFileSync(path.join(V1, 'index.html'), 'utf8');
-  fs.writeFileSync(path.join(V2, 'index.html'), html.replace('content="1.0.0"', 'content="1.0.1"').replace("const VERSION = '1.0';", "const VERSION = '1.1';"));
+  const CUR = html.match(/const VERSION = '([\d.]+)';/)[1], NEXT = CUR.replace(/(\d+)$/, n => +n + 1);
+  fs.writeFileSync(path.join(V2, 'index.html'), html.replace(/content="(\d+\.\d+)\.(\d+)"/, (m, a, b) => 'content="' + a + '.' + (+b + 1) + '"').replace("const VERSION = '" + CUR + "';", "const VERSION = '" + NEXT + "';"));
 
   let { srv, url, state } = await L.serve(V1, 8766);
   const b = await L.launch(), c = await L.ctx(b), p = await c.newPage(), log = [], reqs = [];
@@ -65,7 +66,7 @@ const ok = (c, m) => { if (!c) { fails++; console.log('  ✗ ' + m); } else cons
   console.log('Update einspielen');
   ({ srv, url, state } = await L.serve(V2, 8766)); await W(200);
   await L.tap(p, '#v-today [data-act="settings"]'); await W(600);
-  ok((await texts('#settings-body .about b'))[0] === 'Momentum 1.0', 'läuft noch Version 1.0');
+  ok((await texts('#settings-body .about b'))[0] === 'Momentum ' + CUR, 'läuft noch Version ' + CUR);
   await L.tap(p, '#L-settings [data-act="closeTop"]'); await W(600);
   await p.evaluate(() => navigator.serviceWorker.controller.postMessage({ type: 'momentum-check' }));
   await p.waitForFunction(() => !!document.querySelector('#today-top .pill'), null, { timeout: 8000 });
@@ -74,7 +75,7 @@ const ok = (c, m) => { if (!c) { fails++; console.log('  ✗ ' + m); } else cons
   await Promise.all([p.waitForNavigation(), L.tap(p, '#today-top .pill')]);
   await p.waitForSelector('body.ready'); await L.decorate(p); await W(400);
   await L.tap(p, '#v-today [data-act="settings"]'); await W(600);
-  ok((await texts('#settings-body .about b'))[0] === 'Momentum 1.1', 'nach „Aktualisieren“ läuft die neue Version: ' + (await texts('#settings-body .about b'))[0]);
+  ok((await texts('#settings-body .about b'))[0] === 'Momentum ' + NEXT, 'nach „Aktualisieren“ läuft die neue Version: ' + (await texts('#settings-body .about b'))[0]);
   await L.tap(p, '#L-settings [data-act="closeTop"]'); await W(600);
   ok((await texts('#today .rw .row-title')).length === 2, 'Aufgaben haben das Update überlebt');
   await T('[data-tab="journal"]'); await W(300);
@@ -83,7 +84,7 @@ const ok = (c, m) => { if (!c) { fails++; console.log('  ✗ ' + m); } else cons
   await p.reload(); await p.waitForSelector('body.ready'); await W(300);
   await T('[data-tab="today"]').catch(() => {}); await W(200);
   await L.tap(p, '#v-today [data-act="settings"]'); await W(600);
-  ok((await texts('#settings-body .about b'))[0] === 'Momentum 1.1', 'neue Version läuft auch offline');
+  ok((await texts('#settings-body .about b'))[0] === 'Momentum ' + NEXT, 'neue Version läuft auch offline');
 
   console.log(log.length ? 'KONSOLE: ' + JSON.stringify(log, null, 1) : 'Konsole: keine Fehler');
   ok(log.length === 0, 'keine Konsolenfehler');

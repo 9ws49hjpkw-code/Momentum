@@ -1,9 +1,10 @@
 /* ===== Grundlagen ===== */
-const VERSION = '1.0';
+const VERSION = '1.1';
 const TZ = 'Europe/Berlin';
 const PARK_DAYS = 7;
 const MAX_GOALS = 3;
-const HUES = [195, 250, 160, 220, 272, 178, 236, 140];
+/* Gut unterscheidbare Farben; Rot bleibt für Überfälliges reserviert */
+const HUES = [195, 228, 272, 318, 28, 52, 96, 150];
 const root = document.documentElement;
 const mqReduce = window.matchMedia('(prefers-reduced-motion: reduce)');
 const mqCoarse = window.matchMedia('(pointer: coarse)');
@@ -227,7 +228,7 @@ function removeTopic(id) {
 }
 function seedTopics() {
   if (S.meta.seeded) return;
-  if (!S.topics.length) { addTopic('Klavier', 250); addTopic('Film/Foto', 195); addTopic('Sport', 160); }
+  if (!S.topics.length) { addTopic('Klavier', 272); addTopic('Film/Foto', 195); addTopic('Sport', 28); }
   setMeta('seeded', true);
 }
 
@@ -321,7 +322,7 @@ function normalizeImport(obj) {
   for (const t of arr('tasks')) {
     if (!t || !str(t.text).trim() || !validDay(t.due)) continue;
     const prio = [0, 1, 2].indexOf(+t.prio) >= 0 ? +t.prio : 1;
-    tasks.push({ id: fresh(t.id), text: str(t.text, 280).trim(), due: t.due, now: !!t.now, prio, topicId: topic(t.topicId), createdAt: +t.createdAt || Date.now(), done: !!t.done, doneAt: t.done ? (+t.doneAt || Date.now()) : null });
+    tasks.push({ id: fresh(t.id), text: str(t.text, 5000).trim(), due: t.due, now: !!t.now, prio, topicId: topic(t.topicId), createdAt: +t.createdAt || Date.now(), done: !!t.done, doneAt: t.done ? (+t.doneAt || Date.now()) : null });
   }
   const taskIds = new Set(tasks.map(t => t.id));
   const ideas = [];
@@ -329,7 +330,7 @@ function normalizeImport(obj) {
     if (!i || !str(i.text).trim()) continue;
     const createdAt = +i.createdAt || Date.now();
     const parkedOn = validDay(i.parkedOn) ? i.parkedOn : dayOf(createdAt);
-    ideas.push({ id: fresh(i.id), text: str(i.text, 280).trim(), topicId: topic(i.topicId), createdAt, parkedOn, reviewOn: validDay(i.reviewOn) ? i.reviewOn : addDays(parkedOn, PARK_DAYS) });
+    ideas.push({ id: fresh(i.id), text: str(i.text, 50000).trim(), topicId: topic(i.topicId), createdAt, parkedOn, reviewOn: validDay(i.reviewOn) ? i.reviewOn : addDays(parkedOn, PARK_DAYS) });
   }
   const journal = [], seenJ = new Set();
   for (const e of arr('journal')) {

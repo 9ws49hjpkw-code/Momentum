@@ -102,12 +102,55 @@ body.kb-open .inner{padding-bottom:32px}
 .hero{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
 .hero h1{font-size:36px;line-height:42px;padding-bottom:2px;font-weight:700;letter-spacing:-.026em;color:#F4FAFF;background:linear-gradient(176deg,#FFFFFF 34%,#BDEBFF 96%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .hero p{margin-top:0;font-size:17px;line-height:22px;color:var(--ink2)}
-.beam{position:relative;height:1px;margin:18px 0 24px;background:linear-gradient(90deg,rgba(120,224,255,.75),rgba(120,224,255,.16) 34%,rgba(120,224,255,0) 82%)}
-.beam::before{content:"";position:absolute;left:0;top:-1.5px;width:4px;height:4px;border-radius:50%;background:#D8F6FF;box-shadow:0 0 10px 2px rgba(98,217,255,.85)}
+/* Jeder Bereich hat seine Lichtfarbe (--tc) und seine Stelle auf der Linie (--pos). Blau bleibt die Grundfarbe. */
+#v-today{--tc:98,217,255;--tl:#BDEBFF;--pos:0}
+#v-tasks{--tc:150,132,255;--tl:#D6CEFF;--pos:.333}
+#v-ideas{--tc:255,190,98;--tl:#FFE2B5;--pos:.667}
+#v-journal{--tc:96,236,190;--tl:#BDF8E4;--pos:1}
+.hero h1{background-image:linear-gradient(176deg,#FFFFFF 34%,var(--tl) 96%)}
+
+/* Lichtlinie = Tagesbilanz: blau erledigt, matt offen, rot überfällig */
+.beam{position:relative;height:1px;margin:18px 0 24px;--a:0%;--o:0%;overflow-x:clip}
+.beam > i{position:absolute;display:block}
+.b-track{inset:0;background:linear-gradient(90deg,rgba(150,215,255,.16),rgba(150,215,255,.11) 70%,rgba(150,215,255,.05))}
+.b-done{left:0;top:0;height:1px;width:var(--a);background:linear-gradient(90deg,#9BE8FF,#62D9FF);box-shadow:0 0 6px rgba(98,217,255,.9),0 0 14px rgba(98,217,255,.4);transition:width .9s var(--ease)}
+.b-over{right:0;top:-.5px;height:2px;width:var(--o);border-radius:1px;background:linear-gradient(90deg,#FF7083,#FF3E56);box-shadow:0 0 7px rgba(255,62,86,.95),0 0 18px rgba(255,62,86,.45);transition:width .9s var(--ease)}
+.beam.calm .b-done,.beam.calm .b-over{width:0}
+.b-c{inset:0;pointer-events:none;transform:translateX(calc(var(--pos) * (100% - 4px)))}
+.b-light{position:absolute;top:-.5px;left:2px;width:260px;height:2px;margin-left:-130px;border-radius:2px;background:radial-gradient(50% 50% at 50% 50%,rgba(var(--tc),.95),rgba(var(--tc),.35) 45%,rgba(var(--tc),0) 100%);box-shadow:0 0 0 0 transparent}
+.b-light::after{content:"";position:absolute;left:25%;right:25%;top:-5px;bottom:-5px;border-radius:50%;background:radial-gradient(50% 50% at 50% 50%,rgba(var(--tc),.32),rgba(var(--tc),0));filter:blur(3px)}
+.b-dot{position:absolute;left:0;top:-1.5px;width:4px;height:4px;border-radius:50%;background:#fff;box-shadow:0 0 6px 1px rgba(var(--tc),1),0 0 14px 3px rgba(var(--tc),.55)}
+.b-cap{position:absolute;right:0;top:8px;font-size:12px;line-height:15px;font-weight:500;letter-spacing:.01em;color:var(--ink3);font-variant-numeric:tabular-nums;white-space:nowrap;transition:opacity .4s ease}
+.b-cap b{font-weight:600;color:var(--ice)}
+.b-cap em{font-style:normal;font-weight:600;color:#FF6B7D}
+.beam.calm .b-cap{opacity:0}
 body.ready .view.active .beam{animation:beam 1.1s cubic-bezier(.2,.8,.2,1) both}
-body.ready .view.active .beam::before{animation:spark 1.1s cubic-bezier(.2,.8,.2,1) both}
-@keyframes beam{from{clip-path:inset(-48px 100% -48px -48px)}to{clip-path:inset(-48px 0 -48px -48px)}}
-@keyframes spark{0%{transform:scale(.2);opacity:0}35%{transform:scale(1.7);opacity:1}100%{transform:scale(1);opacity:1}}
+body.ready .view.active .b-dot{animation:spark 1.1s cubic-bezier(.2,.8,.2,1) both,breathe 5.2s 1.1s ease-in-out infinite}
+body.ready .view.active .b-light{animation:sway 6.4s 1.1s ease-in-out infinite}
+body.ready .view.active .b-over{animation:redglow 2.6s ease-in-out infinite}
+@keyframes beam{
+  from{clip-path:inset(-48px calc((1 - var(--pos)) * 100% - 2px) -48px calc(var(--pos) * 100% - 2px))}
+  to{clip-path:inset(-48px -14px -48px -14px)}
+}
+@keyframes spark{0%{transform:scale(.2);opacity:0}35%{transform:scale(1.8);opacity:1}100%{transform:scale(1);opacity:1}}
+@keyframes breathe{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.35);opacity:.85}}
+@keyframes sway{0%,100%{transform:translateX(0) scaleX(1);opacity:.9}30%{transform:translateX(9px) scaleX(1.12);opacity:1}65%{transform:translateX(-7px) scaleX(.9);opacity:.72}}
+@keyframes redglow{0%,100%{opacity:1}50%{opacity:.62}}
+
+/* Hintergrund je Bereich: Aufgaben bekommt ein eigenes Hologramm */
+.vbg{position:absolute;inset:0;z-index:0;pointer-events:none}
+.view > .scroll{z-index:1}
+#v-tasks .vbg{
+  background:
+    radial-gradient(80% 40% at 104% 2%,rgba(132,112,255,.22) 0%,rgba(132,112,255,.06) 50%,transparent 76%),
+    radial-gradient(60% 30% at -6% 30%,rgba(70,140,255,.08),transparent 70%),
+    repeating-linear-gradient(0deg,rgba(176,166,255,.05) 0 1px,transparent 1px 5px);
+  -webkit-mask-image:linear-gradient(180deg,#000 0%,rgba(0,0,0,.6) 32%,rgba(0,0,0,.12) 60%,transparent 85%);
+  mask-image:linear-gradient(180deg,#000 0%,rgba(0,0,0,.6) 32%,rgba(0,0,0,.12) 60%,transparent 85%);
+}
+#v-tasks .vbg::before{content:"";position:absolute;width:420px;height:420px;right:-250px;top:-170px;border-radius:50%;border:1px solid rgba(170,156,255,.12);box-shadow:inset 0 0 40px rgba(132,112,255,.05)}
+#v-ideas .vbg{background:radial-gradient(70% 34% at 92% 6%,rgba(255,176,80,.11),transparent 72%),radial-gradient(60% 26% at 0% 60%,rgba(255,190,98,.04),transparent 70%)}
+#v-journal .vbg{background:radial-gradient(76% 34% at 96% 4%,rgba(80,230,180,.10),transparent 72%)}
 .icon-btn{
   width:44px;height:44px;flex:none;border-radius:50%;display:grid;place-items:center;color:var(--ink2);
   background:rgba(200,230,255,.06);border:.5px solid var(--edge);
@@ -134,7 +177,7 @@ body.ready .view.active .beam::before{animation:spark 1.1s cubic-bezier(.2,.8,.2
 .sec-h{display:flex;align-items:baseline;gap:8px;margin:0 4px 10px;font-size:15px;line-height:20px;font-weight:600;color:var(--ink2)}
 .sec-h .n{font-weight:400;color:var(--ink3);font-variant-numeric:tabular-nums}
 .sec-h.now-h{color:var(--ice)}
-.sec-h.over-h{color:var(--warn)}
+.sec-h.over-h{color:#FF6B7D}
 .group{overflow:hidden}
 .rw{position:relative;overflow:hidden;touch-action:pan-y}
 .rw + .rw::before{content:"";position:absolute;left:58px;right:0;top:0;height:.5px;background:rgba(190,226,255,.11);z-index:2}
@@ -154,8 +197,18 @@ body.ready .view.active .beam::before{animation:spark 1.1s cubic-bezier(.2,.8,.2
 }
 .check svg{width:15px;height:15px;stroke:#04131C;stroke-width:2.4;stroke-dasharray:20;stroke-dashoffset:20;transition:stroke-dashoffset .3s .06s var(--ease)}
 .check:active i{transform:scale(.86)}
+/* Kreise nach Priorität: Hoch eisblau leuchtend, Normal strahlend weiß, Niedrig zurückhaltend */
 .p2 .check i{border-color:var(--cyan);box-shadow:0 0 10px rgba(98,217,255,.4),inset 0 0 7px rgba(98,217,255,.22)}
-.p0 .check i{border-color:rgba(214,234,250,.22)}
+.p1 .check i{border-color:rgba(255,255,255,.94);box-shadow:0 0 7px rgba(255,255,255,.3),inset 0 0 5px rgba(255,255,255,.12)}
+.p0 .check i{border-color:rgba(214,234,250,.4)}
+/* Überfällig: rot, nach Priorität abgestuft */
+.od:not(.is-done) .check i{border-color:#FF5A6E;box-shadow:0 0 8px rgba(255,74,96,.45),inset 0 0 6px rgba(255,74,96,.18)}
+.od.p2:not(.is-done) .check i{border-width:2px;border-color:#FF3B55;box-shadow:0 0 14px rgba(255,52,80,.8),0 0 3px rgba(255,52,80,.95),inset 0 0 9px rgba(255,52,80,.38);animation:alarm 2.2s ease-in-out infinite}
+.od.p0:not(.is-done) .check i{border-color:rgba(255,112,128,.5);box-shadow:none}
+@keyframes alarm{0%,100%{box-shadow:0 0 14px rgba(255,52,80,.8),0 0 3px rgba(255,52,80,.95),inset 0 0 9px rgba(255,52,80,.38)}50%{box-shadow:0 0 22px rgba(255,52,80,.95),0 0 5px rgba(255,52,80,1),inset 0 0 11px rgba(255,52,80,.5)}}
+.od .row-meta .hot{color:#FF8494;font-weight:600}
+.group.over-g{border-color:rgba(255,84,104,.5);background:linear-gradient(180deg,rgba(255,70,92,.09),rgba(255,70,92,.03));box-shadow:inset 0 .5px 0 rgba(255,170,180,.14),0 0 22px rgba(255,60,84,.13),0 14px 34px rgba(0,0,0,.3)}
+.group.over-g .rw + .rw::before{background:rgba(255,150,165,.13)}
 .is-done .check i{background:linear-gradient(160deg,#D2F5FF,#5FD6FF);border-color:#9BE7FF;box-shadow:0 0 16px var(--glow)}
 .is-done .check svg{stroke-dashoffset:0}
 .pop .check i::after{
@@ -170,12 +223,20 @@ body.ready .view.active .beam::before{animation:spark 1.1s cubic-bezier(.2,.8,.2
   transition:color .3s ease;
 }
 .p0 .row-title{color:var(--ink2)}
+.rw.flat .row-title,.idea-text{white-space:pre-line}
 .is-done .row-title{color:var(--ink3);text-decoration:line-through;text-decoration-color:rgba(98,217,255,.45)}
 .row-meta{display:flex;flex-wrap:wrap;align-items:center;column-gap:12px;font-size:13px;line-height:18px;color:var(--ink3)}
-.row-meta .over{color:var(--warn)}
+.row-meta .over{color:#FF6B7D}
 .row-meta .hot{color:var(--cyan)}
 .tp{display:inline-flex;align-items:center;gap:6px}
 .dot{width:7px;height:7px;flex:none;border-radius:50%;background:hsl(var(--h) 88% 74%);box-shadow:0 0 7px hsl(var(--h) 92% 66% / .7)}
+/* Zeilen mit Thema tragen dessen Farbe */
+.tp-on .row{background:linear-gradient(90deg,hsl(var(--h) 85% 62% / .16),hsl(var(--h) 85% 62% / .06) 55%,hsl(var(--h) 85% 62% / .025))}
+.tp-on .row::before{content:"";position:absolute;left:0;top:9px;bottom:9px;width:3px;border-radius:0 3px 3px 0;background:hsl(var(--h) 90% 72%);box-shadow:0 0 9px hsl(var(--h) 95% 62% / .75)}
+.tp-on.is-done .row{background:linear-gradient(90deg,hsl(var(--h) 85% 62% / .07),transparent 60%)}
+.tp-on.is-done .row::before{opacity:.45}
+.tp-on .tp{color:hsl(var(--h) 70% 82%)}
+.idea-card.tp-on{background:linear-gradient(100deg,hsl(var(--h) 85% 62% / .15),hsl(var(--h) 85% 62% / .04) 60%,rgba(200,230,255,.03));border-color:hsl(var(--h) 85% 70% / .3)}
 .row-chev{flex:none;align-self:center;margin-right:12px;width:18px;height:18px;color:var(--ink4)}
 /* Neu angelegtes leuchtet einmal kurz auf */
 .rw.fresh{animation:fresh 1.4s ease-out .12s both}
@@ -296,6 +357,9 @@ body.kb-open #tabbar{opacity:0;pointer-events:none;transform:translateX(-50%) tr
 .tab:active{transform:scale(.9)}
 .tab.on{color:var(--ice)}
 .tab.on .ic{filter:drop-shadow(0 0 7px rgba(98,217,255,.55))}
+.tab[data-tab="tasks"].on{color:#D6CEFF}.tab[data-tab="tasks"].on .ic{filter:drop-shadow(0 0 7px rgba(150,132,255,.6))}
+.tab[data-tab="ideas"].on{color:#FFE2B5}.tab[data-tab="ideas"].on .ic{filter:drop-shadow(0 0 7px rgba(255,190,98,.55))}
+.tab[data-tab="journal"].on{color:#BDF8E4}.tab[data-tab="journal"].on .ic{filter:drop-shadow(0 0 7px rgba(96,236,190,.55))}
 #plus{
   position:relative;justify-self:center;width:54px;height:54px;border-radius:50%;display:grid;place-items:center;color:#03131C;
   background:radial-gradient(circle at 34% 26%,#E6FAFF 0%,#8FE4FF 38%,#3EC2F3 100%);
@@ -348,6 +412,7 @@ body.kb-open .sheet-foot{padding-bottom:16px}
 .e-text.grow::after{max-height:84px;overflow:hidden}
 .e-text.grow > textarea{max-height:84px;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none}
 .e-text.grow > textarea::-webkit-scrollbar{display:none}
+.e-text.multi.grow::after,.e-text.multi.grow > textarea{max-height:140px}
 .seg{position:relative;display:grid;grid-template-columns:1fr 1fr;height:50px;padding:2px;border-radius:25px;background:rgba(200,230,255,.055);border:.5px solid var(--edge)}
 .seg button{position:relative;z-index:1;min-height:44px;border-radius:23px;text-align:center;font-size:15px;font-weight:600;color:var(--ink3);transition:color .25s ease}
 .seg button.on{color:var(--ink)}
@@ -481,6 +546,31 @@ body.kb-open .e-secondary{display:none}
 .notice.center{align-items:center;padding:8px 8px 8px 18px;font-size:15px}
 .notice .pill{flex:none;padding:0 16px}
 
+/* Licht beim Abhaken */
+#fx{position:fixed;inset:0;width:100%;height:100%;z-index:30;pointer-events:none}
+.quake{animation:quake .42s cubic-bezier(.36,.07,.19,.97)}
+@keyframes quake{10%,90%{transform:translate3d(-1px,0,0)}20%,80%{transform:translate3d(2px,0,0)}30%,50%,70%{transform:translate3d(-3px,1px,0)}40%,60%{transform:translate3d(3px,-1px,0)}}
+.goals.quake{box-shadow:inset 0 .5px 0 rgba(255,255,255,.2),0 18px 44px rgba(0,0,0,.36),0 0 54px rgba(70,190,255,.32)}
+
+/* Start: Ring zeichnet sich, löst sich auf, App erscheint (ca. 0,55 s) */
+#intro{position:fixed;inset:0;z-index:95;display:grid;place-items:center;pointer-events:none}
+#intro svg{width:120px;height:120px;overflow:visible;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.in-ring{stroke:#7FE0FF;stroke-width:2.4;stroke-dasharray:189;stroke-dashoffset:189;filter:drop-shadow(0 0 6px rgba(98,217,255,.8));transform-origin:60px 60px;transform:rotate(-100deg)}
+.in-hud{stroke:rgba(150,228,255,.42);stroke-width:1;stroke-dasharray:3 9 40 14 2 10 60 16;transform-origin:60px 60px;opacity:0}
+.in-check{stroke:#DDF8FF;stroke-width:2.6;stroke-dasharray:44;stroke-dashoffset:44;filter:drop-shadow(0 0 5px rgba(98,217,255,.9))}
+body:not(.ready) .in-ring{stroke-dashoffset:120;opacity:.5}
+body.ready #intro svg{animation:in-out .3s .3s cubic-bezier(.4,0,.2,1) both}
+body.ready .in-ring{animation:in-ring .3s cubic-bezier(.3,.8,.3,1) both}
+body.ready .in-hud{animation:in-hud .6s cubic-bezier(.2,.8,.2,1) both}
+body.ready .in-check{animation:in-check .2s .14s cubic-bezier(.3,.8,.3,1) both}
+@keyframes in-ring{to{stroke-dashoffset:0;opacity:1}}
+@keyframes in-hud{0%{opacity:0;transform:rotate(-40deg) scale(.86)}40%{opacity:1}100%{opacity:0;transform:rotate(70deg) scale(1.3)}}
+@keyframes in-check{to{stroke-dashoffset:0}}
+@keyframes in-out{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.9);filter:blur(2px)}}
+body.intro .view.active .beam,body.intro .view.active .b-dot{animation-delay:.3s}
+body.ready.intro #app{transition-delay:.26s;transition-duration:var(--spring-d),.34s}
+body.intro:not(.ready) #app{transform:scale(.975)}
+
 /* Start-Fehler */
 #fatal{position:fixed;inset:0;z-index:99;display:grid;place-items:center;padding:40px;text-align:center;background:var(--bg)}
 #fatal h1{font-size:24px;line-height:30px;margin-bottom:10px}
@@ -499,6 +589,7 @@ body.kb-open .e-secondary{display:none}
 @media (max-height:700px){
   .e-text{font-size:19px;line-height:26px;margin-bottom:8px}
   .e-text.grow::after,.e-text.grow > textarea{max-height:52px}
+  .e-text.multi.grow::after,.e-text.multi.grow > textarea{max-height:104px}
   .frow{padding-top:6px}
   .e-actions{padding-top:12px}
   .empty{padding-top:30px}
@@ -511,4 +602,5 @@ body.kb-open .e-secondary{display:none}
   .sheet,.dialog,.view,body.layered #app{transform:none!important}
   #toast{transform:translate3d(-50%,0,0)!important}
   .sheet-pos{transition:none!important}
+  #intro{display:none}
 }

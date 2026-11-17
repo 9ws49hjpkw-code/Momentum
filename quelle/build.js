@@ -1,7 +1,7 @@
 // Baut index.html aus den Quelldateien und legt alles flach in ../momentum
 const fs = require('fs'), path = require('path');
 const SRC = path.join(__dirname, 'src'), OUT = path.join(__dirname, '..');
-const BUILD = '1.0.0';
+const BUILD = '1.1.0';
 const read = f => fs.readFileSync(path.join(SRC, f), 'utf8');
 
 function spring(k, c, steps) {
@@ -56,7 +56,7 @@ const html = `<!DOCTYPE html>
 ${css}
 </style>
 </head>
-<body>
+<body class="intro">
 ${read('body.html')}
 <noscript><div id="fatal"><div><h1>JavaScript fehlt</h1><p>Momentum braucht JavaScript. Bitte in den Safari-Einstellungen aktivieren.</p></div></div></noscript>
 <script>

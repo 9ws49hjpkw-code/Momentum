@@ -30,9 +30,11 @@ function taskMeta(t, group) {
   if (tp) m.push(tp);
   return m;
 }
+/* Farbe des Themas für die ganze Zeile */
+function tpVars(id) { const t = id && topicById(id); return t ? { '--h': t.hue } : null; }
 function taskRow(t, group) {
-  const meta = taskMeta(t, group);
-  return h('div.rw', { class: 'p' + t.prio + (t.done ? ' is-done' : '') + (ui.fresh === t.id ? ' fresh' : ''), data: { id: t.id, swipe: t.done ? null : '1' } },
+  const meta = taskMeta(t, group), tv = tpVars(t.topicId);
+  return h('div.rw', { class: 'p' + t.prio + (t.done ? ' is-done' : '') + (group === 'over' ? ' od' : '') + (tv ? ' tp-on' : '') + (ui.fresh === t.id ? ' fresh' : ''), vars: tv, data: { id: t.id, swipe: t.done ? null : '1' } },
     h('div.rw-under', null, ic('check')),
     h('div.row', null,
       h('button.check', { type: 'button', 'aria-label': t.done ? 'Wieder öffnen' : 'Erledigen', data: { act: 'check', id: t.id } }, checkMark()),
@@ -43,7 +45,7 @@ function taskRow(t, group) {
 function taskSection(title, list, group, cls) {
   return h('section.sec', null,
     h('h2.sec-h', { class: cls }, title, h('span.n', null, list.length)),
-    h('div.group.glass', null, list.map(t => taskRow(t, group))));
+    h('div.group.glass', { class: group === 'over' ? 'over-g' : '' }, list.map(t => taskRow(t, group))));
 }
 
 /* ----- Heute ----- */
@@ -69,7 +71,8 @@ function tomorrowHint(day) {
     ic('chevR'));
 }
 function ideaCard(i) {
-  return h('article.glass.idea-card', { data: { id: i.id } },
+  const tv = tpVars(i.topicId);
+  return h('article.glass.idea-card', { class: tv ? 'tp-on' : '', vars: tv, data: { id: i.id } },
     h('div.idea-meta', null, ic('tIdeas'), h('span', null, 'Idee vom ' + plainDate(i.parkedOn)), topicTag(i.topicId)),
     h('p.idea-text', null, i.text),
     h('div.idea-actions', null,
@@ -88,6 +91,7 @@ function updateCard() {
     btn('.pill.go', 'reload', {}, 'Aktualisieren'));
 }
 function renderToday() {
+  renderBeams();
   const day = today();
   const goals = liveGoals(day);
   const inGoals = new Set(goals.filter(g => g.taskId).map(g => g.taskId));
@@ -163,7 +167,8 @@ function renderIdeas() {
     list.length
       ? h('div.group.glass', null, list.map(i => {
         const due = ideaDue(i, day);
-        return h('div.rw.flat', { class: ui.fresh === i.id ? 'fresh' : '' }, h('button.row', { type: 'button', data: { act: 'ideaOpen', id: i.id } },
+        const tv = tpVars(i.topicId);
+        return h('div.rw.flat', { class: (ui.fresh === i.id ? 'fresh' : '') + (tv ? ' tp-on' : ''), vars: tv }, h('button.row', { type: 'button', data: { act: 'ideaOpen', id: i.id } },
           h('span.row-main', null,
             h('span.row-title', null, i.text),
             h('span.row-meta', null,
@@ -285,6 +290,11 @@ function syncEntry() {
   $('#e-seg').dataset.i = isTask ? '0' : '1';
   for (const b of $$('#e-seg button')) b.classList.toggle('on', b.dataset.type === E.type);
   $('#e-task-fold').classList.toggle('off', !isTask);
+  /* Ideen: mehrere Zeilen, kein Limit. Aufgaben: eine Zeile, Enter speichert. */
+  const ta = eText();
+  if (isTask) { ta.setAttribute('maxlength', '280'); ta.setAttribute('enterkeyhint', 'done'); }
+  else { ta.removeAttribute('maxlength'); ta.setAttribute('enterkeyhint', 'enter'); }
+  $('#e-grow').classList.toggle('multi', !isTask);
   for (const b of $$('#e-when [data-when]')) b.classList.toggle('on', b.dataset.when === E.when);
   $('#e-date-chip').classList.toggle('on', E.when === 'date');
   $('#e-date-label').textContent = E.when === 'date' && E.date ? shortDate(E.date) : 'Datum';
@@ -329,6 +339,7 @@ function openEntry(o) {
   }
   sec.hidden = !sec.children.length;
   const ta = eText();
+  if (E.type === 'task') text = text.replace(/\s*\n+\s*/g, ' ');
   ta.value = text;
   $('#e-grow').dataset.v = text;
   const dateEl = $('#e-date');
@@ -357,8 +368,11 @@ function savedMsg(due, now) {
   if (d === 1) return 'Für morgen gespeichert';
   return 'Gespeichert für ' + shortDate(due);
 }
+/* Aufgaben bleiben einzeilig, Ideen behalten ihre Absätze */
+const oneLine = v => v.replace(/\s+/g, ' ').trim();
+const multiLine = v => v.replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
 function saveEntry() {
-  const text = eText().value.replace(/\s+/g, ' ').trim();
+  const text = E.type === 'task' ? oneLine(eText().value) : multiLine(eText().value);
   if (!text) { nudge($('#e-grow')); return; }
   if (E.type === 'task' && !entryValid()) { nudge($('#e-when-row')); return; }
   const topicId = E.topicId && topicById(E.topicId) ? E.topicId : null;
@@ -549,6 +563,34 @@ async function importFile(f) {
   toast('Daten importiert');
 }
 
+/* ----- Lichtlinie: Bilanz des Tages ----- */
+function balance() {
+  const day = today();
+  let done = 0, open = 0, over = 0;
+  for (const t of S.tasks.values()) {
+    if (t.done) { if (t.due <= day && t.doneAt && dayOf(t.doneAt) === day) done++; }
+    else if (t.due < day) over++;
+    else if (t.due === day) open++;
+  }
+  for (const g of liveGoals(day)) if (!g.taskId) { if (g.done) done++; else open++; }
+  return { done, open, over, total: done + open + over };
+}
+function renderBeams() {
+  const b = balance();
+  const pct = n => (b.total ? Math.round(n / b.total * 1000) / 10 : 0) + '%';
+  const cap = () => {
+    if (!b.total) return [];
+    if (!b.open && !b.over) return [h('b', null, 'Alles erledigt')];
+    return [h('b', null, b.done + '/' + b.total), ' erledigt', b.over ? [' · ', h('em', null, b.over + ' überfällig')] : null];
+  };
+  for (const el of $$('.beam')) {
+    el.style.setProperty('--a', pct(b.done));
+    el.style.setProperty('--o', pct(b.over));
+    el.classList.toggle('calm', !b.total);
+    fill($('.b-cap', el), cap());
+  }
+}
+
 /* ----- Alles zeichnen ----- */
 function renderAll() {
   renderToday();
@@ -570,6 +612,15 @@ function collapseRow(w) {
   const only = g && g.classList.contains('group') && g.children.length === 1;
   return collapse(only ? (g.closest('.sec') || g) : w);
 }
+/* Der Lichtpunkt gleitet von der Stelle des alten Bereichs zur neuen */
+const BEAM_POS = { today: 0, tasks: 1 / 3, ideas: 2 / 3, journal: 1 };
+function glideBeam(from, to) {
+  if (reduced()) return;
+  const c = $('#v-' + to + ' .b-c'), beam = c && c.parentElement;
+  if (!c || !c.animate || !beam.offsetWidth) return;
+  const w = beam.offsetWidth - 4, x = p => Math.round(BEAM_POS[p] * w) + 'px';
+  try { c.animate([{ transform: 'translateX(' + x(from) + ')' }, { transform: 'translateX(' + x(to) + ')' }], { duration: 620, easing: 'cubic-bezier(.22,1,.36,1)' }); } catch (e) {}
+}
 function go(name) {
   if (ui.tab === name) {
     const sc = $('#v-' + name + ' .scroll');
@@ -578,7 +629,9 @@ function go(name) {
   }
   const a = document.activeElement;
   if (a && a.blur && isField(a)) a.blur();
+  const from = ui.tab;
   ui.tab = name;
   for (const v of $$('.view')) v.classList.toggle('active', v.id === 'v-' + name);
+  glideBeam(from, name);
   for (const b of $$('.tab')) { const on = b.dataset.tab === name; b.classList.toggle('on', on); b.setAttribute('aria-current', on ? 'page' : 'false'); }
 }
