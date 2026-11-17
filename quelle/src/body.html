@@ -1,0 +1,166 @@
+<div id="ambient" aria-hidden="true"></div>
+
+<div id="app">
+  <main>
+    <section class="view active" id="v-today" aria-label="Heute"><div class="scroll"><div class="inner">
+      <div id="today-top"></div>
+      <header class="hero"><div><h1 id="today-title"></h1><p id="today-sub"></p></div><button class="icon-btn" data-act="settings" aria-label="Einstellungen"><span class="ic" data-ic="sliders"></span></button></header>
+      <div class="beam"></div>
+      <div id="today"></div>
+    </div></div></section>
+    <section class="view" id="v-tasks" aria-label="Aufgaben"><div class="scroll"><div class="inner">
+      <header class="hero"><div><h1>Aufgaben</h1><p id="tasks-sub"></p></div></header>
+      <div class="beam"></div>
+      <div id="tasks"></div>
+    </div></div></section>
+    <section class="view" id="v-ideas" aria-label="Ideen"><div class="scroll"><div class="inner">
+      <header class="hero"><div><h1>Ideen</h1><p id="ideas-sub"></p></div></header>
+      <div class="beam"></div>
+      <div id="ideas"></div>
+    </div></div></section>
+    <section class="view" id="v-journal" aria-label="Journal"><div class="scroll"><div class="inner">
+      <header class="hero"><div><h1>Journal</h1><p id="j-date"></p></div></header>
+      <div class="beam"></div>
+      <div class="glass jcard" id="j-editor"></div>
+      <div class="jbar"><span class="jstate" id="j-state"></span><button class="btn btn-primary" id="j-save" data-act="jSave" aria-disabled="true">Speichern</button></div>
+      <section class="sec" id="j-past">
+        <h2 class="sec-h">Frühere Einträge</h2>
+        <div class="search"><span class="ic" data-ic="search"></span><input id="j-search" type="text" inputmode="search" enterkeyhint="search" placeholder="Suchen" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="Einträge durchsuchen"><button id="j-clear" data-act="jClear" aria-label="Suche leeren" hidden><span class="ic" data-ic="close"></span></button></div>
+        <div class="jlist" id="j-list"></div>
+      </section>
+    </div></div></section>
+  </main>
+
+  <nav id="tabbar" aria-label="Bereiche">
+    <button class="tab on" data-act="tab" data-tab="today"><span class="ic" data-ic="tToday"></span>Heute</button>
+    <button class="tab" data-act="tab" data-tab="tasks"><span class="ic" data-ic="tTasks"></span>Aufgaben</button>
+    <button id="plus" data-act="plus" aria-label="Erfassen"><span class="ic" data-ic="plus"></span></button>
+    <button class="tab" data-act="tab" data-tab="ideas"><span class="ic" data-ic="tIdeas"></span>Ideen</button>
+    <button class="tab" data-act="tab" data-tab="journal"><span class="ic" data-ic="tJournal"></span>Journal</button>
+  </nav>
+</div>
+
+<!-- Erfassen und Bearbeiten -->
+<div class="layer" id="L-entry" hidden>
+  <div class="backdrop"></div>
+  <div class="sheet-pos"><section class="sheet" role="dialog" aria-modal="true" aria-label="Erfassen">
+    <div class="grab" data-drag></div>
+    <div class="sheet-head" id="e-head" data-drag hidden><h2 id="e-title"></h2><button class="icon-btn" data-act="closeTop" aria-label="Schließen"><span class="ic" data-ic="close"></span></button></div>
+    <div class="sheet-body">
+      <div class="grow e-text" id="e-grow"><textarea id="e-text" rows="1" maxlength="280" placeholder="Was geht dir durch den Kopf?" enterkeyhint="done" autocapitalize="sentences" autocomplete="off" aria-label="Text"></textarea></div>
+      <div class="fold" id="e-type-fold"><div>
+        <div class="seg" id="e-seg" data-i="0"><i></i><button data-act="eType" data-type="task" class="on">Aufgabe</button><button data-act="eType" data-type="idea">Idee</button></div>
+      </div></div>
+      <div class="fold" id="e-task-fold"><div>
+        <div class="frow" id="e-when-row"><span class="ic" data-ic="clock"></span><div class="chips" id="e-when">
+          <button class="chip" data-act="eWhen" data-when="now">Jetzt</button>
+          <button class="chip" data-act="eWhen" data-when="today">Heute</button>
+          <button class="chip" data-act="eWhen" data-when="tomorrow">Morgen</button>
+          <label class="chip chip-date" id="e-date-chip"><span id="e-date-label">Datum</span><input type="date" id="e-date" aria-label="Datum wählen"></label>
+        </div></div>
+        <div class="frow"><span class="ic" data-ic="flag"></span><div class="chips" id="e-prio">
+          <button class="chip" data-act="ePrio" data-prio="2">Hoch</button>
+          <button class="chip" data-act="ePrio" data-prio="1">Normal</button>
+          <button class="chip" data-act="ePrio" data-prio="0">Niedrig</button>
+        </div></div>
+      </div></div>
+      <div class="fold" id="e-topic-fold"><div>
+        <div class="frow"><span class="ic" data-ic="tag"></span><div class="chips" id="e-topics"></div></div>
+      </div></div>
+      <p class="e-note" id="e-note" hidden></p>
+      <div class="e-actions">
+        <button class="btn btn-primary" id="e-save" data-act="eSave" aria-disabled="true">Speichern</button>
+        <div class="e-secondary" id="e-secondary" hidden></div>
+      </div>
+    </div>
+  </section></div>
+</div>
+
+<!-- Tag planen -->
+<div class="layer" id="L-plan" hidden>
+  <div class="backdrop"></div>
+  <div class="sheet-pos"><section class="sheet tall" role="dialog" aria-modal="true" aria-label="Tag planen">
+    <div class="grab" data-drag></div>
+    <div class="sheet-head" data-drag><h2>Tag planen</h2><button class="icon-btn" data-act="closeTop" aria-label="Schließen"><span class="ic" data-ic="close"></span></button></div>
+    <div class="sheet-body">
+      <div class="seg" id="plan-seg" data-i="0"><i></i><button data-act="planDay" data-day="today" class="on">Heute</button><button data-act="planDay" data-day="tomorrow">Morgen</button></div>
+      <p class="plan-date" id="plan-date"></p>
+      <div class="glass holo slots" id="plan-slots"></div>
+      <div class="addfree" id="plan-add"><input id="plan-input" type="text" maxlength="140" placeholder="Eigenes Ziel" enterkeyhint="done" autocapitalize="sentences" autocomplete="off" aria-label="Eigenes Ziel"><button data-act="planAdd" id="plan-add-btn" aria-label="Ziel hinzufügen" aria-disabled="true"><span class="ic" data-ic="plus"></span></button></div>
+      <div class="sec"><h3 class="sec-h">Aus deinen Aufgaben</h3><div id="plan-tasks"></div></div>
+    </div>
+    <div class="sheet-foot"><button class="btn btn-primary" data-act="closeTop">Fertig</button></div>
+  </section></div>
+</div>
+
+<!-- Einstellungen -->
+<div class="layer" id="L-settings" hidden>
+  <div class="backdrop"></div>
+  <div class="sheet-pos"><section class="sheet tall" role="dialog" aria-modal="true" aria-label="Einstellungen">
+    <div class="grab" data-drag></div>
+    <div class="sheet-head" data-drag><h2>Einstellungen</h2><button class="icon-btn" data-act="closeTop" aria-label="Schließen"><span class="ic" data-ic="close"></span></button></div>
+    <div class="sheet-body" id="settings-body"></div>
+  </section></div>
+  <input class="visually-hidden" type="file" id="import-file" accept=".json,.txt,application/json,text/plain" tabindex="-1" aria-hidden="true">
+</div>
+
+<!-- Thema -->
+<div class="layer" id="L-topic" hidden>
+  <div class="backdrop"></div>
+  <div class="sheet-pos"><section class="sheet" role="dialog" aria-modal="true" aria-label="Thema">
+    <div class="grab" data-drag></div>
+    <div class="sheet-head" data-drag><h2 id="topic-title">Thema</h2><button class="icon-btn" data-act="closeTop" aria-label="Schließen"><span class="ic" data-ic="close"></span></button></div>
+    <div class="sheet-body">
+      <div class="field" id="topic-field"><input id="topic-name" type="text" maxlength="24" placeholder="Name" enterkeyhint="done" autocapitalize="words" autocomplete="off" aria-label="Name des Themas"></div>
+      <div class="hues" id="topic-hues"></div>
+      <div class="e-actions">
+        <button class="btn btn-primary" id="topic-save" data-act="topicSave">Speichern</button>
+        <button class="btn btn-danger sm" id="topic-del" data-act="topicDelete">Thema löschen</button>
+      </div>
+    </div>
+  </section></div>
+</div>
+
+<!-- Früherer Journal-Eintrag -->
+<div class="layer" id="L-jentry" hidden>
+  <div class="backdrop"></div>
+  <div class="sheet-pos"><section class="sheet tall jsheet" role="dialog" aria-modal="true" aria-label="Journal-Eintrag">
+    <div class="grab" data-drag></div>
+    <div class="sheet-head" data-drag><h2 id="je-title"></h2><button class="icon-btn" data-act="closeTop" aria-label="Schließen"><span class="ic" data-ic="close"></span></button></div>
+    <div class="sheet-body">
+      <div id="je-editor"></div>
+      <button class="btn btn-danger sm" data-act="jeDelete">Eintrag löschen</button>
+    </div>
+    <div class="sheet-foot"><button class="btn btn-primary" data-act="closeTop">Fertig</button></div>
+  </section></div>
+</div>
+
+<!-- Angebot nach dem Journal -->
+<div class="layer" id="L-offer" hidden>
+  <div class="backdrop"></div>
+  <div class="sheet-pos"><section class="sheet" role="dialog" aria-modal="true" aria-label="Morgen planen">
+    <div class="grab" data-drag></div>
+    <div class="sheet-body">
+      <div class="offer">
+        <div class="empty-ic"><span class="ic" data-ic="check"></span></div>
+        <h2>Gespeichert</h2>
+        <p id="offer-text">Morgen planen?</p>
+      </div>
+      <button class="btn btn-primary" data-act="offerPlan" id="offer-go">Morgen planen</button>
+      <button class="btn btn-plain sm" data-act="closeTop">Später</button>
+    </div>
+  </section></div>
+</div>
+
+<!-- Dialog -->
+<div class="layer center" id="L-dialog" hidden>
+  <div class="backdrop"></div>
+  <div class="dialog" role="alertdialog" aria-modal="true">
+    <h2 id="dlg-title"></h2>
+    <p id="dlg-text"></p>
+    <button class="btn" id="dlg-ok" data-act="dlgOk"></button>
+    <button class="btn btn-plain" id="dlg-cancel" data-act="dlgCancel"></button>
+  </div>
+</div>
+
+<div id="toast" role="status" aria-live="polite"></div>

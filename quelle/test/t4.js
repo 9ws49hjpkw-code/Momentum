@@ -1,0 +1,116 @@
+// Tag planen + Ideen mit simuliertem Datum
+const { start, ok } = require('./common');
+(async () => {
+  const t = await start({ time: '2026-11-16T10:00:00+01:00' });
+  const { p, T, W, texts, shot, L } = t;
+  await t.seed();
+
+  console.log('Tag planen');
+  await T('#today [data-act="plan"]'); await W(700); await shot('30-planen-leer');
+  ok((await texts('#plan-date'))[0].includes('Montag, 16. November'), 'Planen für heute: ' + (await texts('#plan-date'))[0]);
+  await T('#plan-tasks .pick', 0); await W(200);
+  await T('#plan-tasks .pick', 2); await W(200);
+  await T('#plan-input'); await W(500); await p.keyboard.type('30 Minuten ohne Handy lesen'); await W(300); await shot('31-planen-tastatur');
+  await p.keyboard.press('Enter'); await W(500);
+  ok((await texts('#plan-slots .slot:not(.free) .slot-t')).length === 3, 'drei Ziele gewählt: ' + (await texts('#plan-slots .slot-t')).join(' / '));
+  ok((await texts('#plan-date .count'))[0] === '3 von 3', 'Zähler 3 von 3');
+  await shot('32-planen-voll');
+  await T('#plan-tasks .pick.dim', 0); await W(300);
+  ok((await texts('#plan-slots .slot:not(.free) .slot-t')).length === 3, 'viertes Ziel aus Aufgaben wird abgewiesen');
+  ok((await t.toastText()).includes('Mehr als drei'), 'Hinweis: ' + (await t.toastText()));
+  await shot('33-planen-maximum');
+  ok(await p.evaluate(() => document.querySelector('#plan-input').readOnly), 'Freitext-Feld ist gesperrt, wenn drei stehen');
+  await p.evaluate(() => { const i = document.querySelector('#plan-input'); i.readOnly = false; i.value = 'Viertes Ziel'; i.dispatchEvent(new Event('input')); });
+  await T('#plan-add-btn'); await W(300);
+  ok((await texts('#plan-slots .slot:not(.free) .slot-t')).length === 3, 'auch erzwungen sind nicht mehr als drei möglich');
+  await W(2300);
+  await T('#L-plan .sheet-foot .btn'); await W(700);
+  const goals = await texts('#today .goal .goal-text');
+  ok(goals.length === 3, 'Heute zeigt 3 Tagesziele: ' + goals.join(' / '));
+  const listed = await texts('#today .rw .row-title');
+  ok(!listed.some(x => goals.includes(x)), 'Ziel-Aufgaben stehen nicht doppelt in der Liste darunter');
+  await shot('34-heute-mit-zielen');
+  await T('#today .goal .check', 2); await W(700); await shot('35-ziel-erledigt');
+  ok((await p.$$('#today .goal.is-done')).length === 1, 'freies Ziel abgehakt');
+  await T('#today .goal .check', 0); await W(600);
+  await T('[data-tab="tasks"]'); await W(400);
+  ok(!(await texts('#tasks .rw[data-swipe] .row-title')).includes(goals[0]), 'Ziel-Aufgabe abgehakt = Aufgabe erledigt');
+  await T('[data-tab="today"]'); await W(400);
+  await T('#today .goal .check', 0); await W(400);
+  ok((await p.$$('#today .goal.is-done')).length === 1, 'Ziel wieder geöffnet');
+
+  console.log('Für morgen planen');
+  await T('#today .goals-head [data-act="plan"]'); await W(600);
+  await T('#plan-seg [data-day="tomorrow"]'); await W(450);
+  ok((await texts('#plan-date'))[0].includes('Dienstag, 17. November'), 'Morgen = ' + (await texts('#plan-date'))[0]);
+  ok((await texts('#plan-slots .slot:not(.free)')).length === 0, 'morgen ist noch leer');
+  await T('#plan-tasks .pick', 3); await W(250); await shot('36-planen-morgen');
+  await T('#L-plan [data-act="closeTop"]'); await W(700);
+  ok((await texts('#today .hint-row'))[0].includes('Morgen: 1 Ziel geplant'), 'Hinweis auf Heute: ' + (await texts('#today .hint-row'))[0]);
+  await shot('37-heute-morgen-hinweis');
+
+  console.log('Tageswechsel um Mitternacht');
+  await t.jump('2026-11-16T23:59:57+01:00');
+  ok((await texts('#v-today .hero h1'))[0] === 'Montag', '23:59:57 ist noch Montag');
+  await p.clock.setSystemTime(new Date('2026-11-17T00:00:01+01:00'));
+  await p.evaluate(() => window.dispatchEvent(new Event('focus'))); await W(300);
+  ok((await texts('#v-today .hero h1'))[0] === 'Dienstag', '00:00:01 ist Dienstag');
+  const g2 = await texts('#today .goal .goal-text');
+  ok(g2.length === 1, 'der Plan von gestern Abend ist jetzt der Tagesplan: ' + g2.join(' / '));
+  const heads = await texts('#today .sec-h');
+  ok(heads.some(x => x.startsWith('Überfällig')), 'Unerledigtes von gestern ist überfällig: ' + heads.join(' | '));
+  await shot('38-dienstag-ueberfaellig');
+  await T('[data-tab="tasks"]'); await W(400); await shot('39-aufgaben-ueberfaellig');
+  await T('[data-tab="today"]'); await W(300);
+
+  console.log('Ideen: 7 Tage später');
+  await T('[data-tab="ideas"]'); await W(400);
+  ok((await texts('#ideas .row-meta'))[0].includes('noch 6 Tage'), 'Idee wartet: ' + (await texts('#ideas .row-meta'))[0]);
+  await t.jump('2026-11-22T12:00:00+01:00');
+  await T('[data-tab="today"]'); await W(300);
+  ok((await p.$$('#today .idea-card')).length === 0, 'nach 6 Tagen (22.11.) noch keine Karte');
+  await t.jump('2026-11-23T08:00:00+01:00');
+  ok((await p.$$('#today .idea-card')).length === 2, 'nach 7 Tagen (23.11.) erscheinen beide Ideen auf Heute');
+  await shot('40-ideen-faellig');
+  ok((await texts('#today .idea-card .pill')).slice(0, 3).join('|') === 'Angehen|Weiter parken|Verwerfen', 'drei Buttons: Angehen, Weiter parken, Verwerfen');
+  const fits = await p.$$eval('#today .idea-card .pill', b => b.map(x => x.scrollWidth <= x.clientWidth + 1 && x.getBoundingClientRect().height >= 44));
+  ok(fits.every(Boolean), 'Buttons passen in eine Zeile und sind 44 px hoch');
+  // Weiter parken
+  await T('#today .idea-card [data-act="ideaPark"]', 0); await W(900);
+  ok((await p.$$('#today .idea-card')).length === 1, '„Weiter parken“ nimmt die Karte weg');
+  ok((await t.toastText()).includes('Geparkt bis 30. Nov.'), 'geparkt für weitere 7 Tage: ' + (await t.toastText()));
+  // Angehen
+  await T('#today .idea-card [data-act="ideaGo"]', 0); await W(700); await shot('41-idee-angehen');
+  ok((await texts('#e-title'))[0] === 'Idee angehen', 'Sheet „Idee angehen“');
+  await T('#e-save'); await W(300);
+  ok(await p.evaluate(() => document.querySelector('#L-entry').classList.contains('open')), 'ohne „Wann“ geht es nicht weiter');
+  await T('#e-when [data-when="today"]'); await W(150); await T('#e-save'); await W(700);
+  ok((await p.$$('#today .idea-card')).length === 0, 'Karte weg');
+  const now = await texts('#today .rw .row-title');
+  ok(now.includes('Jeden Morgen zehn Minuten dehnen') || now.includes('Kurzfilm über einen Tag am Hafen drehen'), 'aus der Idee wurde eine Aufgabe für heute');
+  await T('[data-tab="ideas"]'); await W(400);
+  ok((await texts('#ideas .row-title')).length === 1, 'in Ideen bleibt nur die weiter geparkte');
+  await shot('42-ideen-liste');
+  // Verwerfen nach erneuter Fälligkeit
+  await t.jump('2026-11-30T09:00:00+01:00');
+  await T('[data-tab="today"]'); await W(300);
+  ok((await p.$$('#today .idea-card')).length === 1, 'weiter geparkte Idee meldet sich am 30.11. wieder');
+  await T('#today .idea-card [data-act="ideaDrop"]'); await W(900);
+  ok((await p.$$('#today .idea-card')).length === 0 && (await t.toastText()).includes('verworfen'), 'Verwerfen entfernt die Idee');
+  await T('#toast button'); await W(400);
+  ok((await p.$$('#today .idea-card')).length === 1, 'Rückgängig holt sie zurück');
+  await T('#today .idea-card [data-act="ideaDrop"]'); await W(900);
+  await T('[data-tab="ideas"]'); await W(400); await shot('43-ideen-leer');
+  ok((await texts('#ideas .empty h3'))[0] === 'Noch nichts geparkt', 'Leer-Zustand Ideen');
+
+  console.log('Idee in der Liste öffnen');
+  await t.capture('Stop-Motion mit dem Klavier ausprobieren', { idea: true, topic: 0 });
+  await T('#ideas .rw .row'); await W(700); await shot('44-idee-bearbeiten');
+  ok((await texts('#e-title'))[0] === 'Idee', 'Idee-Sheet');
+  ok((await texts('#e-note'))[0].includes('Geparkt am 30. November'), 'zeigt Park-Datum: ' + (await texts('#e-note'))[0]);
+  await T('[data-act="eGo"]'); await W(500);
+  ok((await texts('#e-title'))[0] === 'Idee angehen', 'Angehen direkt aus der Liste');
+  await T('#e-when [data-when="tomorrow"]'); await T('#e-save'); await W(700);
+  ok((await texts('#ideas .empty h3')).length === 1, 'Idee ist jetzt Aufgabe');
+  await t.end();
+})().catch(e => { console.error('FAIL', e); process.exit(1); });

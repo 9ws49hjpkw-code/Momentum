@@ -1,0 +1,30 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+html,body{margin:0;background:#04070C;overflow:hidden}
+.tile{position:relative;width:512px;height:512px;transform-origin:0 0;overflow:hidden;
+  background:radial-gradient(120% 120% at 26% 12%,#13304A 0%,#0A1826 38%,#050A12 72%,#03060B 100%)}
+.aura{position:absolute;left:20px;top:22px;width:472px;height:472px;border-radius:50%;
+  background:radial-gradient(circle,rgba(60,198,245,.30) 0%,rgba(60,198,245,.08) 58%,rgba(60,198,245,0) 72%)}
+.orbit{position:absolute;left:69px;top:71px;width:374px;height:374px;border-radius:50%;box-sizing:border-box;border:2px solid rgba(143,229,255,.10)}
+.ring{position:absolute;left:106px;top:108px;width:300px;height:300px;border-radius:50%;
+  background:conic-gradient(from 76deg,rgba(54,187,239,0) 0deg,rgba(54,187,239,.16) 50deg,rgba(72,203,247,.5) 130deg,rgba(130,226,255,.86) 220deg,#EAFBFF 310deg,rgba(234,251,255,0) 310.2deg);
+  -webkit-mask:radial-gradient(circle,transparent 118.2px,#000 119px,#000 137px,transparent 137.8px);mask:radial-gradient(circle,transparent 118.2px,#000 119px,#000 137px,transparent 137.8px)}
+.cap{position:absolute;left:302.6px;top:133.5px;width:19px;height:19px;border-radius:50%;background:#EAFBFF}
+.glow{filter:blur(15px);opacity:.75}
+.glow.ring{background:conic-gradient(from 76deg,rgba(54,187,239,0) 0deg,rgba(54,187,239,.2) 60deg,rgba(72,203,247,.75) 180deg,#48CBF7 310deg,rgba(72,203,247,0) 312deg);
+  -webkit-mask:radial-gradient(circle,transparent 114px,#000 119px,#000 137px,transparent 142px);mask:radial-gradient(circle,transparent 114px,#000 119px,#000 137px,transparent 142px);filter:blur(13px);opacity:.9}
+svg{position:absolute;left:0;top:0;width:512px;height:512px}
+</style></head><body>
+<div class="tile" id="tile">
+  <div class="aura"></div>
+  <div class="orbit"></div>
+  <div class="ring glow"></div>
+  <div class="ring"></div>
+  <div class="cap"></div>
+  <svg viewBox="0 0 512 512"><defs>
+    <linearGradient id="ice" x1="20%" y1="100%" x2="90%" y2="0%"><stop offset="0" stop-color="#7FDFFF"/><stop offset=".55" stop-color="#C9F3FF"/><stop offset="1" stop-color="#FFFFFF"/></linearGradient>
+    <filter id="g" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="14"/></filter></defs>
+    <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M196 262l44 44L368 160" stroke="#48CBF7" stroke-width="22" opacity=".8" filter="url(#g)"/>
+      <path d="M196 262l44 44L368 160" stroke="url(#ice)" stroke-width="19"/>
+    </g></svg>
+</div></body></html>
