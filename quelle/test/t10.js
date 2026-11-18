@@ -64,7 +64,7 @@ const { start, ok } = require('./common');
   await T('#e-save'); await W(700);
   const saved = await p.evaluate(() => Array.from(document.querySelectorAll('#ideas .row-title')).map(e => e.textContent));
   ok(saved.some(s => s.indexOf('Erste Zeile der Idee\nZweite Zeile') === 0), 'Absatz bleibt gespeichert');
-  await p.reload(); await p.waitForSelector('body.ready'); await t.L.decorate(p); await W(400);
+  await p.reload(); await p.waitForSelector('body.live'); await t.L.decorate(p); await W(400);
   await T('[data-tab="ideas"]'); await W(500);
   const after = await p.evaluate(() => Array.from(document.querySelectorAll('#ideas .row-title')).map(e => e.textContent));
   ok(after.some(s => s.length > 400 && s.indexOf('\n') > 0), 'Lange Idee übersteht Neuladen');

@@ -78,7 +78,7 @@ const { start, ok } = require('./common');
   console.log('   ' + all.join('\n   '));
 
   console.log('Neu laden');
-  await p.reload(); await p.waitForSelector('body.ready'); await L.decorate(p); await W(400);
+  await p.reload(); await p.waitForSelector('body.live'); await L.decorate(p); await W(400);
   await T('[data-tab="tasks"]'); await W(400);
   ok((await texts('#tasks .rw[data-swipe] .row-title')).length === 8, 'nach Neuladen sind alle 8 Aufgaben da');
   await t.end();

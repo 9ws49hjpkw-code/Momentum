@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  Momentum 1.1.0 · eine einzige Datei, keine Abhängigkeiten.
+  Momentum 1.1.1 · eine einzige Datei, keine Abhängigkeiten.
 
   Für spätere Updates (damit keine Daten verloren gehen):
   - Daten liegen in IndexedDB "momentum", Version 1. Stores: tasks, ideas, topics (Schlüssel id),
@@ -16,7 +16,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Momentum</title>
-<meta name="momentum-build" content="1.1.0">
+<meta name="momentum-build" content="1.1.1">
 <meta name="description" content="Aufgaben, Ideen und Journal. Schnell rein, Kopf sortiert, wieder raus.">
 <meta name="theme-color" content="#04070C">
 <meta name="color-scheme" content="dark">
@@ -155,8 +155,8 @@ body.kb-open .inner{padding-bottom:32px}
 .b-cap b{font-weight:600;color:var(--ice)}
 .b-cap em{font-style:normal;font-weight:600;color:#FF6B7D}
 .beam.calm .b-cap{opacity:0}
-body.ready .view.active .beam{animation:beam 1.1s cubic-bezier(.2,.8,.2,1) both}
-body.ready .view.active .b-dot{animation:spark 1.1s cubic-bezier(.2,.8,.2,1) both,breathe 5.2s 1.1s ease-in-out infinite}
+body.ready:not(.intro) .view.active .beam,body.enter .view.active .beam{animation:beam 1.1s cubic-bezier(.2,.8,.2,1) both}
+body.ready:not(.intro) .view.active .b-dot,body.enter .view.active .b-dot{animation:spark 1.1s cubic-bezier(.2,.8,.2,1) both,breathe 5.2s 1.1s ease-in-out infinite}
 body.ready .view.active .b-light{animation:sway 6.4s 1.1s ease-in-out infinite}
 body.ready .view.active .b-over{animation:redglow 2.6s ease-in-out infinite}
 @keyframes beam{
@@ -232,10 +232,14 @@ body.ready .view.active .b-over{animation:redglow 2.6s ease-in-out infinite}
 .p2 .check i{border-color:var(--cyan);box-shadow:0 0 10px rgba(98,217,255,.4),inset 0 0 7px rgba(98,217,255,.22)}
 .p1 .check i{border-color:rgba(255,255,255,.94);box-shadow:0 0 7px rgba(255,255,255,.3),inset 0 0 5px rgba(255,255,255,.12)}
 .p0 .check i{border-color:rgba(214,234,250,.4)}
-/* Überfällig: rot, nach Priorität abgestuft */
-.od:not(.is-done) .check i{border-color:#FF5A6E;box-shadow:0 0 8px rgba(255,74,96,.45),inset 0 0 6px rgba(255,74,96,.18)}
+/* Überfällig: rot, klar gestuft. Ziel > Hoch > Normal > Niedrig */
+.od:not(.is-done) .check i{border-color:#FF6676;box-shadow:0 0 6px rgba(255,90,110,.28)}
 .od.p2:not(.is-done) .check i{border-width:2px;border-color:#FF3B55;box-shadow:0 0 14px rgba(255,52,80,.8),0 0 3px rgba(255,52,80,.95),inset 0 0 9px rgba(255,52,80,.38);animation:alarm 2.2s ease-in-out infinite}
-.od.p0:not(.is-done) .check i{border-color:rgba(255,112,128,.5);box-shadow:none}
+.od.p0:not(.is-done) .check i{border-color:rgba(255,120,136,.42);box-shadow:none}
+.od.p0 .row-title{color:rgba(240,214,220,.6)}
+.od.p2:not(.is-done) .row-title{font-weight:600;color:#FFF3F5}
+.od.p2:not(.tp-on):not(.is-done) .row{background:linear-gradient(90deg,rgba(255,52,80,.16),rgba(255,52,80,.04) 60%,transparent)}
+.od.p2:not(.tp-on):not(.is-done) .row::before{content:"";position:absolute;left:0;top:9px;bottom:9px;width:3px;border-radius:0 3px 3px 0;background:#FF4D66;box-shadow:0 0 10px rgba(255,52,80,.9)}
 @keyframes alarm{0%,100%{box-shadow:0 0 14px rgba(255,52,80,.8),0 0 3px rgba(255,52,80,.95),inset 0 0 9px rgba(255,52,80,.38)}50%{box-shadow:0 0 22px rgba(255,52,80,.95),0 0 5px rgba(255,52,80,1),inset 0 0 11px rgba(255,52,80,.5)}}
 .od .row-meta .hot{color:#FF8494;font-weight:600}
 .group.over-g{border-color:rgba(255,84,104,.5);background:linear-gradient(180deg,rgba(255,70,92,.09),rgba(255,70,92,.03));box-shadow:inset 0 .5px 0 rgba(255,170,180,.14),0 0 22px rgba(255,60,84,.13),0 14px 34px rgba(0,0,0,.3)}
@@ -293,6 +297,32 @@ body.ready .view.active .b-over{animation:redglow 2.6s ease-in-out infinite}
 .goal.is-done .goal-text{color:var(--ink3);text-decoration:line-through;text-decoration-color:rgba(98,217,255,.45)}
 .goals-empty{padding:2px 0 12px}
 .goals-empty p{font-size:19px;line-height:26px;font-weight:500;letter-spacing:-.014em;color:var(--ink);margin-bottom:16px}
+/* Überfällige Tagesziele: oberste Stufe. Eigenes Feld, stärkstes Rot, doppelter Ring. */
+.ogoals{position:relative;margin-top:12px;padding:4px 18px 6px;border-radius:24px;
+  background:linear-gradient(165deg,rgba(255,52,84,.2),rgba(255,52,84,.06) 55%,rgba(255,80,150,.1));
+  box-shadow:inset 0 .5px 0 rgba(255,200,210,.18),0 0 34px rgba(255,40,72,.2),0 16px 40px rgba(0,0,0,.36);
+  animation:og-glow 2.8s ease-in-out infinite}
+.ogoals::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;pointer-events:none;
+  background:linear-gradient(140deg,rgba(255,120,140,.95),rgba(255,80,100,.16) 30%,rgba(255,60,120,.08) 62%,rgba(255,110,170,.6));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+.ogoals > *{position:relative;z-index:1}
+.sec > .ogoals{margin-top:0}
+@keyframes og-glow{0%,100%{box-shadow:inset 0 .5px 0 rgba(255,200,210,.18),0 0 30px rgba(255,40,72,.16),0 16px 40px rgba(0,0,0,.36)}50%{box-shadow:inset 0 .5px 0 rgba(255,200,210,.24),0 0 44px rgba(255,40,72,.32),0 16px 40px rgba(0,0,0,.36)}}
+.ogoals-head{display:flex;align-items:baseline;gap:8px;min-height:40px;padding-top:12px}
+.ogoals-head h2{font-size:15px;line-height:20px;font-weight:700;color:#FF7486;letter-spacing:.01em}
+.ogoals-head .n{font-size:15px;color:rgba(255,150,165,.7);font-variant-numeric:tabular-nums}
+.og + .og{border-top-color:rgba(255,150,165,.14)}
+.og .check{flex:0 0 46px}
+.og:not(.is-done) .check i{width:26px;height:26px;border-width:3px;border-color:#FF2D55;
+  box-shadow:0 0 0 3.5px rgba(255,45,85,.16),0 0 18px rgba(255,40,80,.9),0 0 4px rgba(255,40,80,1),inset 0 0 10px rgba(255,40,80,.45);animation:og-alarm 1.8s ease-in-out infinite}
+@keyframes og-alarm{0%,100%{box-shadow:0 0 0 3.5px rgba(255,45,85,.16),0 0 18px rgba(255,40,80,.9),0 0 4px rgba(255,40,80,1),inset 0 0 10px rgba(255,40,80,.45)}50%{box-shadow:0 0 0 6px rgba(255,45,85,.1),0 0 28px rgba(255,40,80,1),0 0 6px rgba(255,40,80,1),inset 0 0 12px rgba(255,40,80,.6)}}
+.og .goal-text{display:flex;flex-direction:column;gap:2px;padding:11px 0}
+.og-t{font-size:18px;line-height:24px;font-weight:600;color:#FFF4F6;letter-spacing:-.012em}
+.og-meta{font-size:13px;line-height:18px;font-weight:500;color:#FF8798}
+.og.is-done .og-t{color:var(--ink3);text-decoration:line-through;text-decoration-color:rgba(98,217,255,.45)}
+.og.is-done .og-meta{color:var(--ink3)}
+.ogoals.quake{animation:quake .6s cubic-bezier(.36,.07,.19,.97)}
+.btn-plain.danger-t{color:#FF8A95}
 .hint-row{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;min-height:48px;margin-top:10px;padding:0 6px 0 18px;border-radius:18px;font-size:15px;color:var(--ink2);background:rgba(200,230,255,.035);border:.5px solid rgba(170,228,255,.1)}
 .hint-row b{font-weight:600;color:var(--ice)}
 .hint-row .ic{width:18px;height:18px;margin-right:6px;color:var(--ink3)}
@@ -583,24 +613,77 @@ body.kb-open .e-secondary{display:none}
 @keyframes quake{10%,90%{transform:translate3d(-1px,0,0)}20%,80%{transform:translate3d(2px,0,0)}30%,50%,70%{transform:translate3d(-3px,1px,0)}40%,60%{transform:translate3d(3px,-1px,0)}}
 .goals.quake{box-shadow:inset 0 .5px 0 rgba(255,255,255,.2),0 18px 44px rgba(0,0,0,.36),0 0 54px rgba(70,190,255,.32)}
 
-/* Start: Ring zeichnet sich, löst sich auf, App erscheint (ca. 0,55 s) */
-#intro{position:fixed;inset:0;z-index:95;display:grid;place-items:center;pointer-events:none}
-#intro svg{width:120px;height:120px;overflow:visible;fill:none;stroke-linecap:round;stroke-linejoin:round}
-.in-ring{stroke:#7FE0FF;stroke-width:2.4;stroke-dasharray:189;stroke-dashoffset:189;filter:drop-shadow(0 0 6px rgba(98,217,255,.8));transform-origin:60px 60px;transform:rotate(-100deg)}
-.in-hud{stroke:rgba(150,228,255,.42);stroke-width:1;stroke-dasharray:3 9 40 14 2 10 60 16;transform-origin:60px 60px;opacity:0}
-.in-check{stroke:#DDF8FF;stroke-width:2.6;stroke-dasharray:44;stroke-dashoffset:44;filter:drop-shadow(0 0 5px rgba(98,217,255,.9))}
-body:not(.ready) .in-ring{stroke-dashoffset:120;opacity:.5}
-body.ready #intro svg{animation:in-out .3s .3s cubic-bezier(.4,0,.2,1) both}
-body.ready .in-ring{animation:in-ring .3s cubic-bezier(.3,.8,.3,1) both}
-body.ready .in-hud{animation:in-hud .6s cubic-bezier(.2,.8,.2,1) both}
-body.ready .in-check{animation:in-check .2s .14s cubic-bezier(.3,.8,.3,1) both}
-@keyframes in-ring{to{stroke-dashoffset:0;opacity:1}}
-@keyframes in-hud{0%{opacity:0;transform:rotate(-40deg) scale(.86)}40%{opacity:1}100%{opacity:0;transform:rotate(70deg) scale(1.3)}}
-@keyframes in-check{to{stroke-dashoffset:0}}
-@keyframes in-out{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.9);filter:blur(2px)}}
-body.intro .view.active .beam,body.intro .view.active .b-dot{animation-delay:.3s}
-body.ready.intro #app{transition-delay:.26s;transition-duration:var(--spring-d),.34s}
-body.intro:not(.ready) #app{transform:scale(.975)}
+/* Start: HUD baut sich auf, Komet-Ring zeichnet sich, Haken fliegt in zwei Teilen ein und rastet ein,
+   Licht umrundet den Bildschirmrand, dann gleitet die App herein (ca. 1,5 s, Tippen überspringt) */
+#intro{position:fixed;inset:0;z-index:95;display:grid;place-items:center;pointer-events:auto;overflow:hidden;
+  background:radial-gradient(70% 42% at 50% 46%,rgba(36,140,210,.16),rgba(36,140,210,0) 70%)}
+.in-box{display:flex;flex-direction:column;align-items:center;margin-top:-6vh}
+#intro svg{width:220px;height:220px;overflow:visible;fill:none;stroke-linecap:round;stroke-linejoin:round}
+#intro svg *{transform-box:view-box;transform-origin:110px 110px}
+.in-cross{stroke:rgba(150,228,255,.4);stroke-width:.8;opacity:0}
+.in-h1{stroke:rgba(150,228,255,.42);stroke-width:4;stroke-linecap:butt;stroke-dasharray:.9 3.34;opacity:0}
+.in-h2{stroke:rgba(150,228,255,.5);stroke-width:1.1;stroke-dasharray:62 10 14 10 4 12 96 18 2 16 40 10;opacity:0}
+.in-h3{stroke:rgba(170,160,255,.5);stroke-width:1.2;stroke-dasharray:120 181.6;opacity:0}
+.in-br{stroke:#BDEFFF;stroke-width:1.6;opacity:0;filter:drop-shadow(0 0 4px rgba(98,217,255,.8))}
+.in-ring{stroke:#7FE0FF;stroke-width:3;stroke-dasharray:230.3 400;stroke-dashoffset:230.3;transform:rotate(-200deg);filter:drop-shadow(0 0 7px rgba(98,217,255,.85))}
+.in-head{opacity:0;transform:rotate(-200deg)}
+.in-head circle{fill:#fff;filter:drop-shadow(0 0 4px #fff) drop-shadow(0 0 10px rgba(98,217,255,1))}
+.in-c1,.in-c2{stroke:#E4FAFF;stroke-width:3.4;opacity:0;filter:drop-shadow(0 0 6px rgba(98,217,255,.95));transform-origin:104.4px 124px!important}
+.in-pulse{stroke:#BDEFFF;stroke-width:2;opacity:0}
+.in-word{margin-top:18px;font-size:13px;line-height:16px;font-weight:300;letter-spacing:.9em;text-indent:.9em;color:#CDEFFF;opacity:0;text-shadow:0 0 12px rgba(98,217,255,.8)}
+.in-hello{margin-top:10px;min-height:20px;font-size:15px;line-height:20px;font-weight:500;color:var(--ink2);opacity:0}
+.in-scan{position:absolute;left:0;right:0;top:0;height:2px;opacity:0;background:linear-gradient(90deg,rgba(98,217,255,0),rgba(150,232,255,.75) 50%,rgba(98,217,255,0));box-shadow:0 0 18px rgba(98,217,255,.6)}
+.in-scan::after{content:"";position:absolute;left:0;right:0;bottom:2px;height:70px;background:linear-gradient(0deg,rgba(98,217,255,.08),rgba(98,217,255,0))}
+
+body.go .in-cross{animation:in-cross 1.25s cubic-bezier(.2,.8,.2,1) both}
+body.go .in-h1{animation:in-h1 .7s .05s cubic-bezier(.2,.8,.2,1) both}
+body.go .in-h2{animation:in-h2 .8s .1s cubic-bezier(.2,.8,.2,1) both}
+body.go .in-h3{animation:in-fade .4s .12s ease both,in-spin 2.6s .12s linear infinite}
+body.go .in-ring{animation:in-ring .58s .08s cubic-bezier(.3,.7,.25,1) both}
+body.go .in-head{animation:in-head .58s .08s cubic-bezier(.3,.7,.25,1) both}
+body.go .in-c1{animation:in-c1 .26s .5s cubic-bezier(.3,1.4,.5,1) both}
+body.go .in-c2{animation:in-c2 .28s .58s cubic-bezier(.3,1.4,.5,1) both}
+body.go .in-br{animation:in-br .34s .6s cubic-bezier(.3,1.5,.5,1) both}
+body.go .in-pulse{animation:in-pulse .6s .84s cubic-bezier(.2,.8,.2,1) both}
+body.go .in-word{animation:in-word .7s .72s cubic-bezier(.2,.8,.2,1) both}
+body.go .in-hello{animation:in-hello .5s .92s cubic-bezier(.2,.8,.2,1) both}
+body.go .in-scan{animation:in-scan 1s .05s cubic-bezier(.5,0,.3,1) both}
+@keyframes in-cross{0%{opacity:0;transform:scale(.7)}35%{opacity:1}70%{opacity:1;transform:scale(1)}100%{opacity:.25;transform:scale(1.02)}}
+@keyframes in-h1{0%{opacity:0;transform:rotate(-70deg) scale(.82)}100%{opacity:1;transform:rotate(0) scale(1)}}
+@keyframes in-h2{0%{opacity:0;transform:rotate(120deg) scale(.7)}100%{opacity:1;transform:rotate(0) scale(1)}}
+@keyframes in-fade{from{opacity:0}to{opacity:1}}
+@keyframes in-spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+@keyframes in-ring{0%{stroke-dashoffset:230.3;transform:rotate(-200deg);opacity:.4}100%{stroke-dashoffset:0;transform:rotate(-17deg);opacity:1}}
+@keyframes in-head{0%{transform:rotate(-200deg);opacity:0}15%{opacity:1}85%{opacity:1}100%{transform:rotate(297deg);opacity:0}}
+@keyframes in-c1{0%{opacity:0;transform:translate(-46px,34px) rotate(-55deg) scale(.6)}100%{opacity:1;transform:none}}
+@keyframes in-c2{0%{opacity:0;transform:translate(42px,-48px) rotate(40deg) scale(.6)}100%{opacity:1;transform:none}}
+@keyframes in-br{0%{opacity:0;transform:scale(1.6) rotate(12deg)}60%{opacity:1}100%{opacity:.85;transform:scale(1) rotate(0)}}
+@keyframes in-pulse{0%{opacity:0;transform:scale(1);stroke-width:3}2%{opacity:.95;transform:scale(1.02);stroke-width:3}100%{opacity:0;transform:scale(2.1);stroke-width:.5}}
+@keyframes in-word{0%{opacity:0;letter-spacing:1.6em;text-indent:1.6em;filter:blur(4px)}100%{opacity:1;letter-spacing:.62em;text-indent:.62em;filter:none}}
+@keyframes in-hello{0%{opacity:0;transform:translateY(8px)}100%{opacity:1;transform:none}}
+@keyframes in-scan{0%{opacity:0;transform:translateY(0)}15%{opacity:1}85%{opacity:1}100%{opacity:0;transform:translateY(100vh)}}
+/* Auftritt der App */
+body.enter #intro{pointer-events:none;background:transparent;transition:background .4s ease}
+body.enter .in-box{animation:in-out .46s cubic-bezier(.5,0,.75,0) both}
+@keyframes in-out{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.65);filter:blur(3px)}}
+body.intro:not(.enter) #app{opacity:0;transform:scale(.94)}
+body.enter #app{transition-duration:.9s,.5s;transition-delay:.12s}
+body.enter .view.active .hero,body.enter #today > *,body.enter #tasks > *,body.enter #ideas > *{animation:rise .6s cubic-bezier(.2,.9,.25,1) both}
+body.enter #today > :nth-child(1),body.enter #tasks > :nth-child(1){animation-delay:.18s}
+body.enter #today > :nth-child(2),body.enter #tasks > :nth-child(2){animation-delay:.24s}
+body.enter #today > :nth-child(3),body.enter #tasks > :nth-child(3){animation-delay:.3s}
+body.enter #today > :nth-child(4),body.enter #tasks > :nth-child(4){animation-delay:.36s}
+body.enter #today > :nth-child(n+5),body.enter #tasks > :nth-child(n+5){animation-delay:.42s}
+body.enter .view.active .hero{animation-delay:.1s}
+@keyframes rise{0%{opacity:0;transform:translate3d(0,18px,0)}100%{opacity:1;transform:none}}
+/* Lichtlinie: beim Start fegt das Licht einmal über die ganze Breite und kehrt an seine Stelle zurück */
+body.enter .view.active .b-c{animation:b-sweep 1.5s .2s cubic-bezier(.55,0,.25,1) both}
+body.enter .view.active .b-light{animation:b-flare 1.5s .2s ease-in-out both}
+@keyframes b-sweep{0%{transform:translateX(calc(var(--pos) * (100% - 4px)))}52%{transform:translateX(calc((1 - var(--pos)) * (100% - 4px)))}100%{transform:translateX(calc(var(--pos) * (100% - 4px)))}}
+@keyframes b-flare{0%,100%{transform:scaleX(1);opacity:.9}30%,70%{transform:scaleX(1.8);opacity:1}}
+body.enter .view.active .beam::after{content:"";position:absolute;left:0;right:0;top:-1px;height:3px;border-radius:2px;pointer-events:none;
+  background:linear-gradient(90deg,rgba(var(--tc),0),rgba(var(--tc),.75) 50%,rgba(var(--tc),0));filter:blur(1px);animation:b-glint 1.5s .2s ease-out both}
+@keyframes b-glint{0%{opacity:0}35%{opacity:.9}100%{opacity:0}}
 
 /* Start-Fehler */
 #fatal{position:fixed;inset:0;z-index:99;display:grid;place-items:center;padding:40px;text-align:center;background:var(--bg)}
@@ -640,7 +723,21 @@ body.intro:not(.ready) #app{transform:scale(.975)}
 </head>
 <body class="intro">
 <div id="ambient" aria-hidden="true"></div>
-<div id="intro" aria-hidden="true"><svg viewBox="0 0 120 120"><circle class="in-hud" cx="60" cy="60" r="50"/><circle class="in-ring" cx="60" cy="60" r="30"/><path class="in-check" d="M47 61l9 9 19-21"/></svg></div>
+<div id="intro" aria-hidden="true"><div class="in-scan"></div><div class="in-box">
+<svg viewBox="0 0 220 220">
+<g class="in-cross"><path d="M4 110H50M170 110H216M110 4V50M110 170V216"/></g>
+<circle class="in-h3" cx="110" cy="110" r="96"/>
+<circle class="in-h1" cx="110" cy="110" r="81"/>
+<circle class="in-h2" cx="110" cy="110" r="67"/>
+<g class="in-br"><path d="M46 64V46H64M156 46H174V64M174 156V174H156M64 174H46V156"/></g>
+<circle class="in-ring" cx="110" cy="110" r="42"/>
+<g class="in-head"><circle cx="152" cy="110" r="2.8"/></g>
+<path class="in-c1" d="M92 111.4L104.4 124"/>
+<path class="in-c2" d="M104.4 124L131 94.6"/>
+<circle class="in-pulse" cx="110" cy="110" r="42"/>
+</svg>
+<div class="in-word">MOMENTUM</div><div class="in-hello" id="in-hello"></div>
+</div></div>
 
 <div id="app">
   <main>
@@ -801,6 +898,7 @@ body.intro:not(.ready) #app{transform:scale(.975)}
     <h2 id="dlg-title"></h2>
     <p id="dlg-text"></p>
     <button class="btn" id="dlg-ok" data-act="dlgOk"></button>
+    <button class="btn btn-plain danger-t" id="dlg-alt" data-act="dlgAlt" hidden></button>
     <button class="btn btn-plain" id="dlg-cancel" data-act="dlgCancel"></button>
   </div>
 </div>
@@ -1096,6 +1194,37 @@ function addGoal(day, g) {
   return true;
 }
 function removeGoal(day, goalId) { saveGoals(day, liveGoals(day).filter(g => g.id !== goalId)); }
+/* Verpasste Tagesziele früherer Tage bleiben präsent, bis sie erledigt, auf heute gelegt oder verworfen sind.
+   Felder (optional, nur ergänzt): done/doneAt, moved (Tag, auf den es gelegt wurde), dropped. */
+const goalKey = t => String(t || '').trim().toLowerCase();
+function overdueGoals(day) {
+  const out = [], seenT = new Set(), seenX = new Set();
+  for (const g of liveGoals(day)) { if (g.taskId) seenT.add(g.taskId); else seenX.add(goalKey(g.text)); }
+  const past = Array.from(S.days.values()).filter(d => d.date < day).sort((a, b) => a.date < b.date ? 1 : a.date > b.date ? -1 : 0);
+  for (const d of past) for (const g of d.goals.slice(0, MAX_GOALS)) {
+    if (g.taskId) {
+      const t = S.tasks.get(g.taskId);
+      if (!t || seenT.has(t.id)) continue;
+      seenT.add(t.id);
+      if (t.done || g.dropped || g.moved) continue;
+    } else {
+      const k = goalKey(g.text);
+      if (!k || seenX.has(k)) continue;
+      seenX.add(k);
+      if (g.done || g.dropped || g.moved) continue;
+    }
+    out.push({ g, date: d.date });
+  }
+  return out;
+}
+function pastGoal(date, gid) { const d = S.days.get(date); return d ? d.goals.find(g => g.id === gid) || null : null; }
+function patchPastGoal(date, gid, patch) {
+  const d = S.days.get(date), g = d && d.goals.find(x => x.id === gid);
+  if (!g) return;
+  for (const k in patch) { if (patch[k] == null || patch[k] === false) delete g[k]; else g[k] = patch[k]; }
+  if (patch.done === false) g.done = false;
+  dbPut('days', d);
+}
 
 /* ----- Journal ----- */
 const J_FIELDS = [
@@ -1158,8 +1287,14 @@ function normalizeImport(obj) {
     const goals = [];
     for (const g of p.goals) {
       if (!g || goals.length >= MAX_GOALS) continue;
-      if (g.taskId) { if (taskIds.has(g.taskId)) goals.push({ id: str(g.id, 80) || uid(), taskId: g.taskId, done: false }); }
-      else if (str(g.text).trim()) goals.push({ id: str(g.id, 80) || uid(), text: str(g.text, 140).trim(), done: !!g.done });
+      let x = null;
+      if (g.taskId) { if (taskIds.has(g.taskId)) x = { id: str(g.id, 80) || uid(), taskId: g.taskId, done: false }; }
+      else if (str(g.text).trim()) x = { id: str(g.id, 80) || uid(), text: str(g.text, 140).trim(), done: !!g.done };
+      if (!x) continue;
+      if (x.done && typeof g.doneAt === 'number' && isFinite(g.doneAt)) x.doneAt = g.doneAt;
+      if (validDay(g.moved)) x.moved = g.moved;
+      if (g.dropped === true) x.dropped = true;
+      goals.push(x);
     }
     seenD.add(p.date); days.push({ date: p.date, goals });
   }
@@ -1288,6 +1423,9 @@ function dialog(o) {
     ok.className = 'btn ' + (o.danger ? 'btn-warn' : 'btn-primary');
     cancel.textContent = o.cancel || 'Abbrechen';
     cancel.hidden = o.cancel === false;
+    const alt = $('#dlg-alt');
+    alt.textContent = o.alt || '';
+    alt.hidden = !o.alt;
     dlgResolve = res;
     const L = openLayer('L-dialog');
     L._onClose = () => { if (dlgResolve) { const r = dlgResolve; dlgResolve = null; r(false); } };
@@ -1486,8 +1624,56 @@ const FX = (() => {
         cx.save(); cx.beginPath();
         if (cx.roundRect) cx.roundRect(p.x, p.y, p.w, p.h, p.rad || 0); else cx.rect(p.x, p.y, p.w, p.h);
         cx.clip(); cx.fillStyle = g; cx.fillRect(p.x, p.y, p.w, p.h); cx.restore();
+      } else if (p.type === 'edge') {
+        /* Licht läuft am Bildschirmrand entlang, dazu leuchtet der ganze Rahmen kurz auf */
+        const P = edgePath(), fa = p.frame * Math.sin(Math.PI * Math.min(1, k * (p.fk || 1)));
+        if (fa > .004) {
+          cx.strokeStyle = rgba(col, fa * .28); cx.lineWidth = 6; cx.stroke();
+          cx.strokeStyle = rgba(col, fa); cx.lineWidth = 1.2; cx.stroke();
+        }
+        const e = p.lin ? k : outE(k), ra = p.a * (k < .78 ? 1 : (1 - k) / .22);
+        for (const dir of p.dirs) {
+          const head = ((p.start + dir * e * p.dist) % 1 + 1) % 1 * P;
+          for (const L of [[p.seg * 2.4, .14, 7], [p.seg, .4, 3.2], [p.seg * .35, 1, 1.4]]) {
+            const len = Math.min(P * .98, L[0]), from = dir > 0 ? head - len : head;
+            cx.setLineDash([len, P - len]); cx.lineDashOffset = -from;
+            cx.strokeStyle = rgba(L[1] === 1 ? mix(col, [255, 255, 255], .6) : col, ra * L[1]); cx.lineWidth = L[2]; cx.stroke();
+          }
+        }
+        cx.setLineDash([]); cx.lineDashOffset = 0;
+      } else if (p.type === 'glyph') {
+        /* Großer Haken, der sich zeichnet, aufleuchtet und weitet */
+        const pr = Math.min(1, k / .32), sc = p.s * (1 + (p.grow || .3) * outE(k)), a = p.a * (k < .5 ? 1 : (1 - k) / .5);
+        const pts = [[-.42, .04], [-.1, .36], [.82, -.7]].map(q => [p.x + q[0] * sc, p.y + q[1] * sc]);
+        const l1 = Math.hypot(pts[1][0] - pts[0][0], pts[1][1] - pts[0][1]), l2 = Math.hypot(pts[2][0] - pts[1][0], pts[2][1] - pts[1][1]);
+        let rem = pr * (l1 + l2);
+        cx.beginPath(); cx.moveTo(pts[0][0], pts[0][1]);
+        if (rem <= l1) cx.lineTo(pts[0][0] + (pts[1][0] - pts[0][0]) * rem / l1, pts[0][1] + (pts[1][1] - pts[0][1]) * rem / l1);
+        else { rem -= l1; cx.lineTo(pts[1][0], pts[1][1]); cx.lineTo(pts[1][0] + (pts[2][0] - pts[1][0]) * rem / l2, pts[1][1] + (pts[2][1] - pts[1][1]) * rem / l2); }
+        cx.lineCap = 'round'; cx.lineJoin = 'round';
+        cx.strokeStyle = rgba(col, a * .22); cx.lineWidth = p.w * 5; cx.stroke();
+        cx.strokeStyle = rgba(col, a * .6); cx.lineWidth = p.w * 2.2; cx.stroke();
+        cx.strokeStyle = rgba(mix(col, [255, 255, 255], .7), a); cx.lineWidth = p.w; cx.stroke();
       }
     }
+  }
+  /* Abgerundeter Bildschirmrand (iPhone-Ecken), gibt die Länge zurück */
+  function edgePath() {
+    const i = 1.5, w = W - 2 * i, hh = H - 2 * i, R = Math.min(52, w * .14);
+    cx.beginPath();
+    cx.moveTo(i + R, i); cx.lineTo(i + w - R, i); cx.arcTo(i + w, i, i + w, i + R, R);
+    cx.lineTo(i + w, i + hh - R); cx.arcTo(i + w, i + hh, i + w - R, i + hh, R);
+    cx.lineTo(i + R, i + hh); cx.arcTo(i, i + hh, i, i + hh - R, R);
+    cx.lineTo(i, i + R); cx.arcTo(i, i, i + R, i, R);
+    cx.closePath();
+    return 2 * (w + hh) - 8 * R + 2 * Math.PI * R;
+  }
+  /* Position (0–1) auf dem Rand, die einem Punkt am nächsten liegt */
+  function edgeAt(x, y) {
+    const w = W - 3, hh = H - 3, P = 2 * (w + hh);
+    const d = [y, w - x, hh - y, x], m = d.indexOf(Math.min.apply(null, d));
+    const u = m === 0 ? x : m === 1 ? w + y : m === 2 ? w + hh + (w - x) : 2 * w + hh + (hh - y);
+    return u / P;
   }
   function loop(now) {
     draw(now);
@@ -1495,45 +1681,80 @@ const FX = (() => {
     else { raf = 0; cx.setTransform(1, 0, 0, 1, 0, 0); cx.clearRect(0, 0, cv.width, cv.height); }
   }
 
-  /* o: { prio 0–2, over: überfällig, goal: Tagesziel, rect: Zeile/Karte zum Überstreichen } */
+  /* o: { prio 0–2, over: überfällig, goal: Tagesziel, rect: Zeile/Karte zum Überstreichen }
+     Stufen: Niedrig und Normal schon kräftig, Hoch deutlich mehr, Tagesziel komplett eskaliert. */
   function burst(x, y, o) {
     o = o || {};
     const lvl = o.goal ? 3 : (o.prio == null ? 1 : o.prio);
-    haptics(o.goal ? 3 : lvl === 2 ? 2 : 1, o.goal ? 85 : 75);
+    haptics(o.goal ? 4 : lvl === 2 ? 2 : 1, o.goal ? 80 : 75);
     if (reduced() || !ensure()) return;
-    const base = o.goal ? C.cyan : lvl === 2 ? C.cyan : lvl === 1 ? C.ice : C.white;
+    const base = lvl >= 2 ? C.cyan : lvl === 1 ? C.ice : C.ice;
     const from = o.over ? C.red : null;
-    const sc = [0.62, 1, 1.5, 2.3][lvl];
+    const sc = [1.3, 1.55, 2.4, 2.9][lvl];
     const col = c => from ? { c: from, to: c } : { c };
-    push(Object.assign({ type: 'flash', x, y, r0: 6, r1: 16 + 18 * sc, a: lvl === 0 ? .5 : .9, life: 260 + 90 * sc }, col(base)));
-    push(Object.assign({ type: 'ring', x, y, r0: 12, r1: 24 + 22 * sc, w: 1.6 + .4 * sc, a: lvl === 0 ? .55 : .9, life: 380 + 90 * sc }, col(base)));
-    if (lvl >= 2) push(Object.assign({ type: 'ring', x, y, r0: 10, r1: 22 + 14 * sc, w: 1.2, a: .7, life: 420 + 80 * sc, delay: 90 }, col(C.white)));
-    if (o.goal) {
-      push(Object.assign({ type: 'ring', x, y, r0: 14, r1: 150, w: 2.2, a: .75, life: 820, delay: 40 }, col(C.cyan)));
-      push(Object.assign({ type: 'ring', x, y, r0: 8, r1: 96, w: 1.2, a: .6, life: 700, delay: 170 }, col(C.violet)));
-      push({ type: 'flash', x, y, r0: 20, r1: 220, a: .22, life: 520, c: C.cyan, delay: 30 });
-    }
-    const n = Math.round(6 * sc + (o.goal ? 10 : 0));
+    push(Object.assign({ type: 'flash', x, y, r0: 6, r1: 16 + 18 * sc, a: .9, life: 260 + 90 * sc }, col(base)));
+    push(Object.assign({ type: 'ring', x, y, r0: 12, r1: 24 + 22 * sc, w: 1.6 + .4 * sc, a: .9, life: 380 + 90 * sc }, col(base)));
+    push(Object.assign({ type: 'ring', x, y, r0: 10, r1: 22 + 14 * sc, w: 1.2, a: .7, life: 420 + 80 * sc, delay: 90 }, col(C.white)));
+    const n = Math.round(6 * sc + (lvl === 2 ? 4 : 0) + (o.goal ? 14 : 0));
     for (let i = 0; i < n; i++) {
       const ang = (i / n) * 6.283 + rnd(-.25, .25), pick = Math.random() < .35 ? C.white : base;
       push(Object.assign({ type: 'spark', x, y, ang, v: rnd(150, 260) * Math.sqrt(sc), drag: rnd(5, 7.5), w: rnd(1, 1.7) + (lvl >= 2 ? .3 : 0), a: rnd(.7, 1), life: rnd(320, 460) * Math.sqrt(sc), delay: rnd(0, 40) }, col(pick)));
     }
-    if (o.goal) for (let i = 0; i < 8; i++) {
-      const ang = rnd(0, 6.283);
-      push({ type: 'spark', x, y, ang, v: rnd(380, 560), drag: 4.2, w: 1.1, a: .9, life: rnd(560, 760), c: Math.random() < .5 ? C.violet : C.white, delay: rnd(60, 160) });
+    if (lvl === 2) {
+      /* Hoch: zweite Welle, Haken-Echo und aufsteigendes Licht */
+      push(Object.assign({ type: 'ring', x, y, r0: 16, r1: 110, w: 1.6, a: .6, life: 640, delay: 120 }, col(C.cyan)));
+      push(Object.assign({ type: 'glyph', x: x + 2, y: y + 1, s: 22, grow: .9, w: 2, a: .95, life: 620, delay: 30 }, col(C.ice)));
+      for (let i = 0; i < 7; i++) push(Object.assign({ type: 'mote', x: x + rnd(0, 160), y: y + rnd(-10, 10), v: rnd(30, 60), wob: rnd(3, 6), ph: rnd(0, 6), r: rnd(3, 6), a: rnd(.35, .6), life: rnd(700, 1000), delay: rnd(60, 220) }, col(C.cyan)));
+    }
+    if (o.goal) {
+      /* Tagesziel: Schockwellen über den ganzen Bildschirm, Rand leuchtet, großer Haken, Lichtregen */
+      const far = Math.hypot(W, H);
+      push(Object.assign({ type: 'ring', x, y, r0: 14, r1: 170, w: 2.4, a: .85, life: 820, delay: 40 }, col(C.cyan)));
+      push(Object.assign({ type: 'ring', x, y, r0: 8, r1: 110, w: 1.3, a: .65, life: 700, delay: 170 }, col(C.violet)));
+      push(Object.assign({ type: 'ring', x, y, r0: 30, r1: far, w: 2, a: .5, life: 1100, delay: 90 }, col(C.ice)));
+      push(Object.assign({ type: 'ring', x, y, r0: 20, r1: far * .8, w: 1, a: .35, life: 1250, delay: 260 }, col(C.violet)));
+      push(Object.assign({ type: 'flash', x, y, r0: 20, r1: Math.max(W, H) * .9, a: .26, life: 650, delay: 30 }, col(C.cyan)));
+      push(Object.assign({ type: 'edge', start: edgeAt(x, y), dist: .5, dirs: [1, -1], seg: 120, frame: .55, fk: 1, a: 1, life: 1150, delay: 60 }, col(C.cyan)));
+      const r = o.rect;
+      const gx = r ? r.left + r.width / 2 : x, gy = r ? r.top + r.height / 2 : y;
+      push(Object.assign({ type: 'glyph', x: gx, y: gy, s: Math.min(78, (r ? r.height : 120) * .55), grow: .45, w: 3, a: 1, life: 1000, delay: 120 }, col(C.ice)));
+      for (let i = 0; i < 18; i++) {
+        const ang = rnd(0, 6.283);
+        push(Object.assign({ type: 'spark', x, y, ang, v: rnd(420, 680), drag: 3.8, w: 1.2, a: .95, life: rnd(620, 900), delay: rnd(60, 200) }, col(Math.random() < .5 ? C.violet : C.white)));
+      }
+      for (let i = 0; i < 28; i++) {
+        const sx = r ? r.left + rnd(0, r.width) : x + rnd(-120, 120), sy = r ? r.top + rnd(0, r.height) : y + rnd(-30, 30);
+        push(Object.assign({ type: 'mote', x: sx, y: sy, v: rnd(40, 110), wob: rnd(2, 6), ph: rnd(0, 6), r: rnd(3, 9), a: rnd(.3, .65), life: rnd(900, 1500), delay: rnd(100, 520) }, col(Math.random() < .3 ? C.violet : Math.random() < .5 ? C.white : C.cyan)));
+      }
     }
     if (o.over) {
       /* Erlösung: das Rot steigt als Licht auf und löst sich in Blau */
-      const m = 4 + lvl * 3;
+      const m = 5 + lvl * 3;
       for (let i = 0; i < m; i++) push({ type: 'mote', x: x + rnd(-14, 40), y: y + rnd(-8, 8), v: rnd(26, 52), wob: rnd(3, 6), ph: rnd(0, 6), r: rnd(4, 8), a: rnd(.35, .6), life: rnd(800, 1150), c: C.red, to: C.ice, delay: rnd(40, 220) });
     }
-    if (o.rect && lvl >= 1) {
+    if (o.rect) {
       const r = o.rect;
-      push(Object.assign({ type: 'sweep', x: r.left, y: r.top, w: r.width, h: r.height, rad: o.goal ? 26 : 0, a: o.goal ? .22 : lvl === 2 ? .16 : .09, life: o.goal ? 720 : 560, delay: 40 }, col(o.goal ? C.cyan : base)));
+      push(Object.assign({ type: 'sweep', x: r.left, y: r.top, w: r.width, h: r.height, rad: o.goal ? 24 : 0, a: o.goal ? .3 : lvl === 2 ? .24 : lvl === 1 ? .15 : .11, life: o.goal ? 760 : 580, delay: 40 }, col(o.goal ? C.cyan : base)));
+      if (o.goal) push(Object.assign({ type: 'sweep', x: r.left, y: r.top, w: r.width, h: r.height, rad: 24, a: .18, life: 760, delay: 330 }, col(C.violet)));
     }
     if (!raf) raf = requestAnimationFrame(loop);
   }
-  return { burst };
+  /* Start: ein Licht umrundet den Bildschirmrand, der Rahmen glimmt auf */
+  function intro() {
+    if (reduced() || !ensure()) return;
+    push({ type: 'edge', start: .5, dist: 1, dirs: [1, -1], seg: 150, frame: .32, fk: 1, a: .9, life: 1450, c: C.cyan, to: C.ice, lin: false });
+    if (!raf) raf = requestAnimationFrame(loop);
+  }
+  /* Der Haken rastet ein: Lichtimpuls aus der Mitte */
+  function lock(x, y) {
+    if (reduced() || !ensure()) return;
+    push({ type: 'flash', x, y, r0: 10, r1: 150, a: .5, life: 520, c: C.cyan });
+    push({ type: 'ring', x, y, r0: 40, r1: 190, w: 1.8, a: .8, life: 700, c: C.ice });
+    push({ type: 'ring', x, y, r0: 30, r1: 130, w: 1, a: .55, life: 640, c: C.violet, delay: 80 });
+    for (let i = 0; i < 22; i++) push({ type: 'spark', x, y, ang: i / 22 * 6.283 + rnd(-.1, .1), v: rnd(260, 420), drag: 4.5, w: rnd(1, 1.5), a: rnd(.6, .95), life: rnd(500, 700), c: Math.random() < .4 ? C.white : C.cyan, delay: rnd(0, 50) });
+    if (!raf) raf = requestAnimationFrame(loop);
+  }
+  return { burst, intro, lock };
 })();
 /* Mitte des Abhak-Kreises einer Zeile */
 function checkPoint(el) {
@@ -1664,6 +1885,20 @@ function goalsCard(goals) {
       btn('.goal-text', 'goalOpen', { gid: g.id }, goalText(g)));
   }));
 }
+/* Überfällige Tagesziele: eigenes rotes Feld, steht über allem anderen Überfälligen */
+function sinceLabel(date) {
+  const d = diffDays(date, today());
+  return d === -1 ? 'Ziel von gestern' : 'Ziel vom ' + shortDate(date) + ' · ' + plural(-d, 'Tag', 'Tage') + ' her';
+}
+function overGoalsCard(list) {
+  if (!list.length) return null;
+  return h('section.ogoals', null,
+    h('div.ogoals-head', null, h('h2', null, 'Ziele überfällig'), h('span.n', null, list.length)),
+    list.map(o => h('div.goal.og', null,
+      h('button.check', { type: 'button', 'aria-label': 'Erledigen', data: { act: 'ogCheck', gid: o.g.id, date: o.date } }, checkMark()),
+      h('button.goal-text', { type: 'button', data: { act: 'ogOpen', gid: o.g.id, date: o.date } },
+        h('span.og-t', null, goalText(o.g)), h('span.og-meta', null, sinceLabel(o.date))))));
+}
 function tomorrowHint(day) {
   const n = liveGoals(addDays(day, 1)).length;
   if (!n && hourNow() < 17) return null;
@@ -1696,23 +1931,26 @@ function renderToday() {
   const day = today();
   const goals = liveGoals(day);
   const inGoals = new Set(goals.filter(g => g.taskId).map(g => g.taskId));
+  const og = overdueGoals(day);
+  for (const o of og) if (o.g.taskId) inGoals.add(o.g.taskId);
   const open = Array.from(S.tasks.values()).filter(t => !t.done && t.due <= day && !inGoals.has(t.id));
   const now = open.filter(t => t.due === day && t.now).sort(cmpTask);
   const over = open.filter(t => t.due < day).sort(cmpTask);
   const due = open.filter(t => t.due === day && !t.now).sort(cmpTask);
   const ideas = Array.from(S.ideas.values()).filter(i => ideaDue(i, day)).sort((a, b) => a.createdAt - b.createdAt);
-  const none = !now.length && !over.length && !due.length;
+  const none = !now.length && !over.length && !due.length && !og.length;
   $('#today-title').textContent = cap(fWeekday.format(D(day)));
   $('#today-sub').textContent = plainDate(day);
   fill($('#today-top'), ui.update ? updateCard() : null, inSafariTab && ui.installHint ? installCard() : null);
   fill($('#today'),
     goalsCard(goals),
+    overGoalsCard(og),
     tomorrowHint(day),
     ideas.length ? h('section.sec.idea-sec', null, h('h2.sec-h', null, 'Was wird daraus?', h('span.n', null, ideas.length)), ideas.map(ideaCard)) : null,
     now.length ? taskSection('Jetzt', now, 'now', 'now-h') : null,
     over.length ? taskSection('Überfällig', over, 'over', 'over-h') : null,
     due.length ? taskSection('Heute', due, 'today') : null,
-    none ? empty('check', 'Nichts fällig', inGoals.size ? 'Bleiben deine Tagesziele. Mehr steht heute nicht an.' : 'Heute steht nichts an. Fällt dir etwas ein, leg es mit + ab.', true) : null);
+    none ? empty('check', 'Nichts fällig', goals.length ? 'Bleiben deine Tagesziele. Mehr steht heute nicht an.' : 'Heute steht nichts an. Fällt dir etwas ein, leg es mit + ab.', true) : null);
 }
 
 /* ----- Aufgaben ----- */
@@ -1721,7 +1959,9 @@ function renderTasks() {
   if (ui.filter && !topicById(ui.filter)) ui.filter = null;
   const pass = t => !ui.filter || t.topicId === ui.filter;
   const all = Array.from(S.tasks.values());
-  const open = all.filter(t => !t.done && pass(t));
+  const og = overdueGoals(day).filter(o => o.g.taskId ? pass(S.tasks.get(o.g.taskId)) : !ui.filter);
+  const ogIds = new Set(og.filter(o => o.g.taskId).map(o => o.g.taskId));
+  const open = all.filter(t => !t.done && pass(t) && !ogIds.has(t.id));
   const done = all.filter(t => t.done && pass(t)).sort((a, b) => (b.doneAt || 0) - (a.doneAt || 0));
   const g = { over: [], today: [], soon: [], later: [] };
   for (const t of open) g[groupOf(t, day)].push(t);
@@ -1735,7 +1975,7 @@ function renderTasks() {
       S.topics.map(t => btn('.chip' + (ui.filter === t.id ? '.on' : ''), 'filter', { id: t.id }, h('i.dot', { vars: { '--h': t.hue } }), t.name))));
   }
   let blank = null;
-  if (!open.length) {
+  if (!open.length && !og.length) {
     if (ui.filter) blank = empty('tTasks', 'Nichts offen', 'Für „' + topicById(ui.filter).name + '“ steht gerade nichts an.');
     else if (!all.length) blank = empty('tTasks', 'Noch keine Aufgaben', 'Tipp auf +, schreib es auf und sag, wann. Dann ist es aus dem Kopf.');
     else blank = empty('check', 'Alles erledigt', 'Nichts mehr offen. Der Rest gehört dir.');
@@ -1751,6 +1991,7 @@ function renderTasks() {
   $('#tasks-sub').textContent = openAll ? plural(openAll, 'offene Aufgabe', 'offene Aufgaben') : 'Nichts offen';
   fill(box,
     filter,
+    og.length ? h('div.sec', null, overGoalsCard(og)) : null,
     g.over.length ? taskSection('Überfällig', g.over, 'over', 'over-h') : null,
     g.today.length ? taskSection('Heute', g.today, 'today') : null,
     g.soon.length ? taskSection('Demnächst', g.soon, 'soon') : null,
@@ -2174,6 +2415,8 @@ function balance() {
     else if (t.due === day) open++;
   }
   for (const g of liveGoals(day)) if (!g.taskId) { if (g.done) done++; else open++; }
+  for (const d of S.days.values()) if (d.date < day) for (const g of d.goals) if (!g.taskId && g.done && g.doneAt && dayOf(g.doneAt) === day) done++;
+  for (const o of overdueGoals(day)) if (!o.g.taskId) over++;
   return { done, open, over, total: done + open + over };
 }
 function renderBeams() {
@@ -2278,7 +2521,7 @@ const A = {
     if (done) {
       const pt = checkPoint(row);
       FX.burst(pt.x, pt.y, { goal: true, rect: card.getBoundingClientRect() });
-      if (!reduced()) { card.classList.remove('quake'); void card.offsetWidth; card.classList.add('quake'); setTimeout(() => card.classList.remove('quake'), 460); }
+      quake(card);
     } else haptic();
     if (g.taskId) setDone(g.taskId, done); else { g.done = done; saveGoals(day, goals); }
     renderBeams();
@@ -2292,6 +2535,47 @@ const A = {
     const g = liveGoals(today()).find(x => x.id === b.dataset.gid);
     if (!g) return;
     if (g.taskId) openEntry({ mode: 'task', id: g.taskId }); else openPlan('today');
+  },
+  /* Überfällige Tagesziele */
+  ogCheck(b) {
+    const date = b.dataset.date, gid = b.dataset.gid, g = pastGoal(date, gid);
+    const row = b.closest('.og'), card = b.closest('.ogoals');
+    if (!g || !row || row.dataset.busy) return;
+    row.dataset.busy = '1';
+    const pt = checkPoint(row);
+    FX.burst(pt.x, pt.y, { goal: true, over: true, rect: card.getBoundingClientRect() });
+    quake(card);
+    const tid = g.taskId;
+    if (tid) setDone(tid, true); else patchPastGoal(date, gid, { done: true, doneAt: Date.now() });
+    renderBeams();
+    row.classList.add('is-done', 'pop');
+    animating++;
+    const only = card.querySelectorAll('.og').length === 1;
+    wait(reduced() ? 60 : 700).then(() => collapse(only ? (card.parentElement.classList.contains('sec') ? card.parentElement : card) : row)).then(() => {
+      animEnd();
+      toast('Ziel erledigt', { action: 'Rückgängig', onAction: () => { if (tid) setDone(tid, false); else patchPastGoal(date, gid, { done: false, doneAt: null }); renderAll(); } });
+    });
+  },
+  async ogOpen(b) {
+    const date = b.dataset.date, gid = b.dataset.gid, g = pastGoal(date, gid);
+    if (!g) return;
+    const full = liveGoals(today()).length >= MAX_GOALS;
+    const dropLabel = g.taskId ? 'Kein Ziel mehr' : 'Verwerfen';
+    const r = await dialog({
+      title: goalText(g),
+      text: sinceLabel(date) + (full ? '. Heute stehen schon drei Ziele.' : '. Leg es auf heute, dann zählt es wieder.'),
+      ok: full ? dropLabel : 'Auf heute legen', danger: full, alt: full ? null : dropLabel
+    });
+    if (r === true && !full) {
+      addGoal(today(), g.taskId ? { taskId: g.taskId } : { text: g.text });
+      patchPastGoal(date, gid, { moved: today() });
+      haptic(); renderAll();
+      toast('Liegt jetzt bei deinen Tageszielen');
+    } else if (r === 'alt' || (r === true && full)) {
+      patchPastGoal(date, gid, { dropped: true });
+      renderAll();
+      toast(g.taskId ? 'Aus den Zielen genommen' : 'Ziel verworfen', { action: 'Rückgängig', onAction: () => { patchPastGoal(date, gid, { dropped: null }); renderAll(); } });
+    }
   },
   planDay(b) { P.which = b.dataset.day; $('#plan-input').value = ''; renderPlan(); },
   planPick(b) {
@@ -2407,8 +2691,15 @@ const A = {
   },
   exportData() { exportData(); },
   dlgOk() { dialogAnswer(true); },
+  dlgAlt() { dialogAnswer('alt'); },
   dlgCancel() { dialogAnswer(false); }
 };
+
+function quake(card) {
+  if (reduced() || !card) return;
+  card.classList.remove('quake'); void card.offsetWidth; card.classList.add('quake');
+  setTimeout(() => card.classList.remove('quake'), 640);
+}
 
 /* ===== Ereignisse ===== */
 function bindEvents() {
@@ -2574,13 +2865,50 @@ function startupImage() {
   } catch (e) {}
 }
 
-/* ===== Start-Animation abräumen ===== */
-function endIntro(ms) {
-  setTimeout(() => { document.body.classList.remove('intro'); const el = $('#intro'); if (el) el.remove(); }, ms);
+/* ===== Start-Animation ===== */
+const INTRO = { t0: 0, out: false, MIN: 1180 };
+function greeting() {
+  const hr = hourNow();
+  return hr < 5 ? 'Gute Nacht' : hr < 11 ? 'Guten Morgen' : hr < 18 ? 'Schön, dass du da bist' : hr < 23 ? 'Guten Abend' : 'Gute Nacht';
+}
+function startIntro() {
+  const el = $('#intro');
+  INTRO.t0 = performance.now();
+  if (!el) return;
+  if (reduced()) { INTRO.MIN = 0; return; }
+  try { $('#in-hello').textContent = greeting(); } catch (e) {}
+  document.body.classList.add('go');
+  el.addEventListener('pointerdown', () => { if (document.body.classList.contains('ready')) endIntro(true); });
+  setTimeout(() => { if (!INTRO.out) FX.intro(); }, 80);
+  setTimeout(() => {
+    if (INTRO.out) return;
+    const r = $('#intro svg').getBoundingClientRect();
+    FX.lock(r.left + r.width / 2, r.top + r.height / 2);
+  }, 840);
+}
+/* Erst wenn die Daten geladen sind und der Aufbau gelaufen ist, gleitet die App herein */
+function endIntro(now) {
+  if (INTRO.out) return;
+  const left = now ? 0 : Math.max(0, INTRO.MIN - (performance.now() - INTRO.t0));
+  setTimeout(() => {
+    if (INTRO.out) return;
+    INTRO.out = true;
+    const b = document.body, el = $('#intro');
+    if (!el || reduced() || !b.classList.contains('go')) {
+      if (el) el.remove();
+      b.classList.remove('intro', 'go'); b.classList.add('live');
+      return;
+    }
+    b.classList.add('enter');
+    setTimeout(() => { el.remove(); b.classList.remove('intro', 'go'); }, 480);
+    setTimeout(() => b.classList.add('live'), now ? 560 : 1050);
+    setTimeout(() => b.classList.remove('enter'), 1800);
+  }, left);
 }
 
 /* ===== Start ===== */
 async function boot() {
+  startIntro();
   try {
     await DB.init();
     hydrate(await DB.loadAll());
@@ -2589,7 +2917,7 @@ async function boot() {
       h('h1', null, 'Speicher nicht erreichbar'),
       h('p', null, 'Momentum kann auf diesem Gerät gerade nichts sichern. Schließ die App ganz und öffne sie neu. Im privaten Modus von Safari funktioniert sie nicht.'))));
     document.body.classList.add('ready');
-    endIntro(0);
+    endIntro(true);
     return;
   }
   try {
@@ -2604,11 +2932,11 @@ async function boot() {
       h('h1', null, 'Start hat nicht geklappt'),
       h('p', null, 'Schließ Momentum ganz und öffne es neu. Deine Daten sind auf dem iPhone gespeichert und bleiben erhalten.'))));
     document.body.classList.add('ready');
-    endIntro(0);
+    endIntro(true);
     return;
   }
   document.body.classList.add('ready');
-  endIntro(reduced() ? 0 : 900);
+  endIntro(false);
   if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
   setInterval(wake, 20000);
   registerSW();

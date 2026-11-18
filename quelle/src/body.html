@@ -1,5 +1,19 @@
 <div id="ambient" aria-hidden="true"></div>
-<div id="intro" aria-hidden="true"><svg viewBox="0 0 120 120"><circle class="in-hud" cx="60" cy="60" r="50"/><circle class="in-ring" cx="60" cy="60" r="30"/><path class="in-check" d="M47 61l9 9 19-21"/></svg></div>
+<div id="intro" aria-hidden="true"><div class="in-scan"></div><div class="in-box">
+<svg viewBox="0 0 220 220">
+<g class="in-cross"><path d="M4 110H50M170 110H216M110 4V50M110 170V216"/></g>
+<circle class="in-h3" cx="110" cy="110" r="96"/>
+<circle class="in-h1" cx="110" cy="110" r="81"/>
+<circle class="in-h2" cx="110" cy="110" r="67"/>
+<g class="in-br"><path d="M46 64V46H64M156 46H174V64M174 156V174H156M64 174H46V156"/></g>
+<circle class="in-ring" cx="110" cy="110" r="42"/>
+<g class="in-head"><circle cx="152" cy="110" r="2.8"/></g>
+<path class="in-c1" d="M92 111.4L104.4 124"/>
+<path class="in-c2" d="M104.4 124L131 94.6"/>
+<circle class="in-pulse" cx="110" cy="110" r="42"/>
+</svg>
+<div class="in-word">MOMENTUM</div><div class="in-hello" id="in-hello"></div>
+</div></div>
 
 <div id="app">
   <main>
@@ -160,6 +174,7 @@
     <h2 id="dlg-title"></h2>
     <p id="dlg-text"></p>
     <button class="btn" id="dlg-ok" data-act="dlgOk"></button>
+    <button class="btn btn-plain danger-t" id="dlg-alt" data-act="dlgAlt" hidden></button>
     <button class="btn btn-plain" id="dlg-cancel" data-act="dlgCancel"></button>
   </div>
 </div>

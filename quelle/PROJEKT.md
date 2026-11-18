@@ -1,4 +1,4 @@
-# Momentum – Projektstand (17.11.2026)
+# Momentum – Projektstand (18.11.2026)
 
 Persönliche To-do/Organisations-PWA fürs iPhone (Nutzer: 20, nur iPhone, kein Computer, Deutsch).
 Prinzip: Werkzeug, nicht Aufenthaltsort. Schnell rein, Kopf sortieren, wieder raus.
@@ -35,6 +35,18 @@ Themen: Klavier, Film/Foto, Sport (verwaltbar). Export/Import JSON.
 - Abhak-Licht (Canvas #fx): Ringe, Photonen, Blitz; stärker nach Prio; Tagesziel mit Schockwelle + Vibration; Überfällig rot → blau.
 - Start-Animation (#intro, ca. 0,55 s): Komet-Ring zeichnet sich und löst sich auf.
 - test/t10.js prüft das alles.
+
+## Neu in 1.1.1 (18.11.2026)
+- Überfällige Tagesziele: offene Ziele früherer Tage stehen im roten Feld „Ziele überfällig“ (Heute direkt unter den Tageszielen,
+  Aufgaben ganz oben). Abhaken = erledigt (mit Rückgängig). Tippen = Dialog „Auf heute legen“ / „Verwerfen“ (bei Aufgaben-Zielen „Kein Ziel mehr“).
+  Datenfelder nur ergänzt, am Ziel im Tagesplan: done/doneAt, moved (Tag), dropped. Import behält sie. Lichtlinie zählt offene Text-Ziele als überfällig.
+- Farbstufen Überfällig: Ziel (3px, #FF2D55, Halo, pulsiert) > Hoch (2px, pulsiert, rote Leiste, fett) > Normal (ruhig) > Niedrig (gedämpft).
+- Abhak-Licht: Niedrig/Normal so stark wie früher Hoch; Hoch mit zweiter Welle, Haken-Echo, Lichtpartikeln; Tagesziel mit Schockwellen
+  über den Bildschirm, umlaufendem Randlicht, großem Haken, Lichtregen, 4x Haptik.
+- Start (ca. 1,2 s + Auftritt, Tippen überspringt): HUD-Ringe, Komet-Ring mit Lichtkopf, Haken fliegt in zwei Teilen ein und rastet ein,
+  Lichtimpuls, Licht umrundet den Bildschirmrand, MOMENTUM + Begrüßung nach Uhrzeit. Danach gleitet die App herein, Inhalte steigen gestaffelt auf,
+  das Licht der Lichtlinie fegt einmal über die ganze Breite. Body-Klassen: intro → go → enter → live (Tests warten auf body.live).
+- test/t11.js prüft das alles.
 
 Nicht bauen: Login, Cloud, Push, KI, Gamification, Statistik-Dashboards, Light Mode.
 

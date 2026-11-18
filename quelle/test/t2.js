@@ -6,7 +6,7 @@ const assert = (c, m) => { if (!c) { console.log('  ✗ ' + m); process.exitCode
   const b = await L.launch(), c = await L.ctx(b), p = await c.newPage(), log = [];
   L.watch(p, log);
   await p.clock.install({ time: new Date('2026-11-16T10:00:00+01:00') });
-  await p.goto(url); await p.waitForSelector('body.ready'); await L.decorate(p); await p.waitForTimeout(400);
+  await p.goto(url); await p.waitForSelector('body.live'); await L.decorate(p); await p.waitForTimeout(400);
 
   const capture = async (text, o) => {
     o = o || {};

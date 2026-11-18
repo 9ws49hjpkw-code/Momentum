@@ -7,7 +7,7 @@ async function start(opts) {
   const b = await L.launch(), c = await L.ctx(b, opts.ctx), p = await c.newPage(), log = [];
   L.watch(p, log);
   if (opts.time) await p.clock.install({ time: new Date(opts.time) });
-  await p.goto(url); await p.waitForSelector('body.ready'); await L.decorate(p); await p.waitForTimeout(350);
+  await p.goto(url); await p.waitForSelector('body.live'); await L.decorate(p); await p.waitForTimeout(350);
   const T = (sel, n) => L.tap(p, sel, n);
   const W = ms => p.waitForTimeout(ms);
   const capture = async (text, o) => {

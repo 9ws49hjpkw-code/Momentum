@@ -39,7 +39,7 @@ const A = {
     if (done) {
       const pt = checkPoint(row);
       FX.burst(pt.x, pt.y, { goal: true, rect: card.getBoundingClientRect() });
-      if (!reduced()) { card.classList.remove('quake'); void card.offsetWidth; card.classList.add('quake'); setTimeout(() => card.classList.remove('quake'), 460); }
+      quake(card);
     } else haptic();
     if (g.taskId) setDone(g.taskId, done); else { g.done = done; saveGoals(day, goals); }
     renderBeams();
@@ -53,6 +53,47 @@ const A = {
     const g = liveGoals(today()).find(x => x.id === b.dataset.gid);
     if (!g) return;
     if (g.taskId) openEntry({ mode: 'task', id: g.taskId }); else openPlan('today');
+  },
+  /* Überfällige Tagesziele */
+  ogCheck(b) {
+    const date = b.dataset.date, gid = b.dataset.gid, g = pastGoal(date, gid);
+    const row = b.closest('.og'), card = b.closest('.ogoals');
+    if (!g || !row || row.dataset.busy) return;
+    row.dataset.busy = '1';
+    const pt = checkPoint(row);
+    FX.burst(pt.x, pt.y, { goal: true, over: true, rect: card.getBoundingClientRect() });
+    quake(card);
+    const tid = g.taskId;
+    if (tid) setDone(tid, true); else patchPastGoal(date, gid, { done: true, doneAt: Date.now() });
+    renderBeams();
+    row.classList.add('is-done', 'pop');
+    animating++;
+    const only = card.querySelectorAll('.og').length === 1;
+    wait(reduced() ? 60 : 700).then(() => collapse(only ? (card.parentElement.classList.contains('sec') ? card.parentElement : card) : row)).then(() => {
+      animEnd();
+      toast('Ziel erledigt', { action: 'Rückgängig', onAction: () => { if (tid) setDone(tid, false); else patchPastGoal(date, gid, { done: false, doneAt: null }); renderAll(); } });
+    });
+  },
+  async ogOpen(b) {
+    const date = b.dataset.date, gid = b.dataset.gid, g = pastGoal(date, gid);
+    if (!g) return;
+    const full = liveGoals(today()).length >= MAX_GOALS;
+    const dropLabel = g.taskId ? 'Kein Ziel mehr' : 'Verwerfen';
+    const r = await dialog({
+      title: goalText(g),
+      text: sinceLabel(date) + (full ? '. Heute stehen schon drei Ziele.' : '. Leg es auf heute, dann zählt es wieder.'),
+      ok: full ? dropLabel : 'Auf heute legen', danger: full, alt: full ? null : dropLabel
+    });
+    if (r === true && !full) {
+      addGoal(today(), g.taskId ? { taskId: g.taskId } : { text: g.text });
+      patchPastGoal(date, gid, { moved: today() });
+      haptic(); renderAll();
+      toast('Liegt jetzt bei deinen Tageszielen');
+    } else if (r === 'alt' || (r === true && full)) {
+      patchPastGoal(date, gid, { dropped: true });
+      renderAll();
+      toast(g.taskId ? 'Aus den Zielen genommen' : 'Ziel verworfen', { action: 'Rückgängig', onAction: () => { patchPastGoal(date, gid, { dropped: null }); renderAll(); } });
+    }
   },
   planDay(b) { P.which = b.dataset.day; $('#plan-input').value = ''; renderPlan(); },
   planPick(b) {
@@ -168,8 +209,15 @@ const A = {
   },
   exportData() { exportData(); },
   dlgOk() { dialogAnswer(true); },
+  dlgAlt() { dialogAnswer('alt'); },
   dlgCancel() { dialogAnswer(false); }
 };
+
+function quake(card) {
+  if (reduced() || !card) return;
+  card.classList.remove('quake'); void card.offsetWidth; card.classList.add('quake');
+  setTimeout(() => card.classList.remove('quake'), 640);
+}
 
 /* ===== Ereignisse ===== */
 function bindEvents() {
@@ -335,13 +383,50 @@ function startupImage() {
   } catch (e) {}
 }
 
-/* ===== Start-Animation abräumen ===== */
-function endIntro(ms) {
-  setTimeout(() => { document.body.classList.remove('intro'); const el = $('#intro'); if (el) el.remove(); }, ms);
+/* ===== Start-Animation ===== */
+const INTRO = { t0: 0, out: false, MIN: 1180 };
+function greeting() {
+  const hr = hourNow();
+  return hr < 5 ? 'Gute Nacht' : hr < 11 ? 'Guten Morgen' : hr < 18 ? 'Schön, dass du da bist' : hr < 23 ? 'Guten Abend' : 'Gute Nacht';
+}
+function startIntro() {
+  const el = $('#intro');
+  INTRO.t0 = performance.now();
+  if (!el) return;
+  if (reduced()) { INTRO.MIN = 0; return; }
+  try { $('#in-hello').textContent = greeting(); } catch (e) {}
+  document.body.classList.add('go');
+  el.addEventListener('pointerdown', () => { if (document.body.classList.contains('ready')) endIntro(true); });
+  setTimeout(() => { if (!INTRO.out) FX.intro(); }, 80);
+  setTimeout(() => {
+    if (INTRO.out) return;
+    const r = $('#intro svg').getBoundingClientRect();
+    FX.lock(r.left + r.width / 2, r.top + r.height / 2);
+  }, 840);
+}
+/* Erst wenn die Daten geladen sind und der Aufbau gelaufen ist, gleitet die App herein */
+function endIntro(now) {
+  if (INTRO.out) return;
+  const left = now ? 0 : Math.max(0, INTRO.MIN - (performance.now() - INTRO.t0));
+  setTimeout(() => {
+    if (INTRO.out) return;
+    INTRO.out = true;
+    const b = document.body, el = $('#intro');
+    if (!el || reduced() || !b.classList.contains('go')) {
+      if (el) el.remove();
+      b.classList.remove('intro', 'go'); b.classList.add('live');
+      return;
+    }
+    b.classList.add('enter');
+    setTimeout(() => { el.remove(); b.classList.remove('intro', 'go'); }, 480);
+    setTimeout(() => b.classList.add('live'), now ? 560 : 1050);
+    setTimeout(() => b.classList.remove('enter'), 1800);
+  }, left);
 }
 
 /* ===== Start ===== */
 async function boot() {
+  startIntro();
   try {
     await DB.init();
     hydrate(await DB.loadAll());
@@ -350,7 +435,7 @@ async function boot() {
       h('h1', null, 'Speicher nicht erreichbar'),
       h('p', null, 'Momentum kann auf diesem Gerät gerade nichts sichern. Schließ die App ganz und öffne sie neu. Im privaten Modus von Safari funktioniert sie nicht.'))));
     document.body.classList.add('ready');
-    endIntro(0);
+    endIntro(true);
     return;
   }
   try {
@@ -365,11 +450,11 @@ async function boot() {
       h('h1', null, 'Start hat nicht geklappt'),
       h('p', null, 'Schließ Momentum ganz und öffne es neu. Deine Daten sind auf dem iPhone gespeichert und bleiben erhalten.'))));
     document.body.classList.add('ready');
-    endIntro(0);
+    endIntro(true);
     return;
   }
   document.body.classList.add('ready');
-  endIntro(reduced() ? 0 : 900);
+  endIntro(false);
   if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
   setInterval(wake, 20000);
   registerSW();

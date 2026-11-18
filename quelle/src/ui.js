@@ -116,6 +116,9 @@ function dialog(o) {
     ok.className = 'btn ' + (o.danger ? 'btn-warn' : 'btn-primary');
     cancel.textContent = o.cancel || 'Abbrechen';
     cancel.hidden = o.cancel === false;
+    const alt = $('#dlg-alt');
+    alt.textContent = o.alt || '';
+    alt.hidden = !o.alt;
     dlgResolve = res;
     const L = openLayer('L-dialog');
     L._onClose = () => { if (dlgResolve) { const r = dlgResolve; dlgResolve = null; r(false); } };
@@ -314,8 +317,56 @@ const FX = (() => {
         cx.save(); cx.beginPath();
         if (cx.roundRect) cx.roundRect(p.x, p.y, p.w, p.h, p.rad || 0); else cx.rect(p.x, p.y, p.w, p.h);
         cx.clip(); cx.fillStyle = g; cx.fillRect(p.x, p.y, p.w, p.h); cx.restore();
+      } else if (p.type === 'edge') {
+        /* Licht läuft am Bildschirmrand entlang, dazu leuchtet der ganze Rahmen kurz auf */
+        const P = edgePath(), fa = p.frame * Math.sin(Math.PI * Math.min(1, k * (p.fk || 1)));
+        if (fa > .004) {
+          cx.strokeStyle = rgba(col, fa * .28); cx.lineWidth = 6; cx.stroke();
+          cx.strokeStyle = rgba(col, fa); cx.lineWidth = 1.2; cx.stroke();
+        }
+        const e = p.lin ? k : outE(k), ra = p.a * (k < .78 ? 1 : (1 - k) / .22);
+        for (const dir of p.dirs) {
+          const head = ((p.start + dir * e * p.dist) % 1 + 1) % 1 * P;
+          for (const L of [[p.seg * 2.4, .14, 7], [p.seg, .4, 3.2], [p.seg * .35, 1, 1.4]]) {
+            const len = Math.min(P * .98, L[0]), from = dir > 0 ? head - len : head;
+            cx.setLineDash([len, P - len]); cx.lineDashOffset = -from;
+            cx.strokeStyle = rgba(L[1] === 1 ? mix(col, [255, 255, 255], .6) : col, ra * L[1]); cx.lineWidth = L[2]; cx.stroke();
+          }
+        }
+        cx.setLineDash([]); cx.lineDashOffset = 0;
+      } else if (p.type === 'glyph') {
+        /* Großer Haken, der sich zeichnet, aufleuchtet und weitet */
+        const pr = Math.min(1, k / .32), sc = p.s * (1 + (p.grow || .3) * outE(k)), a = p.a * (k < .5 ? 1 : (1 - k) / .5);
+        const pts = [[-.42, .04], [-.1, .36], [.82, -.7]].map(q => [p.x + q[0] * sc, p.y + q[1] * sc]);
+        const l1 = Math.hypot(pts[1][0] - pts[0][0], pts[1][1] - pts[0][1]), l2 = Math.hypot(pts[2][0] - pts[1][0], pts[2][1] - pts[1][1]);
+        let rem = pr * (l1 + l2);
+        cx.beginPath(); cx.moveTo(pts[0][0], pts[0][1]);
+        if (rem <= l1) cx.lineTo(pts[0][0] + (pts[1][0] - pts[0][0]) * rem / l1, pts[0][1] + (pts[1][1] - pts[0][1]) * rem / l1);
+        else { rem -= l1; cx.lineTo(pts[1][0], pts[1][1]); cx.lineTo(pts[1][0] + (pts[2][0] - pts[1][0]) * rem / l2, pts[1][1] + (pts[2][1] - pts[1][1]) * rem / l2); }
+        cx.lineCap = 'round'; cx.lineJoin = 'round';
+        cx.strokeStyle = rgba(col, a * .22); cx.lineWidth = p.w * 5; cx.stroke();
+        cx.strokeStyle = rgba(col, a * .6); cx.lineWidth = p.w * 2.2; cx.stroke();
+        cx.strokeStyle = rgba(mix(col, [255, 255, 255], .7), a); cx.lineWidth = p.w; cx.stroke();
       }
     }
+  }
+  /* Abgerundeter Bildschirmrand (iPhone-Ecken), gibt die Länge zurück */
+  function edgePath() {
+    const i = 1.5, w = W - 2 * i, hh = H - 2 * i, R = Math.min(52, w * .14);
+    cx.beginPath();
+    cx.moveTo(i + R, i); cx.lineTo(i + w - R, i); cx.arcTo(i + w, i, i + w, i + R, R);
+    cx.lineTo(i + w, i + hh - R); cx.arcTo(i + w, i + hh, i + w - R, i + hh, R);
+    cx.lineTo(i + R, i + hh); cx.arcTo(i, i + hh, i, i + hh - R, R);
+    cx.lineTo(i, i + R); cx.arcTo(i, i, i + R, i, R);
+    cx.closePath();
+    return 2 * (w + hh) - 8 * R + 2 * Math.PI * R;
+  }
+  /* Position (0–1) auf dem Rand, die einem Punkt am nächsten liegt */
+  function edgeAt(x, y) {
+    const w = W - 3, hh = H - 3, P = 2 * (w + hh);
+    const d = [y, w - x, hh - y, x], m = d.indexOf(Math.min.apply(null, d));
+    const u = m === 0 ? x : m === 1 ? w + y : m === 2 ? w + hh + (w - x) : 2 * w + hh + (hh - y);
+    return u / P;
   }
   function loop(now) {
     draw(now);
@@ -323,45 +374,80 @@ const FX = (() => {
     else { raf = 0; cx.setTransform(1, 0, 0, 1, 0, 0); cx.clearRect(0, 0, cv.width, cv.height); }
   }
 
-  /* o: { prio 0–2, over: überfällig, goal: Tagesziel, rect: Zeile/Karte zum Überstreichen } */
+  /* o: { prio 0–2, over: überfällig, goal: Tagesziel, rect: Zeile/Karte zum Überstreichen }
+     Stufen: Niedrig und Normal schon kräftig, Hoch deutlich mehr, Tagesziel komplett eskaliert. */
   function burst(x, y, o) {
     o = o || {};
     const lvl = o.goal ? 3 : (o.prio == null ? 1 : o.prio);
-    haptics(o.goal ? 3 : lvl === 2 ? 2 : 1, o.goal ? 85 : 75);
+    haptics(o.goal ? 4 : lvl === 2 ? 2 : 1, o.goal ? 80 : 75);
     if (reduced() || !ensure()) return;
-    const base = o.goal ? C.cyan : lvl === 2 ? C.cyan : lvl === 1 ? C.ice : C.white;
+    const base = lvl >= 2 ? C.cyan : lvl === 1 ? C.ice : C.ice;
     const from = o.over ? C.red : null;
-    const sc = [0.62, 1, 1.5, 2.3][lvl];
+    const sc = [1.3, 1.55, 2.4, 2.9][lvl];
     const col = c => from ? { c: from, to: c } : { c };
-    push(Object.assign({ type: 'flash', x, y, r0: 6, r1: 16 + 18 * sc, a: lvl === 0 ? .5 : .9, life: 260 + 90 * sc }, col(base)));
-    push(Object.assign({ type: 'ring', x, y, r0: 12, r1: 24 + 22 * sc, w: 1.6 + .4 * sc, a: lvl === 0 ? .55 : .9, life: 380 + 90 * sc }, col(base)));
-    if (lvl >= 2) push(Object.assign({ type: 'ring', x, y, r0: 10, r1: 22 + 14 * sc, w: 1.2, a: .7, life: 420 + 80 * sc, delay: 90 }, col(C.white)));
-    if (o.goal) {
-      push(Object.assign({ type: 'ring', x, y, r0: 14, r1: 150, w: 2.2, a: .75, life: 820, delay: 40 }, col(C.cyan)));
-      push(Object.assign({ type: 'ring', x, y, r0: 8, r1: 96, w: 1.2, a: .6, life: 700, delay: 170 }, col(C.violet)));
-      push({ type: 'flash', x, y, r0: 20, r1: 220, a: .22, life: 520, c: C.cyan, delay: 30 });
-    }
-    const n = Math.round(6 * sc + (o.goal ? 10 : 0));
+    push(Object.assign({ type: 'flash', x, y, r0: 6, r1: 16 + 18 * sc, a: .9, life: 260 + 90 * sc }, col(base)));
+    push(Object.assign({ type: 'ring', x, y, r0: 12, r1: 24 + 22 * sc, w: 1.6 + .4 * sc, a: .9, life: 380 + 90 * sc }, col(base)));
+    push(Object.assign({ type: 'ring', x, y, r0: 10, r1: 22 + 14 * sc, w: 1.2, a: .7, life: 420 + 80 * sc, delay: 90 }, col(C.white)));
+    const n = Math.round(6 * sc + (lvl === 2 ? 4 : 0) + (o.goal ? 14 : 0));
     for (let i = 0; i < n; i++) {
       const ang = (i / n) * 6.283 + rnd(-.25, .25), pick = Math.random() < .35 ? C.white : base;
       push(Object.assign({ type: 'spark', x, y, ang, v: rnd(150, 260) * Math.sqrt(sc), drag: rnd(5, 7.5), w: rnd(1, 1.7) + (lvl >= 2 ? .3 : 0), a: rnd(.7, 1), life: rnd(320, 460) * Math.sqrt(sc), delay: rnd(0, 40) }, col(pick)));
     }
-    if (o.goal) for (let i = 0; i < 8; i++) {
-      const ang = rnd(0, 6.283);
-      push({ type: 'spark', x, y, ang, v: rnd(380, 560), drag: 4.2, w: 1.1, a: .9, life: rnd(560, 760), c: Math.random() < .5 ? C.violet : C.white, delay: rnd(60, 160) });
+    if (lvl === 2) {
+      /* Hoch: zweite Welle, Haken-Echo und aufsteigendes Licht */
+      push(Object.assign({ type: 'ring', x, y, r0: 16, r1: 110, w: 1.6, a: .6, life: 640, delay: 120 }, col(C.cyan)));
+      push(Object.assign({ type: 'glyph', x: x + 2, y: y + 1, s: 22, grow: .9, w: 2, a: .95, life: 620, delay: 30 }, col(C.ice)));
+      for (let i = 0; i < 7; i++) push(Object.assign({ type: 'mote', x: x + rnd(0, 160), y: y + rnd(-10, 10), v: rnd(30, 60), wob: rnd(3, 6), ph: rnd(0, 6), r: rnd(3, 6), a: rnd(.35, .6), life: rnd(700, 1000), delay: rnd(60, 220) }, col(C.cyan)));
+    }
+    if (o.goal) {
+      /* Tagesziel: Schockwellen über den ganzen Bildschirm, Rand leuchtet, großer Haken, Lichtregen */
+      const far = Math.hypot(W, H);
+      push(Object.assign({ type: 'ring', x, y, r0: 14, r1: 170, w: 2.4, a: .85, life: 820, delay: 40 }, col(C.cyan)));
+      push(Object.assign({ type: 'ring', x, y, r0: 8, r1: 110, w: 1.3, a: .65, life: 700, delay: 170 }, col(C.violet)));
+      push(Object.assign({ type: 'ring', x, y, r0: 30, r1: far, w: 2, a: .5, life: 1100, delay: 90 }, col(C.ice)));
+      push(Object.assign({ type: 'ring', x, y, r0: 20, r1: far * .8, w: 1, a: .35, life: 1250, delay: 260 }, col(C.violet)));
+      push(Object.assign({ type: 'flash', x, y, r0: 20, r1: Math.max(W, H) * .9, a: .26, life: 650, delay: 30 }, col(C.cyan)));
+      push(Object.assign({ type: 'edge', start: edgeAt(x, y), dist: .5, dirs: [1, -1], seg: 120, frame: .55, fk: 1, a: 1, life: 1150, delay: 60 }, col(C.cyan)));
+      const r = o.rect;
+      const gx = r ? r.left + r.width / 2 : x, gy = r ? r.top + r.height / 2 : y;
+      push(Object.assign({ type: 'glyph', x: gx, y: gy, s: Math.min(78, (r ? r.height : 120) * .55), grow: .45, w: 3, a: 1, life: 1000, delay: 120 }, col(C.ice)));
+      for (let i = 0; i < 18; i++) {
+        const ang = rnd(0, 6.283);
+        push(Object.assign({ type: 'spark', x, y, ang, v: rnd(420, 680), drag: 3.8, w: 1.2, a: .95, life: rnd(620, 900), delay: rnd(60, 200) }, col(Math.random() < .5 ? C.violet : C.white)));
+      }
+      for (let i = 0; i < 28; i++) {
+        const sx = r ? r.left + rnd(0, r.width) : x + rnd(-120, 120), sy = r ? r.top + rnd(0, r.height) : y + rnd(-30, 30);
+        push(Object.assign({ type: 'mote', x: sx, y: sy, v: rnd(40, 110), wob: rnd(2, 6), ph: rnd(0, 6), r: rnd(3, 9), a: rnd(.3, .65), life: rnd(900, 1500), delay: rnd(100, 520) }, col(Math.random() < .3 ? C.violet : Math.random() < .5 ? C.white : C.cyan)));
+      }
     }
     if (o.over) {
       /* Erlösung: das Rot steigt als Licht auf und löst sich in Blau */
-      const m = 4 + lvl * 3;
+      const m = 5 + lvl * 3;
       for (let i = 0; i < m; i++) push({ type: 'mote', x: x + rnd(-14, 40), y: y + rnd(-8, 8), v: rnd(26, 52), wob: rnd(3, 6), ph: rnd(0, 6), r: rnd(4, 8), a: rnd(.35, .6), life: rnd(800, 1150), c: C.red, to: C.ice, delay: rnd(40, 220) });
     }
-    if (o.rect && lvl >= 1) {
+    if (o.rect) {
       const r = o.rect;
-      push(Object.assign({ type: 'sweep', x: r.left, y: r.top, w: r.width, h: r.height, rad: o.goal ? 26 : 0, a: o.goal ? .22 : lvl === 2 ? .16 : .09, life: o.goal ? 720 : 560, delay: 40 }, col(o.goal ? C.cyan : base)));
+      push(Object.assign({ type: 'sweep', x: r.left, y: r.top, w: r.width, h: r.height, rad: o.goal ? 24 : 0, a: o.goal ? .3 : lvl === 2 ? .24 : lvl === 1 ? .15 : .11, life: o.goal ? 760 : 580, delay: 40 }, col(o.goal ? C.cyan : base)));
+      if (o.goal) push(Object.assign({ type: 'sweep', x: r.left, y: r.top, w: r.width, h: r.height, rad: 24, a: .18, life: 760, delay: 330 }, col(C.violet)));
     }
     if (!raf) raf = requestAnimationFrame(loop);
   }
-  return { burst };
+  /* Start: ein Licht umrundet den Bildschirmrand, der Rahmen glimmt auf */
+  function intro() {
+    if (reduced() || !ensure()) return;
+    push({ type: 'edge', start: .5, dist: 1, dirs: [1, -1], seg: 150, frame: .32, fk: 1, a: .9, life: 1450, c: C.cyan, to: C.ice, lin: false });
+    if (!raf) raf = requestAnimationFrame(loop);
+  }
+  /* Der Haken rastet ein: Lichtimpuls aus der Mitte */
+  function lock(x, y) {
+    if (reduced() || !ensure()) return;
+    push({ type: 'flash', x, y, r0: 10, r1: 150, a: .5, life: 520, c: C.cyan });
+    push({ type: 'ring', x, y, r0: 40, r1: 190, w: 1.8, a: .8, life: 700, c: C.ice });
+    push({ type: 'ring', x, y, r0: 30, r1: 130, w: 1, a: .55, life: 640, c: C.violet, delay: 80 });
+    for (let i = 0; i < 22; i++) push({ type: 'spark', x, y, ang: i / 22 * 6.283 + rnd(-.1, .1), v: rnd(260, 420), drag: 4.5, w: rnd(1, 1.5), a: rnd(.6, .95), life: rnd(500, 700), c: Math.random() < .4 ? C.white : C.cyan, delay: rnd(0, 50) });
+    if (!raf) raf = requestAnimationFrame(loop);
+  }
+  return { burst, intro, lock };
 })();
 /* Mitte des Abhak-Kreises einer Zeile */
 function checkPoint(el) {

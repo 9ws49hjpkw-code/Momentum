@@ -4,7 +4,7 @@ const L = require('./lib');
   const { srv, url } = await L.serve(L.APP, 8765);
   const b = await L.launch(), c = await L.ctx(b), p = await c.newPage(), log = [];
   L.watch(p, log);
-  await p.goto(url); await p.waitForSelector('body.ready'); await L.decorate(p); await p.waitForTimeout(500);
+  await p.goto(url); await p.waitForSelector('body.live'); await L.decorate(p); await p.waitForTimeout(500);
   await L.shot(p, '01-heute-leer');
   for (const [t, n] of [['tasks', '02-aufgaben-leer'], ['ideas', '03-ideen-leer'], ['journal', '04-journal-leer']]) {
     await p.tap(`[data-tab="${t}"]`); await p.waitForTimeout(450); await L.shot(p, n);

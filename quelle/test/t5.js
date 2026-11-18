@@ -3,7 +3,7 @@ const { start, ok } = require('./common');
 (async () => {
   const t = await start({ time: '2026-11-16T21:30:00+01:00' });
   const { p, T, W, texts, shot, L } = t;
-  const reload = async () => { await p.reload(); await p.waitForSelector('body.ready'); await L.decorate(p); await W(350); };
+  const reload = async () => { await p.reload(); await p.waitForSelector('body.live'); await L.decorate(p); await W(350); };
 
   console.log('Schreiben');
   await T('[data-tab="journal"]'); await W(450);

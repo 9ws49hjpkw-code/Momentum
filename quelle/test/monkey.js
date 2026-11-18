@@ -65,7 +65,7 @@ const WORDS = ['Klavier üben', 'Mail an Lisa', 'Fotos sichern', 'Laufen gehen',
   ok(inv.emptyJournal === 0, 'keine leeren Journal-Einträge gespeichert');
   ok(!inv.layered, 'alle Sheets lassen sich schließen');
   const before = await p.evaluate(() => document.querySelector('#tasks-sub').textContent);
-  await p.reload(); await p.waitForSelector('body.ready'); await W(300);
+  await p.reload(); await p.waitForSelector('body.live'); await W(300);
   ok((await p.evaluate(() => document.querySelector('#tasks-sub').textContent)) === before, 'nach Neuladen derselbe Stand (' + before + ')');
   ok(!(await p.$('#fatal')), 'App startet danach normal');
   await t.end();

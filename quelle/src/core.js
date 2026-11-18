@@ -283,6 +283,37 @@ function addGoal(day, g) {
   return true;
 }
 function removeGoal(day, goalId) { saveGoals(day, liveGoals(day).filter(g => g.id !== goalId)); }
+/* Verpasste Tagesziele früherer Tage bleiben präsent, bis sie erledigt, auf heute gelegt oder verworfen sind.
+   Felder (optional, nur ergänzt): done/doneAt, moved (Tag, auf den es gelegt wurde), dropped. */
+const goalKey = t => String(t || '').trim().toLowerCase();
+function overdueGoals(day) {
+  const out = [], seenT = new Set(), seenX = new Set();
+  for (const g of liveGoals(day)) { if (g.taskId) seenT.add(g.taskId); else seenX.add(goalKey(g.text)); }
+  const past = Array.from(S.days.values()).filter(d => d.date < day).sort((a, b) => a.date < b.date ? 1 : a.date > b.date ? -1 : 0);
+  for (const d of past) for (const g of d.goals.slice(0, MAX_GOALS)) {
+    if (g.taskId) {
+      const t = S.tasks.get(g.taskId);
+      if (!t || seenT.has(t.id)) continue;
+      seenT.add(t.id);
+      if (t.done || g.dropped || g.moved) continue;
+    } else {
+      const k = goalKey(g.text);
+      if (!k || seenX.has(k)) continue;
+      seenX.add(k);
+      if (g.done || g.dropped || g.moved) continue;
+    }
+    out.push({ g, date: d.date });
+  }
+  return out;
+}
+function pastGoal(date, gid) { const d = S.days.get(date); return d ? d.goals.find(g => g.id === gid) || null : null; }
+function patchPastGoal(date, gid, patch) {
+  const d = S.days.get(date), g = d && d.goals.find(x => x.id === gid);
+  if (!g) return;
+  for (const k in patch) { if (patch[k] == null || patch[k] === false) delete g[k]; else g[k] = patch[k]; }
+  if (patch.done === false) g.done = false;
+  dbPut('days', d);
+}
 
 /* ----- Journal ----- */
 const J_FIELDS = [
@@ -345,8 +376,14 @@ function normalizeImport(obj) {
     const goals = [];
     for (const g of p.goals) {
       if (!g || goals.length >= MAX_GOALS) continue;
-      if (g.taskId) { if (taskIds.has(g.taskId)) goals.push({ id: str(g.id, 80) || uid(), taskId: g.taskId, done: false }); }
-      else if (str(g.text).trim()) goals.push({ id: str(g.id, 80) || uid(), text: str(g.text, 140).trim(), done: !!g.done });
+      let x = null;
+      if (g.taskId) { if (taskIds.has(g.taskId)) x = { id: str(g.id, 80) || uid(), taskId: g.taskId, done: false }; }
+      else if (str(g.text).trim()) x = { id: str(g.id, 80) || uid(), text: str(g.text, 140).trim(), done: !!g.done };
+      if (!x) continue;
+      if (x.done && typeof g.doneAt === 'number' && isFinite(g.doneAt)) x.doneAt = g.doneAt;
+      if (validDay(g.moved)) x.moved = g.moved;
+      if (g.dropped === true) x.dropped = true;
+      goals.push(x);
     }
     seenD.add(p.date); days.push({ date: p.date, goals });
   }

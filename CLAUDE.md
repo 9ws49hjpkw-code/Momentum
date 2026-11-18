@@ -7,7 +7,7 @@ Der Nutzer hat keinen Computer. Claude ändert, testet und veröffentlicht selbs
 1. Nur in `quelle/src/` ändern. Die Dateien im Root nie von Hand bearbeiten, sie werden gebaut.
 2. `BUILD` in `quelle/build.js` erhöhen.
 3. `node quelle/build.js` (und `node quelle/mkicons.js`, wenn sich das Icon ändert).
-4. Alle Tests: `for t in t1 t2 t3 t4 t5 t6 t7 t8 t9 t10 monkey; do node quelle/test/$t.js; done`. Kein ✗, keine Konsolenfehler.
+4. Alle Tests: `for t in t1 t2 t3 t4 t5 t6 t7 t8 t9 t10 t11 monkey; do node quelle/test/$t.js; done`. Kein ✗, keine Konsolenfehler.
 5. Commit auf `main` und pushen. GitHub Pages veröffentlicht in ca. 1 Minute.
    Auf dem iPhone erscheint dann „Neue Version bereit“ → „Aktualisieren“.
 

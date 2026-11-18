@@ -63,6 +63,20 @@ function goalsCard(goals) {
       btn('.goal-text', 'goalOpen', { gid: g.id }, goalText(g)));
   }));
 }
+/* Überfällige Tagesziele: eigenes rotes Feld, steht über allem anderen Überfälligen */
+function sinceLabel(date) {
+  const d = diffDays(date, today());
+  return d === -1 ? 'Ziel von gestern' : 'Ziel vom ' + shortDate(date) + ' · ' + plural(-d, 'Tag', 'Tage') + ' her';
+}
+function overGoalsCard(list) {
+  if (!list.length) return null;
+  return h('section.ogoals', null,
+    h('div.ogoals-head', null, h('h2', null, 'Ziele überfällig'), h('span.n', null, list.length)),
+    list.map(o => h('div.goal.og', null,
+      h('button.check', { type: 'button', 'aria-label': 'Erledigen', data: { act: 'ogCheck', gid: o.g.id, date: o.date } }, checkMark()),
+      h('button.goal-text', { type: 'button', data: { act: 'ogOpen', gid: o.g.id, date: o.date } },
+        h('span.og-t', null, goalText(o.g)), h('span.og-meta', null, sinceLabel(o.date))))));
+}
 function tomorrowHint(day) {
   const n = liveGoals(addDays(day, 1)).length;
   if (!n && hourNow() < 17) return null;
@@ -95,23 +109,26 @@ function renderToday() {
   const day = today();
   const goals = liveGoals(day);
   const inGoals = new Set(goals.filter(g => g.taskId).map(g => g.taskId));
+  const og = overdueGoals(day);
+  for (const o of og) if (o.g.taskId) inGoals.add(o.g.taskId);
   const open = Array.from(S.tasks.values()).filter(t => !t.done && t.due <= day && !inGoals.has(t.id));
   const now = open.filter(t => t.due === day && t.now).sort(cmpTask);
   const over = open.filter(t => t.due < day).sort(cmpTask);
   const due = open.filter(t => t.due === day && !t.now).sort(cmpTask);
   const ideas = Array.from(S.ideas.values()).filter(i => ideaDue(i, day)).sort((a, b) => a.createdAt - b.createdAt);
-  const none = !now.length && !over.length && !due.length;
+  const none = !now.length && !over.length && !due.length && !og.length;
   $('#today-title').textContent = cap(fWeekday.format(D(day)));
   $('#today-sub').textContent = plainDate(day);
   fill($('#today-top'), ui.update ? updateCard() : null, inSafariTab && ui.installHint ? installCard() : null);
   fill($('#today'),
     goalsCard(goals),
+    overGoalsCard(og),
     tomorrowHint(day),
     ideas.length ? h('section.sec.idea-sec', null, h('h2.sec-h', null, 'Was wird daraus?', h('span.n', null, ideas.length)), ideas.map(ideaCard)) : null,
     now.length ? taskSection('Jetzt', now, 'now', 'now-h') : null,
     over.length ? taskSection('Überfällig', over, 'over', 'over-h') : null,
     due.length ? taskSection('Heute', due, 'today') : null,
-    none ? empty('check', 'Nichts fällig', inGoals.size ? 'Bleiben deine Tagesziele. Mehr steht heute nicht an.' : 'Heute steht nichts an. Fällt dir etwas ein, leg es mit + ab.', true) : null);
+    none ? empty('check', 'Nichts fällig', goals.length ? 'Bleiben deine Tagesziele. Mehr steht heute nicht an.' : 'Heute steht nichts an. Fällt dir etwas ein, leg es mit + ab.', true) : null);
 }
 
 /* ----- Aufgaben ----- */
@@ -120,7 +137,9 @@ function renderTasks() {
   if (ui.filter && !topicById(ui.filter)) ui.filter = null;
   const pass = t => !ui.filter || t.topicId === ui.filter;
   const all = Array.from(S.tasks.values());
-  const open = all.filter(t => !t.done && pass(t));
+  const og = overdueGoals(day).filter(o => o.g.taskId ? pass(S.tasks.get(o.g.taskId)) : !ui.filter);
+  const ogIds = new Set(og.filter(o => o.g.taskId).map(o => o.g.taskId));
+  const open = all.filter(t => !t.done && pass(t) && !ogIds.has(t.id));
   const done = all.filter(t => t.done && pass(t)).sort((a, b) => (b.doneAt || 0) - (a.doneAt || 0));
   const g = { over: [], today: [], soon: [], later: [] };
   for (const t of open) g[groupOf(t, day)].push(t);
@@ -134,7 +153,7 @@ function renderTasks() {
       S.topics.map(t => btn('.chip' + (ui.filter === t.id ? '.on' : ''), 'filter', { id: t.id }, h('i.dot', { vars: { '--h': t.hue } }), t.name))));
   }
   let blank = null;
-  if (!open.length) {
+  if (!open.length && !og.length) {
     if (ui.filter) blank = empty('tTasks', 'Nichts offen', 'Für „' + topicById(ui.filter).name + '“ steht gerade nichts an.');
     else if (!all.length) blank = empty('tTasks', 'Noch keine Aufgaben', 'Tipp auf +, schreib es auf und sag, wann. Dann ist es aus dem Kopf.');
     else blank = empty('check', 'Alles erledigt', 'Nichts mehr offen. Der Rest gehört dir.');
@@ -150,6 +169,7 @@ function renderTasks() {
   $('#tasks-sub').textContent = openAll ? plural(openAll, 'offene Aufgabe', 'offene Aufgaben') : 'Nichts offen';
   fill(box,
     filter,
+    og.length ? h('div.sec', null, overGoalsCard(og)) : null,
     g.over.length ? taskSection('Überfällig', g.over, 'over', 'over-h') : null,
     g.today.length ? taskSection('Heute', g.today, 'today') : null,
     g.soon.length ? taskSection('Demnächst', g.soon, 'soon') : null,
@@ -573,6 +593,8 @@ function balance() {
     else if (t.due === day) open++;
   }
   for (const g of liveGoals(day)) if (!g.taskId) { if (g.done) done++; else open++; }
+  for (const d of S.days.values()) if (d.date < day) for (const g of d.goals) if (!g.taskId && g.done && g.doneAt && dayOf(g.doneAt) === day) done++;
+  for (const o of overdueGoals(day)) if (!o.g.taskId) over++;
   return { done, open, over, total: done + open + over };
 }
 function renderBeams() {
