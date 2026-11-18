@@ -60,3 +60,6 @@ Nie auf echtem iPhone/Safari getestet worden (nur Chrome-Simulation 393x852): Ta
 ## Arbeitsweise
 Nutzer testet im Alltag und meldet Probleme/Lücken. Änderungen klein halten, Daten nie gefährden, vor Lieferung Tests laufen lassen,
 BUILD-Nummer in build.js erhöhen, alle 6 Dateien neu liefern.
+
+## Autopilot (ab 19.11.2026)
+Tägliche Weiterentwicklung über drei geplante Aufgaben und die Notion-Seite „Momentum – Wünsche“. Regeln und Ablauf: quelle/AUTOPILOT.md. Arbeitsbranch: autopilot.
