@@ -31,9 +31,9 @@ Die Zeiten sind so gewählt, dass jede Schicht in einem neuen 5-Stunden-Fenster 
 - Nichts zu tun → sofort beenden, ohne weitere Dateien zu lesen.
 
 ## Notion-Seite „Momentum – Wünsche“
-Mit dem Notion-Connector per Titel suchen. Fehlen die Notion-Werkzeuge in der Sitzung: abbrechen, Abschlussmeldung
+Seiten-ID: `41cd0d41-383c-8162-8f04-e8fa976e48c0` (direkt mit notion-fetch öffnen; nur falls das scheitert, per Titel suchen). Fehlen die Notion-Werkzeuge in der Sitzung: abbrechen, Abschlussmeldung
 „Notion ist nicht verbunden – bitte in claude.ai unter Connectors verbinden.“
-Existiert die Seite nicht: anlegen (oberste Ebene) mit genau diesen Abschnitten:
+Existiert die Seite nicht mehr: neu anlegen (oberste Ebene) mit genau diesen Abschnitten:
 
 - Kurze Anleitung (Callout): „Schreib unter ‚Neue Wünsche‘ einfach los, ein Punkt pro Gedanke, gern unordentlich.
   Fragen von Claude beantwortest du direkt darunter. Bei Datenänderungen schreib ‚OK Daten‘.“
