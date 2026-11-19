@@ -1,6 +1,7 @@
 # Bauplan 19.11.2026  (Basis: main @ 2e90ce1)
 
 15 Wünsche aus Notion (Runde 19.11.), 6 Fragen gestellt (F1–F6). Reihenfolge für die Nacht:
+Antworten 19.11. (Notion): F1 A + OK Daten · F2 C · F3 A · F4 B · F5 C + OK Daten · F6 Kurzbefehle A+B.
 A (Fehler) → B (größtes Paket, nur wenn F1–F3 beantwortet) → C → D (Design) → E (Ton). F wartet bewusst.
 Ohne Antworten: A, C1, C2, D1–D4, E1 bauen. Versionsziel: 1.2.0 (neue Funktionen).
 
@@ -20,22 +21,22 @@ Prüfung: neuer Test t12.js (oder Erweiterung t8 – erst grep, welcher Test Tas
 ## Paket B: Aufgaben-Seite als Zeit-Dashboard („Master Feature“)
 Wünsche (Zitate, gekürzt): „Mehr Infos, Details, Extras zu Aufgaben hinzufügen. In Klammern. Im heute Menü nur die Aufgabe selbst … Wenn man drauf klickt … sollen sich die Details zur Aufgabe enthüllen.“ · „Die Aufgaben Page … fast sinnlos … soll das Master Feature werden … visuell … Dashboard … wie lange dauert die Aufgabe? Wann muss sie erledigt sein am Tag, was ist dafür notwendig?“ · „An Aufgaben und Ziele Notizen anfügen … Dort muss man die garnicht abhaken können.“ · „mehr die Zeit übersichtlich einbauen … sehen wie man sich immer mehr darauf zu bewegt“ · „Zeitplan … chronologischen zeitstrahl … 3 Main Pages wären zu viel“ · „immer wenn ich etwas eintrage, kommt ein Feld in dem ich den zeitrahmen eintrage … nach Zeit sortiert … Werd kreativ“ · „Die Aufgaben Page braucht … ein brand neues Design“
 
-### B1. Neue Felder an Aufgaben/Zielen  [wartet auf Antwort F1 + „OK Daten“]
+### B1. Neue Felder an Aufgaben/Zielen  [offen – F1: A, „OK Daten“]
 Verständnis: optionale Felder task.note (Text), task.time ("HH:MM" oder null), task.dur (Minuten oder null); Ziel im Tagesplan: goal.note. Keine neue DB-Version, kein neuer Store (Felder nur ergänzen).
 Umsetzung: core.js addTask/updateTask, normalizeImport (note ≤ 5000, time /^\d\d:\d\d$/, dur 5–720), Standardwerte beim Lesen (fehlend = null/''). Capture-Sheet (views.js openEntry/saveEntry, body.html): bei Aufgaben Zeile „Zeit“ (natives time-Feld + Dauer-Chips 15/30/60/90) – freiwillig, falls F1=A.
 Prüfung: t7 (Update behält Daten) + neuer Test: alte Aufgabe ohne Felder rendert; Export→Import behält note/time/dur; Import ohne Felder klappt.
 
-### B2. Details „in Klammern“ + Aufklappen auf Heute  [wartet auf Antwort F2 (+B1 bei Feld)]
+### B2. Details „in Klammern“ + Aufklappen auf Heute  [offen – F2: C]
 Verständnis: Text in (…) wird beim Speichern als Detail abgetrennt (bei C: in note übernommen) bzw. nur in der Anzeige versteckt (bei A, ohne Datenänderung). Heute: Tippen auf row-main klappt Details auf (Notiz, Uhrzeit, Dauer, Thema), Knopf „Bearbeiten“ öffnet das Sheet. Kreis bleibt Abhaken.
 Umsetzung: views.js taskRow/taskMeta, boot.js Aktion editTask → toggleDetails; CSS .row-detail mit Spring-Aufklappen, reduzierte Bewegung = sofort.
 Prüfung: Test: Aufgabe „Drucken (Stundenliste)“ zeigt auf Heute nur „Drucken“; Tippen zeigt „Stundenliste“; Bearbeiten öffnet Sheet; Kreis hakt weiter ab.
 
-### B3. Aufgaben-Seite neu: Zeitstrahl  [wartet auf Antwort F3 (+B1)]
+### B3. Aufgaben-Seite neu: Zeitstrahl  [offen – F3: A]
 Verständnis (Empfehlung A): oben wischbares Wochenband (Tage mit Lichtbalken nach Last = Summe Dauer bzw. Anzahl), darunter gewählter Tag als senkrechter Zeitstrahl: Blöcke nach time/dur, Fach „im Lauf des Tages“ für Aufgaben ohne Uhrzeit, leuchtende Jetzt-Linie, Überfälliges rot oben. Sortierung nach Zeit, nicht nach Prio. Kein Abhaken/Wischen dort, Tippen = Details/Bearbeiten. Themen-Filter bleibt. Neues Design im violetten Hologramm-Stil des Tabs.
 Umsetzung: views.js renderTasks komplett neu (alte Gruppenlogik als Fallback „Später“ ab Tag 8), styles.css Abschnitt Aufgaben, Empty States.
 Prüfung: t3/t4 anpassen (wo sie Gruppen der Aufgaben-Seite prüfen), neuer Test: Block-Position entspricht Uhrzeit, Wochenband wechselt Tag, kein Swipe-Abhaken auf Aufgaben-Seite; Screenshots via gallery.js ansehen, auch 375×667.
 
-### B4. Folge-Erinnerung  [wartet auf Antwort F4 (+B1)]
+### B4. Folge-Erinnerung  [offen – F4: B]
 Verständnis: „Drucken“ → zum Ende der geplanten Zeit erscheint „Stundenliste eintragen“ auf Heute. Kein Push/Hintergrund (tabu/unmöglich); bei offener App Toast + Ton zur Zeit.
 Umsetzung je nach Antwort: A) task.after (Text) → beim Erreichen von time+dur (oder beim Abhaken) neue Aufgabe anlegen, einmalig (task.afterDone). B) Regeln in meta 'rules' [{word, then}] + Einstellungs-Abschnitt. Erzeugung idempotent (kein Doppel bei Neuladen).
 Prüfung: Test mit gefakter Uhr: Folgeaufgabe genau einmal, auch nach Neuladen.
@@ -51,10 +52,10 @@ Prüfung: t10/t11 erweitern oder neuer Test: ohne Überfälliges kein #alarm-Glo
 Umsetzung: ui.js FX.intro / #intro: bei Überfälligem färbt sich der Lichtkopf/das Randlicht beim Umlauf rot, Begrüßung ersetzt durch z. B. „3 überfällig. Zeit, sie zu erledigen.“ Icon bleibt unverändert (Wunsch).
 Prüfung: t11: mit überfälliger Aufgabe hat body/#intro Klasse .over und Text nennt die Zahl; ohne bleibt alles wie bisher.
 
-### C3. Verschieben wird unbequem + Zähler  [wartet auf Antwort F5 + „OK Daten“]
+### C3. Verschieben wird unbequem + Zähler  [offen – F5: C, „OK Daten“]
 Umsetzung: task.moved (Zahl, Standard 0) bei jeder Datumsänderung einer überfälligen Aufgabe +1; Bestätigungsdialog „Schon 2× verschoben. Wirklich?“; Anzeige „3× verschoben“ in Rot an der Zeile. normalizeImport ergänzen.
 
-### C4. Roter Zähler am App-Icon  [wartet auf Antwort F5]
+### C4. Roter Zähler am App-Icon  [offen – F5: C]
 Umsetzung: navigator.setAppBadge(n) / clearAppBadge, nur wenn unterstützt; Erlaubnis-Anfrage einmalig per Knopf in den Einstellungen (iOS braucht Notification-Erlaubnis). Keine Mitteilungen senden.
 
 ## Paket D: Design & Bewegung
@@ -87,5 +88,5 @@ Prüfung: Test: Schalter vorhanden, aus = keine AudioContext-Aufrufe (Spy), kein
 ## Paket F: Kalender & Wecker
 Wünsche (Zitate): „dass diese App mit dem Kalender zusammen arbeiten kann … wöchentlich geplante Ereignisse“ · „Dass sie auch in der Lage ist Wecker zu stellen, einen zu erinnern … Kurzbefehlen …“
 
-### F1. Kurzbefehl-Brücke  [wartet auf Antwort F6; frühestens nach B1/B3]
+### F1. Kurzbefehl-Brücke  [offen – F6: A+B, nach B1/B3]
 Verständnis: Web-App kann Kalender nicht lesen und keine Wecker stellen. Weg: shortcuts://run-shortcut?name=…&input=text&text=… aus Momentum (Termin/Wecker anlegen); Rückweg über Zwischenablage („Aus Kalender einfügen“). Anleitung für die Kurzbefehle in Notion schreiben.
