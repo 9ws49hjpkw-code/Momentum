@@ -281,6 +281,30 @@ body.ready .view.active .b-over{animation:redglow 2.6s ease-in-out infinite}
 .rw.flat .row-main{padding-left:18px}
 .rw.flat .row:active,.rw.flat .jitem:active{background:rgba(200,230,255,.05)}
 
+/* Details unter einer Aufgabe / einem Ziel (Heute): klappen weich auf */
+.rw-det,.goal-det{display:grid;grid-template-rows:0fr;opacity:0;transition:grid-template-rows .42s var(--ease),opacity .28s ease}
+.rw-det > div,.goal-det > div{min-height:0;overflow:hidden}
+.rw.open .rw-det,.goal.open + .goal-det{grid-template-rows:1fr;opacity:1}
+.rw-det-in{padding:0 16px 12px 58px;display:flex;flex-direction:column;gap:6px}
+.goal-det .rw-det-in{padding:0 0 12px 44px}
+.det-note{font-size:15px;line-height:21px;color:var(--ink2);white-space:pre-line;overflow-wrap:anywhere;padding-left:10px;border-left:1.5px solid rgba(150,228,255,.32)}
+.det-none{font-size:14px;line-height:19px;color:var(--ink3)}
+.det-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:2px}
+.det-time{display:inline-flex;align-items:center;gap:6px;font-size:14px;color:var(--ice)}
+.det-time .ic{width:16px;height:16px}
+.det-edit{flex:none;padding:0 16px}
+.row-meta .tm{color:var(--ice);font-variant-numeric:tabular-nums}
+.row-meta .moved{color:#FF6B7D;font-weight:600}
+.has-det{display:inline-flex;vertical-align:middle;color:var(--ink3)}
+.has-det .ic{width:15px;height:15px}
+.goal-text .has-det{margin-left:8px}
+.rw.open .row-main .row-title{-webkit-line-clamp:unset}
+.e-detail{margin:12px 2px 0;padding:12px 14px;border-radius:16px;background:rgba(200,230,255,.05);border:.5px solid var(--edge);font-size:16px;line-height:22px}
+.e-detail.grow::after,.e-detail.grow > textarea{max-height:110px}
+.e-detail.grow > textarea{overflow-y:auto;scrollbar-width:none}
+#note-grow{margin-top:0;min-height:96px}
+#note-grow.grow::after,#note-grow.grow > textarea{max-height:220px}
+
 /* ---------- Tagesziele ---------- */
 .goals{padding:8px 18px 10px;border-radius:26px;background:linear-gradient(165deg,rgba(150,222,255,.13),rgba(150,190,255,.04) 55%,rgba(160,160,255,.07));box-shadow:inset 0 .5px 0 rgba(255,255,255,.14),0 18px 44px rgba(0,0,0,.36),0 0 44px rgba(70,190,255,.07)}
 .goals::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(118deg,rgba(190,240,255,0) 26%,rgba(190,240,255,.055) 43%,rgba(190,240,255,0) 58%)}
@@ -290,7 +314,7 @@ body.ready .view.active .b-over{animation:redglow 2.6s ease-in-out infinite}
 .link{min-height:44px;padding:0 2px;display:inline-flex;align-items:center;gap:4px;color:var(--ice);font-size:15px;font-weight:600;transition:opacity .2s}
 .link:active{opacity:.55}
 .goal{display:flex;align-items:center;min-height:54px}
-.goal + .goal{border-top:.5px solid rgba(190,226,255,.11)}
+.goal + .goal,.goal-det + .goal{border-top:.5px solid rgba(190,226,255,.11)}
 .goal .check{flex:0 0 44px;justify-items:start;min-height:54px}
 .goal:not(.is-done) .check i{border-color:var(--cyan);box-shadow:0 0 10px rgba(98,217,255,.36),inset 0 0 7px rgba(98,217,255,.2)}
 .goal-text{flex:1;min-width:0;padding:12px 0;font-size:19px;line-height:25px;font-weight:500;letter-spacing:-.014em;overflow-wrap:anywhere;transition:color .3s ease}
@@ -802,6 +826,16 @@ body.enter .view.active .beam::after{content:"";position:absolute;left:0;right:0
           <button class="chip" data-act="ePrio" data-prio="1">Normal</button>
           <button class="chip" data-act="ePrio" data-prio="0">Niedrig</button>
         </div></div>
+        <div class="frow" id="e-time-row"><span class="ic" data-ic="timer"></span><div class="chips" id="e-time">
+          <label class="chip chip-date" id="e-time-chip"><span id="e-time-label">Uhrzeit</span><input type="time" id="e-time-in" aria-label="Uhrzeit wählen"></label>
+          <button class="chip" data-act="eDur" data-dur="15">15 Min</button>
+          <button class="chip" data-act="eDur" data-dur="30">30 Min</button>
+          <button class="chip" data-act="eDur" data-dur="60">1 Std</button>
+          <button class="chip" data-act="eDur" data-dur="90">1,5 Std</button>
+        </div></div>
+        <div class="fold" id="e-detail-fold"><div>
+          <div class="grow e-detail multi" id="e-detail-grow"><textarea id="e-detail" rows="1" placeholder="Details, Notiz, was du dafür brauchst" autocapitalize="sentences" aria-label="Details"></textarea></div>
+        </div></div>
       </div></div>
       <div class="fold" id="e-topic-fold"><div>
         <div class="frow"><span class="ic" data-ic="tag"></span><div class="chips" id="e-topics"></div></div>
@@ -891,6 +925,19 @@ body.enter .view.active .beam::after{content:"";position:absolute;left:0;right:0
   </section></div>
 </div>
 
+<!-- Notiz zu einem Tagesziel -->
+<div class="layer" id="L-note" hidden>
+  <div class="backdrop"></div>
+  <div class="sheet-pos"><section class="sheet" role="dialog" aria-modal="true" aria-label="Notiz">
+    <div class="grab" data-drag></div>
+    <div class="sheet-head" data-drag><h2 id="note-title">Notiz</h2><button class="icon-btn" data-act="closeTop" aria-label="Schließen"><span class="ic" data-ic="close"></span></button></div>
+    <div class="sheet-body">
+      <div class="grow e-detail multi" id="note-grow"><textarea id="note-text" rows="3" placeholder="Was gehört dazu?" autocapitalize="sentences" aria-label="Notiz"></textarea></div>
+      <div class="e-actions"><button class="btn btn-primary" data-act="noteSave">Speichern</button></div>
+    </div>
+  </section></div>
+</div>
+
 <!-- Dialog -->
 <div class="layer center" id="L-dialog" hidden>
   <div class="backdrop"></div>
@@ -910,7 +957,7 @@ body.enter .view.active .beam::after{content:"";position:absolute;left:0;right:0
 (function () {
 'use strict';
 /* ===== Grundlagen ===== */
-const VERSION = '1.1';
+const VERSION = '1.2';
 const TZ = 'Europe/Berlin';
 const PARK_DAYS = 7;
 const MAX_GOALS = 3;
@@ -973,6 +1020,12 @@ const IC = {
   search: svg('<circle cx="11" cy="11" r="6.6"/><path d="M16 16l4 4"/>'),
   exportI: svg('<path d="M12 15V3.8M8 7.6l4-4 4 4M5 12.5V18a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5.5"/>'),
   importI: svg('<path d="M12 3.8V15M8 11.2l4 4 4-4M5 12.5V18a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5.5"/>'),
+  note: svg('<path d="M5 6.5h14M5 12h14M5 17.5h8.5"/>'),
+  timer: svg('<circle cx="12" cy="13.2" r="7.6"/><path d="M12 9.4v3.8l2.4 1.6M9.6 2.8h4.8"/>'),
+  cal: svg('<rect x="3.8" y="5" width="16.4" height="15" rx="2.6"/><path d="M3.8 9.6h16.4M8.2 3v3.6M15.8 3v3.6"/>'),
+  alarm: svg('<circle cx="12" cy="13" r="7.4"/><path d="M12 9.2V13l2.6 1.7M4.2 5.6l2.8-2.2M19.8 5.6 17 3.4"/>'),
+  paste: svg('<rect x="5.5" y="4.6" width="13" height="16" rx="2.4"/><path d="M9.2 4.6V3.4h5.6v1.2M9 11h6M9 15h4"/>'),
+  sound: svg('<path d="M4.5 9.6h3l4.2-3.6v12l-4.2-3.6h-3z"/><path d="M15.4 9a4.2 4.2 0 0 1 0 6M17.8 6.6a7.6 7.6 0 0 1 0 10.8"/>'),
   share: svg('<path d="M12 14.5V3.8M8.4 7 12 3.4 15.6 7M7.5 10.5H7a2 2 0 0 0-2 2V18a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5.5a2 2 0 0 0-2-2h-.5"/>')
 };
 function ic(name, cls) {
@@ -1021,6 +1074,37 @@ function inDays(day) {
   if (d <= 0) return 'heute';
   if (d === 1) return 'morgen';
   return 'in ' + d + ' Tagen';
+}
+
+/* ----- Uhrzeit und Dauer (Aufgaben, optional) ----- */
+const validTime = s => typeof s === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(s);
+const toMin = s => validTime(s) ? +s.slice(0, 2) * 60 + +s.slice(3) : null;
+const fromMin = m => { m = ((Math.round(m) % 1440) + 1440) % 1440; return String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0'); };
+const normDur = v => { const n = Math.round(+v); return Number.isFinite(n) && n >= 5 && n <= 720 ? n : null; };
+const minNow = () => { const p = berlin(Date.now()); return (+p.hour % 24) * 60 + +p.minute; };
+function durLabel(m) {
+  if (!m) return '';
+  if (m < 60) return m + ' Min';
+  const hh = Math.floor(m / 60), mm = m % 60;
+  return mm ? hh + ' Std ' + mm + ' Min' : hh + ' Std';
+}
+function timeLabel(t) {
+  const a = toMin(t.time);
+  if (a == null) return t.dur ? durLabel(t.dur) : '';
+  return t.dur ? t.time + '–' + fromMin(a + t.dur) : t.time;
+}
+/* Text in Klammern ist Detail: „Drucken (Stundenliste, A4)“ → Titel „Drucken“, Detail „Stundenliste, A4“ */
+function splitBrackets(text) {
+  const det = [];
+  const rest = String(text || '').replace(/\s*\(([^()]*)\)/g, (m, x) => { if (x.trim()) det.push(x.trim()); return ' '; }).replace(/\s+/g, ' ').trim();
+  return rest && det.length ? { text: rest, details: det } : { text: String(text || '').trim(), details: [] };
+}
+const taskTitle = t => splitBrackets(t.text).text;
+function taskDetails(t) {
+  const out = splitBrackets(t.text).details.slice();
+  const n = (t.note || '').trim();
+  if (n) out.push(n);
+  return out;
 }
 
 /* ===== Speicher: IndexedDB ===== */
@@ -1145,7 +1229,9 @@ function seedTopics() {
 
 /* ----- Aufgaben ----- */
 function addTask(o) {
-  const t = { id: uid(), text: o.text, due: o.due, now: !!o.now, prio: o.prio, topicId: o.topicId || null, createdAt: Date.now(), done: false, doneAt: null };
+  const t = { id: uid(), text: o.text, due: o.due, now: !!o.now, prio: o.prio, topicId: o.topicId || null, createdAt: Date.now(), done: false, doneAt: null,
+    note: o.note || '', time: validTime(o.time) ? o.time : null, dur: normDur(o.dur), moved: 0 };
+  if (o.src) t.src = o.src;
   S.tasks.set(t.id, t); dbPut('tasks', t);
   return t;
 }
@@ -1154,6 +1240,8 @@ function setDone(id, done) { updateTask(id, { done: !!done, doneAt: done ? Date.
 function removeTask(id) { S.tasks.delete(id); dbDel('tasks', id); }
 function restoreTask(t) { S.tasks.set(t.id, t); dbPut('tasks', t); }
 const cmpTask = (a, b) => (b.prio - a.prio) || (a.due < b.due ? -1 : a.due > b.due ? 1 : 0) || ((b.now ? 1 : 0) - (a.now ? 1 : 0)) || (a.createdAt - b.createdAt);
+/* Zeitstrahl: nach Tag, dann Uhrzeit (ohne Uhrzeit zuletzt), dann Priorität */
+const cmpTime = (a, b) => (a.due < b.due ? -1 : a.due > b.due ? 1 : 0) || ((toMin(a.time) == null ? 1e4 : toMin(a.time)) - (toMin(b.time) == null ? 1e4 : toMin(b.time))) || (b.prio - a.prio) || (a.createdAt - b.createdAt);
 function groupOf(t, day) {
   if (t.due < day) return 'over';
   if (t.due === day) return 'today';
@@ -1226,6 +1314,45 @@ function patchPastGoal(date, gid, patch) {
   dbPut('days', d);
 }
 
+/* ----- Folge-Regeln: Stichwort in einer Aufgabe → Folgeaufgabe zum Ende der geplanten Zeit (meta 'rules') ----- */
+function normRules(v) {
+  const out = [];
+  if (!Array.isArray(v)) return out;
+  for (const r of v) {
+    if (!r || !str(r.word).trim() || !str(r.then).trim() || out.length >= 50) continue;
+    out.push({ id: str(r.id, 80) || uid(), word: str(r.word, 40).trim(), then: str(r.then, 280).replace(/\s+/g, ' ').trim(), since: Number.isFinite(+r.since) && +r.since > 0 ? +r.since : Date.now() });
+  }
+  return out;
+}
+const rules = () => normRules(S.meta.rules);
+const ruleHit = (r, text) => { const w = r.word.toLowerCase(), x = String(text || '').toLowerCase(), i = x.indexOf(w); return i >= 0 && (i === 0 || !/[a-zäöüß0-9]/.test(x[i - 1])); };
+const ruleFor = t => rules().find(r => ruleHit(r, t.text)) || null;
+/* Ende der geplanten Zeit als Zeitstempel-Vergleich in Berliner Zeit: [Tag, Minute] */
+function followDue(t, day, mins) {
+  const r = t.followed ? null : ruleFor(t);
+  if (!r) return false;
+  /* Nur, was nach dem Anlegen der Regel fertig wird – alte Aufgaben erzeugen nichts nachträglich */
+  if (t.done) return (t.doneAt || 0) >= r.since;
+  const a = toMin(t.time);
+  if (a == null) return false;
+  const end = a + (t.dur || 0);
+  const endDay = addDays(t.due, Math.floor(end / 1440)), endMin = end % 1440;
+  if (endDay < dayOf(r.since)) return false;
+  return endDay < day || (endDay === day && endMin <= mins);
+}
+/* Erzeugt fällige Folgeaufgaben genau einmal (followed = true). Gibt die neuen Aufgaben zurück. */
+function runRules() {
+  if (!rules().length) return [];
+  const day = today(), mins = minNow(), made = [];
+  for (const t of Array.from(S.tasks.values())) {
+    if (!followDue(t, day, mins)) continue;
+    const r = ruleFor(t);
+    updateTask(t.id, { followed: true });
+    made.push(addTask({ text: r.then, due: day, now: true, prio: t.prio, topicId: t.topicId, note: 'Folgt auf „' + taskTitle(t) + '“' }));
+  }
+  return made;
+}
+
 /* ----- Journal ----- */
 const J_FIELDS = [
   ['learned', 'Was habe ich heute gelernt oder erkannt?'],
@@ -1243,7 +1370,8 @@ function exportPayload() {
       ideas: Array.from(S.ideas.values()),
       journal: Array.from(S.journal.values()).filter(e => !jEmpty(e)),
       topics: S.topics.slice(),
-      days: Array.from(S.days.values())
+      days: Array.from(S.days.values()),
+      rules: rules().slice()
     }
   };
 }
@@ -1264,7 +1392,11 @@ function normalizeImport(obj) {
   for (const t of arr('tasks')) {
     if (!t || !str(t.text).trim() || !validDay(t.due)) continue;
     const prio = [0, 1, 2].indexOf(+t.prio) >= 0 ? +t.prio : 1;
-    tasks.push({ id: fresh(t.id), text: str(t.text, 5000).trim(), due: t.due, now: !!t.now, prio, topicId: topic(t.topicId), createdAt: +t.createdAt || Date.now(), done: !!t.done, doneAt: t.done ? (+t.doneAt || Date.now()) : null });
+    const x = { id: fresh(t.id), text: str(t.text, 5000).trim(), due: t.due, now: !!t.now, prio, topicId: topic(t.topicId), createdAt: +t.createdAt || Date.now(), done: !!t.done, doneAt: t.done ? (+t.doneAt || Date.now()) : null,
+      note: str(t.note, 5000), time: validTime(t.time) ? t.time : null, dur: normDur(t.dur), moved: Math.max(0, Math.min(999, Math.round(+t.moved) || 0)) };
+    if (t.followed === true) x.followed = true;
+    if (t.src === 'cal') x.src = 'cal';
+    tasks.push(x);
   }
   const taskIds = new Set(tasks.map(t => t.id));
   const ideas = [];
@@ -1294,13 +1426,17 @@ function normalizeImport(obj) {
       if (x.done && typeof g.doneAt === 'number' && isFinite(g.doneAt)) x.doneAt = g.doneAt;
       if (validDay(g.moved)) x.moved = g.moved;
       if (g.dropped === true) x.dropped = true;
+      if (str(g.note).trim()) x.note = str(g.note, 5000);
       goals.push(x);
     }
     seenD.add(p.date); days.push({ date: p.date, goals });
   }
+  const meta = [{ key: 'seeded', value: true }];
+  const rl = normRules(d.rules);
+  if (rl.length) meta.push({ key: 'rules', value: rl });
   return {
     exportedAt: Date.parse(obj.exportedAt) || null,
-    data: { tasks, ideas, journal, topics, days, meta: [{ key: 'seeded', value: true }] }
+    data: { tasks, ideas, journal, topics, days, meta }
   };
 }
 const plural = (n, one, many) => n + ' ' + (n === 1 ? one : many);
@@ -1499,10 +1635,10 @@ function initKeyboard() {
   window.addEventListener('orientationchange', () => setTimeout(measureKb, 300));
   document.addEventListener('touchend', e => { const t = e.changedTouches[0]; if (t) lastTouchY = t.clientY; }, { passive: true, capture: true });
   document.addEventListener('touchstart', e => {
-    if (KB.hold && e.target.type !== 'date') { KB.hold = false; setTimeout(measureKb, 60); }
+    if (KB.hold && e.target.type !== 'date' && e.target.type !== 'time') { KB.hold = false; setTimeout(measureKb, 60); }
   }, { passive: true, capture: true });
   document.addEventListener('focusin', e => {
-    if (e.target.type === 'date') { if (KB.h > 0) { KB.hold = true; KB.guess = false; clearTimeout(KB.timer); } return; }
+    if (e.target.type === 'date' || e.target.type === 'time') { if (KB.h > 0) { KB.hold = true; KB.guess = false; clearTimeout(KB.timer); } return; }
     if (!isField(e.target)) return;
     if (KB.h === 0) guessKb();
     /* Das Feld (bei langen Texten die Tippstelle) landet zwischen oberem Rand und Tastatur – nie darüber hinaus */
@@ -1514,7 +1650,7 @@ function initKeyboard() {
     setTimeout(measureKb, 450);
   });
   document.addEventListener('focusout', e => {
-    if (e.target && e.target.type === 'date') KB.hold = false;
+    if (e.target && (e.target.type === 'date' || e.target.type === 'time')) KB.hold = false;
     setTimeout(() => {
       if (isField(document.activeElement) || KB.hold) return;
       KB.guess = false; clearTimeout(KB.timer);
@@ -1876,12 +2012,25 @@ function taskMeta(t, group) {
     if (group === 'over') m.push(h('span.over', null, dueLabel(t.due)));
     else if (group === 'soon' || group === 'later') m.push(h('span', null, dueLabel(t.due)));
     else if (group === 'today' && t.now) m.push(h('span.hot', null, 'Jetzt'));
+    const tl = timeLabel(t);
+    if (tl) m.push(h('span.tm', null, tl));
     if (t.prio === 2) m.push(h('span.hot', null, 'Hoch'));
     else if (t.prio === 0) m.push(h('span', null, 'Niedrig'));
   }
+  if (group !== 'done' && t.moved > 0) m.push(h('span.moved', null, t.moved + '× verschoben'));
   const tp = topicTag(t.topicId);
   if (tp) m.push(tp);
+  if (taskDetails(t).length) m.push(h('span.has-det', { 'aria-label': 'hat Details' }, ic('note')));
   return m;
+}
+/* Details klappen unter der Aufgabe auf (Heute): Notiz, Klammer-Details, Zeit, dazu „Bearbeiten“ */
+function rowDetails(t) {
+  const det = taskDetails(t), tl = timeLabel(t);
+  return h('div.rw-det', null, h('div', null, h('div.rw-det-in', null,
+    det.length ? det.map(x => h('p.det-note', null, x)) : h('p.det-none', null, 'Keine Details. Unter „Bearbeiten“ ergänzt du welche.'),
+    h('div.det-foot', null,
+      tl ? h('span.det-time', null, ic('clock'), tl) : h('span'),
+      btn('.pill.det-edit', 'editTask', { id: t.id }, 'Bearbeiten')))));
 }
 /* Farbe des Themas für die ganze Zeile */
 function tpVars(id) { const t = id && topicById(id); return t ? { '--h': t.hue } : null; }
@@ -1891,9 +2040,10 @@ function taskRow(t, group) {
     h('div.rw-under', null, ic('check')),
     h('div.row', null,
       h('button.check', { type: 'button', 'aria-label': t.done ? 'Wieder öffnen' : 'Erledigen', data: { act: 'check', id: t.id } }, checkMark()),
-      h('button.row-main', { type: 'button', data: { act: 'editTask', id: t.id } },
-        h('span.row-title', null, t.text),
-        meta.length ? h('span.row-meta', null, meta) : null)));
+      h('button.row-main', { type: 'button', 'aria-expanded': group === 'done' ? null : 'false', data: { act: group === 'done' ? 'editTask' : 'taskOpen', id: t.id } },
+        h('span.row-title', null, taskTitle(t)),
+        meta.length ? h('span.row-meta', null, meta) : null)),
+    group === 'done' ? null : rowDetails(t));
 }
 function taskSection(title, list, group, cls) {
   return h('section.sec', null,
@@ -1910,10 +2060,18 @@ function goalsCard(goals) {
       h('div.goals-empty', null, h('p', null, 'Was zählt heute? Wähl bis zu drei Dinge.'), btn('.btn.btn-ghost', 'plan', { day: 'today' }, 'Tag planen')));
   }
   return h('section.goals.holo', null, head, goals.map(g => {
-    const done = goalDone(g);
-    return h('div.goal', { class: done ? 'is-done' : '' },
+    const done = goalDone(g), t = g.taskId ? S.tasks.get(g.taskId) : null;
+    const det = t ? taskDetails(t) : ((g.note || '').trim() ? [g.note.trim()] : []);
+    const tl = t ? timeLabel(t) : '';
+    return [h('div.goal', { class: done ? 'is-done' : '', data: { gid: g.id } },
       h('button.check', { type: 'button', 'aria-label': done ? 'Wieder öffnen' : 'Erledigen', data: { act: 'goalCheck', gid: g.id } }, checkMark()),
-      btn('.goal-text', 'goalOpen', { gid: g.id }, goalText(g)));
+      h('button.goal-text', { type: 'button', 'aria-expanded': 'false', data: { act: 'goalOpen', gid: g.id } }, t ? taskTitle(t) : goalText(g),
+        det.length ? h('span.has-det', { 'aria-label': 'hat Notiz' }, ic('note')) : null)),
+    h('div.goal-det', null, h('div', null, h('div.rw-det-in', null,
+      det.length ? det.map(x => h('p.det-note', null, x)) : h('p.det-none', null, t ? 'Keine Details.' : 'Noch keine Notiz.'),
+      h('div.det-foot', null,
+        tl ? h('span.det-time', null, ic('clock'), tl) : h('span'),
+        t ? btn('.pill.det-edit', 'editTask', { id: t.id }, 'Bearbeiten') : btn('.pill.det-edit', 'goalNote', { gid: g.id }, det.length ? 'Notiz ändern' : 'Notiz')))))];
   }));
 }
 /* Überfällige Tagesziele: eigenes rotes Feld, steht über allem anderen Überfälligen */
@@ -2149,7 +2307,7 @@ function openJEntry(date) {
 }
 
 /* ----- Erfassen und Bearbeiten ----- */
-const E = { mode: 'new', type: 'task', when: null, date: null, prio: 1, topicId: null, id: null };
+const E = { mode: 'new', type: 'task', when: null, date: null, prio: 1, topicId: null, id: null, time: null, dur: null };
 const eText = () => $('#e-text');
 function entryValid() {
   if (!eText().value.trim()) return false;
@@ -2172,6 +2330,10 @@ function syncEntry() {
   $('#e-date-chip').classList.toggle('on', E.when === 'date');
   $('#e-date-label').textContent = E.when === 'date' && E.date ? shortDate(E.date) : 'Datum';
   for (const b of $$('#e-prio [data-prio]')) b.classList.toggle('on', +b.dataset.prio === E.prio);
+  $('#e-time-chip').classList.toggle('on', !!E.time);
+  $('#e-time-label').textContent = E.time ? E.time + ' Uhr' : 'Uhrzeit';
+  for (const b of $$('#e-time [data-dur]')) b.classList.toggle('on', +b.dataset.dur === E.dur);
+  $('#e-detail-fold').classList.toggle('off', !(isTask && E.mode === 'task'));
   for (const b of $$('#e-topics [data-id]')) b.classList.toggle('on', b.dataset.id === E.topicId);
   let note = '';
   if (isNew && !isTask) note = 'Die Idee parkt. In 7 Tagen fragt „Heute“, was daraus wird.';
@@ -2187,8 +2349,8 @@ function syncEntry() {
 }
 function openEntry(o) {
   const day = today();
-  Object.assign(E, { mode: o.mode, type: 'task', when: null, date: null, prio: 1, topicId: null, id: o.id || null });
-  let text = '';
+  Object.assign(E, { mode: o.mode, type: 'task', when: null, date: null, prio: 1, topicId: null, id: o.id || null, time: null, dur: null });
+  let text = '', note = '';
   const sec = $('#e-secondary');
   sec.replaceChildren();
   if (o.mode === 'new') {
@@ -2196,10 +2358,11 @@ function openEntry(o) {
   } else if (o.mode === 'task') {
     const t = S.tasks.get(o.id);
     if (!t) return;
-    text = t.text; E.prio = t.prio; E.topicId = t.topicId;
+    text = t.text; E.prio = t.prio; E.topicId = t.topicId; E.time = validTime(t.time) ? t.time : null; E.dur = normDur(t.dur); note = t.note || '';
     if (t.due === day) E.when = t.now ? 'now' : 'today';
     else if (t.due === addDays(day, 1)) E.when = 'tomorrow';
     else { E.when = 'date'; E.date = t.due; }
+    if (t.done) sec.appendChild(btn('.btn.btn-ghost.sm', 'eReopen', {}, 'Wieder öffnen'));
     sec.appendChild(btn('.btn.btn-danger.sm', 'eDelete', {}, 'Löschen'));
   } else {
     const i = S.ideas.get(o.id);
@@ -2215,6 +2378,10 @@ function openEntry(o) {
   if (E.type === 'task') text = text.replace(/\s*\n+\s*/g, ' ');
   ta.value = text;
   $('#e-grow').dataset.v = text;
+  const det = $('#e-detail');
+  det.value = note;
+  $('#e-detail-grow').dataset.v = note;
+  $('#e-time-in').value = E.time || '';
   const dateEl = $('#e-date');
   dateEl.min = (E.date && E.date < day) ? '' : day;
   dateEl.value = E.date || addDays(day, 2);
@@ -2252,9 +2419,14 @@ function saveEntry() {
   let msg = 'Gespeichert';
   if (E.type === 'task') {
     const w = dueFromForm();
-    if (E.mode === 'task') updateTask(E.id, { text, due: w.due, now: w.now, prio: E.prio, topicId });
+    /* Klammern werden Details, ein eigenes Feld nimmt längere Notizen */
+    let title = text, note = E.mode === 'task' ? multiLine($('#e-detail').value) : '';
+    const sp = splitBrackets(text);
+    if (sp.details.length) { title = sp.text; note = sp.details.concat(note ? [note] : []).join('\n'); }
+    const extra = { note, time: E.time, dur: E.dur };
+    if (E.mode === 'task') updateTask(E.id, Object.assign({ text: title, due: w.due, now: w.now, prio: E.prio, topicId }, extra));
     else {
-      ui.fresh = addTask({ text, due: w.due, now: w.now, prio: E.prio, topicId }).id;
+      ui.fresh = addTask(Object.assign({ text: title, due: w.due, now: w.now, prio: E.prio, topicId }, extra)).id;
       if (E.mode === 'fromIdea') removeIdea(E.id);
       msg = savedMsg(w.due, w.now);
     }
@@ -2265,6 +2437,33 @@ function saveEntry() {
   renderAll();
   ui.fresh = null;
   toast(msg);
+}
+
+/* ----- Notiz an einem Tagesziel ----- */
+const N = { gid: null, day: null };
+function openNote(gid) {
+  const day = today(), g = liveGoals(day).find(x => x.id === gid);
+  if (!g) return;
+  N.gid = gid; N.day = day;
+  $('#note-title').textContent = goalText(g);
+  const ta = $('#note-text');
+  ta.value = g.note || '';
+  $('#note-grow').dataset.v = ta.value;
+  guessKb();
+  openLayer('L-note');
+  try { ta.focus({ preventScroll: true }); } catch (e) { ta.focus(); }
+}
+function saveNote() {
+  const goals = liveGoals(N.day), g = goals.find(x => x.id === N.gid);
+  if (g) {
+    const v = multiLine($('#note-text').value);
+    if (v) g.note = v; else delete g.note;
+    saveGoals(N.day, goals);
+  }
+  haptic();
+  closeLayer('L-note');
+  renderToday();
+  toast('Notiz gespeichert');
 }
 
 /* ----- Tag planen ----- */
@@ -2539,6 +2738,16 @@ const A = {
     });
   },
   editTask(b) { if (Date.now() - suppressClick < 400) return; openEntry({ mode: 'task', id: b.dataset.id }); },
+  /* Heute: Tippen auf die Aufgabe klappt ihre Details auf */
+  taskOpen(b) {
+    if (Date.now() - suppressClick < 400) return;
+    const w = b.closest('.rw');
+    if (!w || w.dataset.busy) return;
+    const on = !w.classList.contains('open');
+    for (const o of $$('.rw.open', w.parentElement)) if (o !== w) { o.classList.remove('open'); const m = $('.row-main', o); if (m) m.setAttribute('aria-expanded', 'false'); }
+    w.classList.toggle('open', on);
+    b.setAttribute('aria-expanded', String(on));
+  },
   filter(b) { ui.filter = b.dataset.id || null; ui.doneLimit = 30; renderTasks(); },
   toggleDone() { ui.doneOpen = !ui.doneOpen; renderTasks(); },
   moreDone() { ui.doneLimit += 50; renderTasks(); },
@@ -2563,10 +2772,15 @@ const A = {
     renderTasks();
   },
   goalOpen(b) {
-    const g = liveGoals(today()).find(x => x.id === b.dataset.gid);
-    if (!g) return;
-    if (g.taskId) openEntry({ mode: 'task', id: g.taskId }); else openPlan('today');
+    const row = b.closest('.goal');
+    if (!row) return;
+    const on = !row.classList.contains('open');
+    for (const o of $$('.goal.open', row.parentElement)) if (o !== row) { o.classList.remove('open'); const x = $('.goal-text', o); if (x) x.setAttribute('aria-expanded', 'false'); }
+    row.classList.toggle('open', on);
+    b.setAttribute('aria-expanded', String(on));
   },
+  goalNote(b) { openNote(b.dataset.gid); },
+  noteSave() { saveNote(); },
   /* Überfällige Tagesziele */
   ogCheck(b) {
     const date = b.dataset.date, gid = b.dataset.gid, g = pastGoal(date, gid);
@@ -2652,6 +2866,16 @@ const A = {
   },
   eWhen(b) { E.when = b.dataset.when; syncEntry(); },
   ePrio(b) { E.prio = +b.dataset.prio; syncEntry(); },
+  eDur(b) { const d = +b.dataset.dur; E.dur = E.dur === d ? null : d; syncEntry(); },
+  eReopen() {
+    const t = S.tasks.get(E.id);
+    if (!t) return;
+    setDone(t.id, false);
+    haptic();
+    closeLayer('L-entry');
+    renderAll();
+    toast('Wieder offen');
+  },
   eTopic(b) { E.topicId = E.topicId === b.dataset.id ? null : b.dataset.id; syncEntry(); },
   eSave() { saveEntry(); },
   eDelete() {
@@ -2769,6 +2993,9 @@ function bindEvents() {
     if (E.type !== 'task') keepEndVisible(ta);
     $('#e-save').setAttribute('aria-disabled', String(!entryValid()));
   });
+  const det = $('#e-detail');
+  bindGrow($('#e-detail-grow'), det);
+  det.addEventListener('input', () => keepEndVisible(det));
   const dateEl = $('#e-date');
   const pickDate = () => {
     if (!validDay(dateEl.value)) dateEl.value = addDays(today(), 2);
@@ -2783,6 +3010,16 @@ function bindEvents() {
   };
   dateEl.addEventListener('input', onDate);
   dateEl.addEventListener('change', onDate);
+  const timeEl = $('#e-time-in');
+  const onTime = () => { E.time = validTime(timeEl.value) ? timeEl.value : null; syncEntry(); };
+  timeEl.addEventListener('input', onTime);
+  timeEl.addEventListener('change', onTime);
+  timeEl.addEventListener('click', () => { if (!mqCoarse.matches && timeEl.showPicker) { try { timeEl.showPicker(); } catch (e) {} } });
+
+  /* Notiz */
+  const nt = $('#note-text');
+  bindGrow($('#note-grow'), nt);
+  nt.addEventListener('input', () => keepEndVisible(nt));
 
   /* Tag planen */
   const pi = $('#plan-input');
