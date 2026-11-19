@@ -7,7 +7,7 @@ Ohne Antworten: A, C1, C2, D1–D4, E1 bauen. Versionsziel: 1.2.0 (neue Funktion
 
 ## Paket A: Fehler
 
-### A1. Tastatur schiebt Sheet/Feld aus dem Bild  [offen]
+### A1. Tastatur schiebt Sheet/Feld aus dem Bild  [erledigt]
 Wunsch (Zitat): „wenn man auf eine Aufgabe klickt und dann auf den Text, wischt das Fenster nach oben und man sieht Nix mehr. Dann muss man noch oben wischen um wieder auf den Text zu kommen. Und wenn man Ideen oder Ziele eintippt bzw. Auf Sie tippt sieht man manchmal nicht was man da tippt, weil es oben ist.“
 Verständnis: Bearbeiten-Sheet (openEntry aus editTask) und Ideen-/Ziel-Felder: Nach dem Fokus landet das Feld oberhalb des sichtbaren Bereichs. Vermutung: doppelte Kompensation – iOS verschiebt den Visual Viewport (vv.offsetTop > 0 bzw. window.scrollY) UND .sheet-pos wird um --kb hochgeschoben; zusätzlich schrumpft .sheet (max-height = --vvh) und sheet-body behält alten scrollTop. Bei Listenfeldern (Ideen/Ziele in .scroll) scrollt der focusin-Handler mit lastTouchY nach oben, auch wenn das Feld schon sichtbar ist, und mehrzeilige Felder werden nicht von revealField erfasst.
 Umsetzung (ui.js initKeyboard/revealField/keepEndVisible, ggf. views.js openEntry):
