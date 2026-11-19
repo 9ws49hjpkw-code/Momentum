@@ -27,7 +27,10 @@ Die Zeiten sind so gewählt, dass jede Schicht in einem neuen 5-Stunden-Fenster 
 - Keine Subagenten. Nie `index.html` im Root lesen (gebaut, 160 KB). Code mit `grep -n` finden, dann nur die nötigen Zeilenbereiche lesen.
 - Beim Entwickeln nur den passenden Test laufen lassen, die volle Testreihe einmal am Ende jeder Änderung.
 - `gallery.js` (Screenshots) nur bei sichtbaren UI-Änderungen, Screenshots dann wirklich ansehen.
-- Höchstens 5 Punkte pro Nacht. Lieber 3 saubere als 6 halbe.
+- Keine feste Obergrenze an Punkten (vom Nutzer am 19.11. freigegeben). Zusammengehörige Wünsche zu **Paketen** bündeln
+  (z. B. „Aufgaben-Seite“, „Design“, „Fehler“) und Paket für Paket bauen, statt jeden Punkt einzeln anzufassen.
+  Reihenfolge: zuerst Fehler, dann das größte zusammenhängende Paket, dann Design. Qualität vor Menge: was nachts nicht
+  sauber fertig wird, bleibt „offen“ für die Frühschicht oder die nächste Nacht.
 - Nichts zu tun → sofort beenden, ohne weitere Dateien zu lesen.
 
 ## Notion-Seite „Momentum – Wünsche“
@@ -51,7 +54,7 @@ Wünsche nie löschen, nur verschieben. Den Text des Nutzers nie umschreiben.
    Dazu gezielt den betroffenen Code ansehen.
 3. Einteilen:
    - **Klar** → direkt in den Bauplan.
-   - **Unklar oder mehrdeutig** → Frage. Höchstens 5 Fragen pro Runde, jede konkret, mit 2–3 Möglichkeiten
+   - **Unklar oder mehrdeutig** → Frage. Höchstens 8 Fragen pro Runde (nach Paketen gruppiert), jede konkret, mit 2–3 Möglichkeiten
      und deiner Empfehlung („Ich würde A machen, weil …“). Keine Fragen, deren Antwort im Code oder in PROJEKT.md steht.
    - **Widerspricht den Grundregeln** → ehrlich in Notion begründen, nicht bauen.
 4. Fragen in Notion unter „Fragen von Claude → Runde TT.MM.“ schreiben, Wünsche nach „In Arbeit“ verschieben.
@@ -59,7 +62,8 @@ Wünsche nie löschen, nur verschieben. Den Text des Nutzers nie umschreiben.
    Datei `quelle/autopilot/plan.md`:
    ```
    # Bauplan TT.MM.JJJJ  (Basis: main @ <commit>)
-   ## 1. <Kurztitel>  [offen | wartet auf Antwort F2 | erledigt | hängt]
+   ## Paket A: <Name>
+   ### A1. <Kurztitel>  [offen | wartet auf Antwort F2 | erledigt | hängt]
    Wunsch (Zitat): …
    Verständnis: …
    Umsetzung: Dateien/Funktionen, Vorgehen
@@ -74,7 +78,7 @@ Wünsche nie löschen, nur verschieben. Den Text des Nutzers nie umschreiben.
    Letzter Commit auf `autopilot` jünger als 20 Minuten → eine andere Schicht arbeitet noch → beenden.
 2. Notion lesen: Antworten auf die Fragen dieser Runde in den Bauplan übernehmen.
    Unbeantwortete Fragen → Punkt bleibt „wartet“, wird nicht geraten. (Er wandert in die nächste Fragerunde.)
-3. Punkt für Punkt: ändern → `node quelle/build.js` → passenden Test, bei Bedarf neuen Test schreiben →
+3. Paket für Paket, darin Punkt für Punkt: ändern → `node quelle/build.js` → passenden Test, bei Bedarf neuen Test schreiben →
    Status im Plan auf „erledigt“ → **Commit und Push auf `autopilot` nach jedem Punkt** (damit nichts verloren geht, falls das Limit greift).
    Klappt ein Punkt nach ernsthaftem Versuch nicht: Änderung zurücknehmen, „hängt: Grund“.
 4. Wenn alle machbaren Punkte fertig sind:
