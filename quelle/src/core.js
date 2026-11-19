@@ -1,5 +1,5 @@
 /* ===== Grundlagen ===== */
-const VERSION = '1.1';
+const VERSION = '1.2';
 const TZ = 'Europe/Berlin';
 const PARK_DAYS = 7;
 const MAX_GOALS = 3;
@@ -62,6 +62,12 @@ const IC = {
   search: svg('<circle cx="11" cy="11" r="6.6"/><path d="M16 16l4 4"/>'),
   exportI: svg('<path d="M12 15V3.8M8 7.6l4-4 4 4M5 12.5V18a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5.5"/>'),
   importI: svg('<path d="M12 3.8V15M8 11.2l4 4 4-4M5 12.5V18a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5.5"/>'),
+  note: svg('<path d="M5 6.5h14M5 12h14M5 17.5h8.5"/>'),
+  timer: svg('<circle cx="12" cy="13.2" r="7.6"/><path d="M12 9.4v3.8l2.4 1.6M9.6 2.8h4.8"/>'),
+  cal: svg('<rect x="3.8" y="5" width="16.4" height="15" rx="2.6"/><path d="M3.8 9.6h16.4M8.2 3v3.6M15.8 3v3.6"/>'),
+  alarm: svg('<circle cx="12" cy="13" r="7.4"/><path d="M12 9.2V13l2.6 1.7M4.2 5.6l2.8-2.2M19.8 5.6 17 3.4"/>'),
+  paste: svg('<rect x="5.5" y="4.6" width="13" height="16" rx="2.4"/><path d="M9.2 4.6V3.4h5.6v1.2M9 11h6M9 15h4"/>'),
+  sound: svg('<path d="M4.5 9.6h3l4.2-3.6v12l-4.2-3.6h-3z"/><path d="M15.4 9a4.2 4.2 0 0 1 0 6M17.8 6.6a7.6 7.6 0 0 1 0 10.8"/>'),
   share: svg('<path d="M12 14.5V3.8M8.4 7 12 3.4 15.6 7M7.5 10.5H7a2 2 0 0 0-2 2V18a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5.5a2 2 0 0 0-2-2h-.5"/>')
 };
 function ic(name, cls) {
@@ -110,6 +116,37 @@ function inDays(day) {
   if (d <= 0) return 'heute';
   if (d === 1) return 'morgen';
   return 'in ' + d + ' Tagen';
+}
+
+/* ----- Uhrzeit und Dauer (Aufgaben, optional) ----- */
+const validTime = s => typeof s === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(s);
+const toMin = s => validTime(s) ? +s.slice(0, 2) * 60 + +s.slice(3) : null;
+const fromMin = m => { m = ((Math.round(m) % 1440) + 1440) % 1440; return String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0'); };
+const normDur = v => { const n = Math.round(+v); return Number.isFinite(n) && n >= 5 && n <= 720 ? n : null; };
+const minNow = () => { const p = berlin(Date.now()); return (+p.hour % 24) * 60 + +p.minute; };
+function durLabel(m) {
+  if (!m) return '';
+  if (m < 60) return m + ' Min';
+  const hh = Math.floor(m / 60), mm = m % 60;
+  return mm ? hh + ' Std ' + mm + ' Min' : hh + ' Std';
+}
+function timeLabel(t) {
+  const a = toMin(t.time);
+  if (a == null) return t.dur ? durLabel(t.dur) : '';
+  return t.dur ? t.time + '–' + fromMin(a + t.dur) : t.time;
+}
+/* Text in Klammern ist Detail: „Drucken (Stundenliste, A4)“ → Titel „Drucken“, Detail „Stundenliste, A4“ */
+function splitBrackets(text) {
+  const det = [];
+  const rest = String(text || '').replace(/\s*\(([^()]*)\)/g, (m, x) => { if (x.trim()) det.push(x.trim()); return ' '; }).replace(/\s+/g, ' ').trim();
+  return rest && det.length ? { text: rest, details: det } : { text: String(text || '').trim(), details: [] };
+}
+const taskTitle = t => splitBrackets(t.text).text;
+function taskDetails(t) {
+  const out = splitBrackets(t.text).details.slice();
+  const n = (t.note || '').trim();
+  if (n) out.push(n);
+  return out;
 }
 
 /* ===== Speicher: IndexedDB ===== */
@@ -234,7 +271,9 @@ function seedTopics() {
 
 /* ----- Aufgaben ----- */
 function addTask(o) {
-  const t = { id: uid(), text: o.text, due: o.due, now: !!o.now, prio: o.prio, topicId: o.topicId || null, createdAt: Date.now(), done: false, doneAt: null };
+  const t = { id: uid(), text: o.text, due: o.due, now: !!o.now, prio: o.prio, topicId: o.topicId || null, createdAt: Date.now(), done: false, doneAt: null,
+    note: o.note || '', time: validTime(o.time) ? o.time : null, dur: normDur(o.dur), moved: 0 };
+  if (o.src) t.src = o.src;
   S.tasks.set(t.id, t); dbPut('tasks', t);
   return t;
 }
@@ -243,6 +282,8 @@ function setDone(id, done) { updateTask(id, { done: !!done, doneAt: done ? Date.
 function removeTask(id) { S.tasks.delete(id); dbDel('tasks', id); }
 function restoreTask(t) { S.tasks.set(t.id, t); dbPut('tasks', t); }
 const cmpTask = (a, b) => (b.prio - a.prio) || (a.due < b.due ? -1 : a.due > b.due ? 1 : 0) || ((b.now ? 1 : 0) - (a.now ? 1 : 0)) || (a.createdAt - b.createdAt);
+/* Zeitstrahl: nach Tag, dann Uhrzeit (ohne Uhrzeit zuletzt), dann Priorität */
+const cmpTime = (a, b) => (a.due < b.due ? -1 : a.due > b.due ? 1 : 0) || ((toMin(a.time) == null ? 1e4 : toMin(a.time)) - (toMin(b.time) == null ? 1e4 : toMin(b.time))) || (b.prio - a.prio) || (a.createdAt - b.createdAt);
 function groupOf(t, day) {
   if (t.due < day) return 'over';
   if (t.due === day) return 'today';
@@ -315,6 +356,45 @@ function patchPastGoal(date, gid, patch) {
   dbPut('days', d);
 }
 
+/* ----- Folge-Regeln: Stichwort in einer Aufgabe → Folgeaufgabe zum Ende der geplanten Zeit (meta 'rules') ----- */
+function normRules(v) {
+  const out = [];
+  if (!Array.isArray(v)) return out;
+  for (const r of v) {
+    if (!r || !str(r.word).trim() || !str(r.then).trim() || out.length >= 50) continue;
+    out.push({ id: str(r.id, 80) || uid(), word: str(r.word, 40).trim(), then: str(r.then, 280).replace(/\s+/g, ' ').trim(), since: Number.isFinite(+r.since) && +r.since > 0 ? +r.since : Date.now() });
+  }
+  return out;
+}
+const rules = () => normRules(S.meta.rules);
+const ruleHit = (r, text) => { const w = r.word.toLowerCase(), x = String(text || '').toLowerCase(), i = x.indexOf(w); return i >= 0 && (i === 0 || !/[a-zäöüß0-9]/.test(x[i - 1])); };
+const ruleFor = t => rules().find(r => ruleHit(r, t.text)) || null;
+/* Ende der geplanten Zeit als Zeitstempel-Vergleich in Berliner Zeit: [Tag, Minute] */
+function followDue(t, day, mins) {
+  const r = t.followed ? null : ruleFor(t);
+  if (!r) return false;
+  /* Nur, was nach dem Anlegen der Regel fertig wird – alte Aufgaben erzeugen nichts nachträglich */
+  if (t.done) return (t.doneAt || 0) >= r.since;
+  const a = toMin(t.time);
+  if (a == null) return false;
+  const end = a + (t.dur || 0);
+  const endDay = addDays(t.due, Math.floor(end / 1440)), endMin = end % 1440;
+  if (endDay < dayOf(r.since)) return false;
+  return endDay < day || (endDay === day && endMin <= mins);
+}
+/* Erzeugt fällige Folgeaufgaben genau einmal (followed = true). Gibt die neuen Aufgaben zurück. */
+function runRules() {
+  if (!rules().length) return [];
+  const day = today(), mins = minNow(), made = [];
+  for (const t of Array.from(S.tasks.values())) {
+    if (!followDue(t, day, mins)) continue;
+    const r = ruleFor(t);
+    updateTask(t.id, { followed: true });
+    made.push(addTask({ text: r.then, due: day, now: true, prio: t.prio, topicId: t.topicId, note: 'Folgt auf „' + taskTitle(t) + '“' }));
+  }
+  return made;
+}
+
 /* ----- Journal ----- */
 const J_FIELDS = [
   ['learned', 'Was habe ich heute gelernt oder erkannt?'],
@@ -332,7 +412,8 @@ function exportPayload() {
       ideas: Array.from(S.ideas.values()),
       journal: Array.from(S.journal.values()).filter(e => !jEmpty(e)),
       topics: S.topics.slice(),
-      days: Array.from(S.days.values())
+      days: Array.from(S.days.values()),
+      rules: rules().slice()
     }
   };
 }
@@ -353,7 +434,11 @@ function normalizeImport(obj) {
   for (const t of arr('tasks')) {
     if (!t || !str(t.text).trim() || !validDay(t.due)) continue;
     const prio = [0, 1, 2].indexOf(+t.prio) >= 0 ? +t.prio : 1;
-    tasks.push({ id: fresh(t.id), text: str(t.text, 5000).trim(), due: t.due, now: !!t.now, prio, topicId: topic(t.topicId), createdAt: +t.createdAt || Date.now(), done: !!t.done, doneAt: t.done ? (+t.doneAt || Date.now()) : null });
+    const x = { id: fresh(t.id), text: str(t.text, 5000).trim(), due: t.due, now: !!t.now, prio, topicId: topic(t.topicId), createdAt: +t.createdAt || Date.now(), done: !!t.done, doneAt: t.done ? (+t.doneAt || Date.now()) : null,
+      note: str(t.note, 5000), time: validTime(t.time) ? t.time : null, dur: normDur(t.dur), moved: Math.max(0, Math.min(999, Math.round(+t.moved) || 0)) };
+    if (t.followed === true) x.followed = true;
+    if (t.src === 'cal') x.src = 'cal';
+    tasks.push(x);
   }
   const taskIds = new Set(tasks.map(t => t.id));
   const ideas = [];
@@ -383,13 +468,17 @@ function normalizeImport(obj) {
       if (x.done && typeof g.doneAt === 'number' && isFinite(g.doneAt)) x.doneAt = g.doneAt;
       if (validDay(g.moved)) x.moved = g.moved;
       if (g.dropped === true) x.dropped = true;
+      if (str(g.note).trim()) x.note = str(g.note, 5000);
       goals.push(x);
     }
     seenD.add(p.date); days.push({ date: p.date, goals });
   }
+  const meta = [{ key: 'seeded', value: true }];
+  const rl = normRules(d.rules);
+  if (rl.length) meta.push({ key: 'rules', value: rl });
   return {
     exportedAt: Date.parse(obj.exportedAt) || null,
-    data: { tasks, ideas, journal, topics, days, meta: [{ key: 'seeded', value: true }] }
+    data: { tasks, ideas, journal, topics, days, meta }
   };
 }
 const plural = (n, one, many) => n + ' ' + (n === 1 ? one : many);

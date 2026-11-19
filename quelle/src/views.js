@@ -23,12 +23,25 @@ function taskMeta(t, group) {
     if (group === 'over') m.push(h('span.over', null, dueLabel(t.due)));
     else if (group === 'soon' || group === 'later') m.push(h('span', null, dueLabel(t.due)));
     else if (group === 'today' && t.now) m.push(h('span.hot', null, 'Jetzt'));
+    const tl = timeLabel(t);
+    if (tl) m.push(h('span.tm', null, tl));
     if (t.prio === 2) m.push(h('span.hot', null, 'Hoch'));
     else if (t.prio === 0) m.push(h('span', null, 'Niedrig'));
   }
+  if (group !== 'done' && t.moved > 0) m.push(h('span.moved', null, t.moved + '× verschoben'));
   const tp = topicTag(t.topicId);
   if (tp) m.push(tp);
+  if (taskDetails(t).length) m.push(h('span.has-det', { 'aria-label': 'hat Details' }, ic('note')));
   return m;
+}
+/* Details klappen unter der Aufgabe auf (Heute): Notiz, Klammer-Details, Zeit, dazu „Bearbeiten“ */
+function rowDetails(t) {
+  const det = taskDetails(t), tl = timeLabel(t);
+  return h('div.rw-det', null, h('div', null, h('div.rw-det-in', null,
+    det.length ? det.map(x => h('p.det-note', null, x)) : h('p.det-none', null, 'Keine Details. Unter „Bearbeiten“ ergänzt du welche.'),
+    h('div.det-foot', null,
+      tl ? h('span.det-time', null, ic('clock'), tl) : h('span'),
+      btn('.pill.det-edit', 'editTask', { id: t.id }, 'Bearbeiten')))));
 }
 /* Farbe des Themas für die ganze Zeile */
 function tpVars(id) { const t = id && topicById(id); return t ? { '--h': t.hue } : null; }
@@ -38,9 +51,10 @@ function taskRow(t, group) {
     h('div.rw-under', null, ic('check')),
     h('div.row', null,
       h('button.check', { type: 'button', 'aria-label': t.done ? 'Wieder öffnen' : 'Erledigen', data: { act: 'check', id: t.id } }, checkMark()),
-      h('button.row-main', { type: 'button', data: { act: 'editTask', id: t.id } },
-        h('span.row-title', null, t.text),
-        meta.length ? h('span.row-meta', null, meta) : null)));
+      h('button.row-main', { type: 'button', 'aria-expanded': group === 'done' ? null : 'false', data: { act: group === 'done' ? 'editTask' : 'taskOpen', id: t.id } },
+        h('span.row-title', null, taskTitle(t)),
+        meta.length ? h('span.row-meta', null, meta) : null)),
+    group === 'done' ? null : rowDetails(t));
 }
 function taskSection(title, list, group, cls) {
   return h('section.sec', null,
@@ -57,10 +71,18 @@ function goalsCard(goals) {
       h('div.goals-empty', null, h('p', null, 'Was zählt heute? Wähl bis zu drei Dinge.'), btn('.btn.btn-ghost', 'plan', { day: 'today' }, 'Tag planen')));
   }
   return h('section.goals.holo', null, head, goals.map(g => {
-    const done = goalDone(g);
-    return h('div.goal', { class: done ? 'is-done' : '' },
+    const done = goalDone(g), t = g.taskId ? S.tasks.get(g.taskId) : null;
+    const det = t ? taskDetails(t) : ((g.note || '').trim() ? [g.note.trim()] : []);
+    const tl = t ? timeLabel(t) : '';
+    return [h('div.goal', { class: done ? 'is-done' : '', data: { gid: g.id } },
       h('button.check', { type: 'button', 'aria-label': done ? 'Wieder öffnen' : 'Erledigen', data: { act: 'goalCheck', gid: g.id } }, checkMark()),
-      btn('.goal-text', 'goalOpen', { gid: g.id }, goalText(g)));
+      h('button.goal-text', { type: 'button', 'aria-expanded': 'false', data: { act: 'goalOpen', gid: g.id } }, t ? taskTitle(t) : goalText(g),
+        det.length ? h('span.has-det', { 'aria-label': 'hat Notiz' }, ic('note')) : null)),
+    h('div.goal-det', null, h('div', null, h('div.rw-det-in', null,
+      det.length ? det.map(x => h('p.det-note', null, x)) : h('p.det-none', null, t ? 'Keine Details.' : 'Noch keine Notiz.'),
+      h('div.det-foot', null,
+        tl ? h('span.det-time', null, ic('clock'), tl) : h('span'),
+        t ? btn('.pill.det-edit', 'editTask', { id: t.id }, 'Bearbeiten') : btn('.pill.det-edit', 'goalNote', { gid: g.id }, det.length ? 'Notiz ändern' : 'Notiz')))))];
   }));
 }
 /* Überfällige Tagesziele: eigenes rotes Feld, steht über allem anderen Überfälligen */
@@ -296,7 +318,7 @@ function openJEntry(date) {
 }
 
 /* ----- Erfassen und Bearbeiten ----- */
-const E = { mode: 'new', type: 'task', when: null, date: null, prio: 1, topicId: null, id: null };
+const E = { mode: 'new', type: 'task', when: null, date: null, prio: 1, topicId: null, id: null, time: null, dur: null };
 const eText = () => $('#e-text');
 function entryValid() {
   if (!eText().value.trim()) return false;
@@ -319,6 +341,10 @@ function syncEntry() {
   $('#e-date-chip').classList.toggle('on', E.when === 'date');
   $('#e-date-label').textContent = E.when === 'date' && E.date ? shortDate(E.date) : 'Datum';
   for (const b of $$('#e-prio [data-prio]')) b.classList.toggle('on', +b.dataset.prio === E.prio);
+  $('#e-time-chip').classList.toggle('on', !!E.time);
+  $('#e-time-label').textContent = E.time ? E.time + ' Uhr' : 'Uhrzeit';
+  for (const b of $$('#e-time [data-dur]')) b.classList.toggle('on', +b.dataset.dur === E.dur);
+  $('#e-detail-fold').classList.toggle('off', !(isTask && E.mode === 'task'));
   for (const b of $$('#e-topics [data-id]')) b.classList.toggle('on', b.dataset.id === E.topicId);
   let note = '';
   if (isNew && !isTask) note = 'Die Idee parkt. In 7 Tagen fragt „Heute“, was daraus wird.';
@@ -334,8 +360,8 @@ function syncEntry() {
 }
 function openEntry(o) {
   const day = today();
-  Object.assign(E, { mode: o.mode, type: 'task', when: null, date: null, prio: 1, topicId: null, id: o.id || null });
-  let text = '';
+  Object.assign(E, { mode: o.mode, type: 'task', when: null, date: null, prio: 1, topicId: null, id: o.id || null, time: null, dur: null });
+  let text = '', note = '';
   const sec = $('#e-secondary');
   sec.replaceChildren();
   if (o.mode === 'new') {
@@ -343,10 +369,11 @@ function openEntry(o) {
   } else if (o.mode === 'task') {
     const t = S.tasks.get(o.id);
     if (!t) return;
-    text = t.text; E.prio = t.prio; E.topicId = t.topicId;
+    text = t.text; E.prio = t.prio; E.topicId = t.topicId; E.time = validTime(t.time) ? t.time : null; E.dur = normDur(t.dur); note = t.note || '';
     if (t.due === day) E.when = t.now ? 'now' : 'today';
     else if (t.due === addDays(day, 1)) E.when = 'tomorrow';
     else { E.when = 'date'; E.date = t.due; }
+    if (t.done) sec.appendChild(btn('.btn.btn-ghost.sm', 'eReopen', {}, 'Wieder öffnen'));
     sec.appendChild(btn('.btn.btn-danger.sm', 'eDelete', {}, 'Löschen'));
   } else {
     const i = S.ideas.get(o.id);
@@ -362,6 +389,10 @@ function openEntry(o) {
   if (E.type === 'task') text = text.replace(/\s*\n+\s*/g, ' ');
   ta.value = text;
   $('#e-grow').dataset.v = text;
+  const det = $('#e-detail');
+  det.value = note;
+  $('#e-detail-grow').dataset.v = note;
+  $('#e-time-in').value = E.time || '';
   const dateEl = $('#e-date');
   dateEl.min = (E.date && E.date < day) ? '' : day;
   dateEl.value = E.date || addDays(day, 2);
@@ -399,9 +430,14 @@ function saveEntry() {
   let msg = 'Gespeichert';
   if (E.type === 'task') {
     const w = dueFromForm();
-    if (E.mode === 'task') updateTask(E.id, { text, due: w.due, now: w.now, prio: E.prio, topicId });
+    /* Klammern werden Details, ein eigenes Feld nimmt längere Notizen */
+    let title = text, note = E.mode === 'task' ? multiLine($('#e-detail').value) : '';
+    const sp = splitBrackets(text);
+    if (sp.details.length) { title = sp.text; note = sp.details.concat(note ? [note] : []).join('\n'); }
+    const extra = { note, time: E.time, dur: E.dur };
+    if (E.mode === 'task') updateTask(E.id, Object.assign({ text: title, due: w.due, now: w.now, prio: E.prio, topicId }, extra));
     else {
-      ui.fresh = addTask({ text, due: w.due, now: w.now, prio: E.prio, topicId }).id;
+      ui.fresh = addTask(Object.assign({ text: title, due: w.due, now: w.now, prio: E.prio, topicId }, extra)).id;
       if (E.mode === 'fromIdea') removeIdea(E.id);
       msg = savedMsg(w.due, w.now);
     }
@@ -412,6 +448,33 @@ function saveEntry() {
   renderAll();
   ui.fresh = null;
   toast(msg);
+}
+
+/* ----- Notiz an einem Tagesziel ----- */
+const N = { gid: null, day: null };
+function openNote(gid) {
+  const day = today(), g = liveGoals(day).find(x => x.id === gid);
+  if (!g) return;
+  N.gid = gid; N.day = day;
+  $('#note-title').textContent = goalText(g);
+  const ta = $('#note-text');
+  ta.value = g.note || '';
+  $('#note-grow').dataset.v = ta.value;
+  guessKb();
+  openLayer('L-note');
+  try { ta.focus({ preventScroll: true }); } catch (e) { ta.focus(); }
+}
+function saveNote() {
+  const goals = liveGoals(N.day), g = goals.find(x => x.id === N.gid);
+  if (g) {
+    const v = multiLine($('#note-text').value);
+    if (v) g.note = v; else delete g.note;
+    saveGoals(N.day, goals);
+  }
+  haptic();
+  closeLayer('L-note');
+  renderToday();
+  toast('Notiz gespeichert');
 }
 
 /* ----- Tag planen ----- */

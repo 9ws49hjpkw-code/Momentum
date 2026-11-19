@@ -192,10 +192,10 @@ function initKeyboard() {
   window.addEventListener('orientationchange', () => setTimeout(measureKb, 300));
   document.addEventListener('touchend', e => { const t = e.changedTouches[0]; if (t) lastTouchY = t.clientY; }, { passive: true, capture: true });
   document.addEventListener('touchstart', e => {
-    if (KB.hold && e.target.type !== 'date') { KB.hold = false; setTimeout(measureKb, 60); }
+    if (KB.hold && e.target.type !== 'date' && e.target.type !== 'time') { KB.hold = false; setTimeout(measureKb, 60); }
   }, { passive: true, capture: true });
   document.addEventListener('focusin', e => {
-    if (e.target.type === 'date') { if (KB.h > 0) { KB.hold = true; KB.guess = false; clearTimeout(KB.timer); } return; }
+    if (e.target.type === 'date' || e.target.type === 'time') { if (KB.h > 0) { KB.hold = true; KB.guess = false; clearTimeout(KB.timer); } return; }
     if (!isField(e.target)) return;
     if (KB.h === 0) guessKb();
     /* Das Feld (bei langen Texten die Tippstelle) landet zwischen oberem Rand und Tastatur – nie darüber hinaus */
@@ -207,7 +207,7 @@ function initKeyboard() {
     setTimeout(measureKb, 450);
   });
   document.addEventListener('focusout', e => {
-    if (e.target && e.target.type === 'date') KB.hold = false;
+    if (e.target && (e.target.type === 'date' || e.target.type === 'time')) KB.hold = false;
     setTimeout(() => {
       if (isField(document.activeElement) || KB.hold) return;
       KB.guess = false; clearTimeout(KB.timer);

@@ -26,6 +26,16 @@ const A = {
     });
   },
   editTask(b) { if (Date.now() - suppressClick < 400) return; openEntry({ mode: 'task', id: b.dataset.id }); },
+  /* Heute: Tippen auf die Aufgabe klappt ihre Details auf */
+  taskOpen(b) {
+    if (Date.now() - suppressClick < 400) return;
+    const w = b.closest('.rw');
+    if (!w || w.dataset.busy) return;
+    const on = !w.classList.contains('open');
+    for (const o of $$('.rw.open', w.parentElement)) if (o !== w) { o.classList.remove('open'); const m = $('.row-main', o); if (m) m.setAttribute('aria-expanded', 'false'); }
+    w.classList.toggle('open', on);
+    b.setAttribute('aria-expanded', String(on));
+  },
   filter(b) { ui.filter = b.dataset.id || null; ui.doneLimit = 30; renderTasks(); },
   toggleDone() { ui.doneOpen = !ui.doneOpen; renderTasks(); },
   moreDone() { ui.doneLimit += 50; renderTasks(); },
@@ -50,10 +60,15 @@ const A = {
     renderTasks();
   },
   goalOpen(b) {
-    const g = liveGoals(today()).find(x => x.id === b.dataset.gid);
-    if (!g) return;
-    if (g.taskId) openEntry({ mode: 'task', id: g.taskId }); else openPlan('today');
+    const row = b.closest('.goal');
+    if (!row) return;
+    const on = !row.classList.contains('open');
+    for (const o of $$('.goal.open', row.parentElement)) if (o !== row) { o.classList.remove('open'); const x = $('.goal-text', o); if (x) x.setAttribute('aria-expanded', 'false'); }
+    row.classList.toggle('open', on);
+    b.setAttribute('aria-expanded', String(on));
   },
+  goalNote(b) { openNote(b.dataset.gid); },
+  noteSave() { saveNote(); },
   /* Überfällige Tagesziele */
   ogCheck(b) {
     const date = b.dataset.date, gid = b.dataset.gid, g = pastGoal(date, gid);
@@ -139,6 +154,16 @@ const A = {
   },
   eWhen(b) { E.when = b.dataset.when; syncEntry(); },
   ePrio(b) { E.prio = +b.dataset.prio; syncEntry(); },
+  eDur(b) { const d = +b.dataset.dur; E.dur = E.dur === d ? null : d; syncEntry(); },
+  eReopen() {
+    const t = S.tasks.get(E.id);
+    if (!t) return;
+    setDone(t.id, false);
+    haptic();
+    closeLayer('L-entry');
+    renderAll();
+    toast('Wieder offen');
+  },
   eTopic(b) { E.topicId = E.topicId === b.dataset.id ? null : b.dataset.id; syncEntry(); },
   eSave() { saveEntry(); },
   eDelete() {
@@ -256,6 +281,9 @@ function bindEvents() {
     if (E.type !== 'task') keepEndVisible(ta);
     $('#e-save').setAttribute('aria-disabled', String(!entryValid()));
   });
+  const det = $('#e-detail');
+  bindGrow($('#e-detail-grow'), det);
+  det.addEventListener('input', () => keepEndVisible(det));
   const dateEl = $('#e-date');
   const pickDate = () => {
     if (!validDay(dateEl.value)) dateEl.value = addDays(today(), 2);
@@ -270,6 +298,16 @@ function bindEvents() {
   };
   dateEl.addEventListener('input', onDate);
   dateEl.addEventListener('change', onDate);
+  const timeEl = $('#e-time-in');
+  const onTime = () => { E.time = validTime(timeEl.value) ? timeEl.value : null; syncEntry(); };
+  timeEl.addEventListener('input', onTime);
+  timeEl.addEventListener('change', onTime);
+  timeEl.addEventListener('click', () => { if (!mqCoarse.matches && timeEl.showPicker) { try { timeEl.showPicker(); } catch (e) {} } });
+
+  /* Notiz */
+  const nt = $('#note-text');
+  bindGrow($('#note-grow'), nt);
+  nt.addEventListener('input', () => keepEndVisible(nt));
 
   /* Tag planen */
   const pi = $('#plan-input');

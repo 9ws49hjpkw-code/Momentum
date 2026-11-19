@@ -78,6 +78,16 @@
           <button class="chip" data-act="ePrio" data-prio="1">Normal</button>
           <button class="chip" data-act="ePrio" data-prio="0">Niedrig</button>
         </div></div>
+        <div class="frow" id="e-time-row"><span class="ic" data-ic="timer"></span><div class="chips" id="e-time">
+          <label class="chip chip-date" id="e-time-chip"><span id="e-time-label">Uhrzeit</span><input type="time" id="e-time-in" aria-label="Uhrzeit wählen"></label>
+          <button class="chip" data-act="eDur" data-dur="15">15 Min</button>
+          <button class="chip" data-act="eDur" data-dur="30">30 Min</button>
+          <button class="chip" data-act="eDur" data-dur="60">1 Std</button>
+          <button class="chip" data-act="eDur" data-dur="90">1,5 Std</button>
+        </div></div>
+        <div class="fold" id="e-detail-fold"><div>
+          <div class="grow e-detail multi" id="e-detail-grow"><textarea id="e-detail" rows="1" placeholder="Details, Notiz, was du dafür brauchst" autocapitalize="sentences" aria-label="Details"></textarea></div>
+        </div></div>
       </div></div>
       <div class="fold" id="e-topic-fold"><div>
         <div class="frow"><span class="ic" data-ic="tag"></span><div class="chips" id="e-topics"></div></div>
@@ -163,6 +173,19 @@
       </div>
       <button class="btn btn-primary" data-act="offerPlan" id="offer-go">Morgen planen</button>
       <button class="btn btn-plain sm" data-act="closeTop">Später</button>
+    </div>
+  </section></div>
+</div>
+
+<!-- Notiz zu einem Tagesziel -->
+<div class="layer" id="L-note" hidden>
+  <div class="backdrop"></div>
+  <div class="sheet-pos"><section class="sheet" role="dialog" aria-modal="true" aria-label="Notiz">
+    <div class="grab" data-drag></div>
+    <div class="sheet-head" data-drag><h2 id="note-title">Notiz</h2><button class="icon-btn" data-act="closeTop" aria-label="Schließen"><span class="ic" data-ic="close"></span></button></div>
+    <div class="sheet-body">
+      <div class="grow e-detail multi" id="note-grow"><textarea id="note-text" rows="3" placeholder="Was gehört dazu?" autocapitalize="sentences" aria-label="Notiz"></textarea></div>
+      <div class="e-actions"><button class="btn btn-primary" data-act="noteSave">Speichern</button></div>
     </div>
   </section></div>
 </div>
