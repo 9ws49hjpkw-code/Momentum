@@ -63,6 +63,8 @@ const VV = `(() => {
     addEventListener(t, f) { (ls[t] = ls[t] || []).push(f); }, removeEventListener() {} };
   Object.defineProperty(window, 'visualViewport', { value: fake, configurable: true });
   window.__kbH = 336;
+  window.__vv = fake;
+  window.__vvFire = t => (ls[t] || []).forEach(f => f(new Event(t)));
   window.__setKb = h => {
     fake.height = document.documentElement.clientHeight - h;
     ls.resize.forEach(f => f(new Event('resize')));

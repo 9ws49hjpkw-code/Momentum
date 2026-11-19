@@ -467,7 +467,7 @@ function planAddFree() {
   const input = $('#plan-input');
   const text = input.value.replace(/\s+/g, ' ').trim();
   if (liveGoals(P.day).length >= MAX_GOALS) { planFull(); return; }
-  if (!text) { input.focus(); return; }
+  if (!text) { try { input.focus({ preventScroll: true }); } catch (e) { input.focus(); } return; }
   addGoal(P.day, { text });
   input.value = '';
   haptic();

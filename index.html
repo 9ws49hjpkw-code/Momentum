@@ -1447,12 +1447,28 @@ function applyKb(hgt, vvh) {
   root.style.setProperty('--vvh', Math.round(vvh) + 'px');
   document.body.classList.toggle('kb-open', hgt > 0);
 }
+/* iOS schiebt beim Fokus gern das ganze Fenster nach oben (Visual Viewport offsetTop > 0).
+   Momentum ist ein festes Layout und hebt Sheets selbst über die Tastatur: diese Eigenverschiebung wird zurückgenommen,
+   sonst wandert alles doppelt nach oben und das Feld verschwindet über dem oberen Rand. */
+function unshift() {
+  const vv = window.visualViewport;
+  if (!isField(document.activeElement)) return false;
+  if ((vv && vv.offsetTop > 0.5) || window.scrollY > 0.5 || (document.scrollingElement && document.scrollingElement.scrollTop > 0.5)) {
+    try { window.scrollTo(0, 0); } catch (e) {}
+    if (document.scrollingElement) document.scrollingElement.scrollTop = 0;
+    return true;
+  }
+  return false;
+}
 function measureKb() {
   if (KB.hold) return;
   const vv = window.visualViewport, lh = layoutH();
   if (!vv) { applyKb(0, lh); return; }
-  let k = Math.round(lh - vv.height - vv.offsetTop);
-  if (k < 90) k = 0;
+  unshift();
+  /* Offen ist die Tastatur, wenn der sichtbare Bereich deutlich kleiner ist – unabhängig davon, wie weit iOS verschoben hat */
+  let k = Math.round(lh - vv.height - Math.max(0, vv.offsetTop));
+  if (lh - vv.height < 90) k = 0;
+  else if (k < 0) k = 0;
   if (k === 0 && KB.guess) return;
   if (k > 0) {
     KB.guess = false; clearTimeout(KB.timer);
@@ -1476,9 +1492,10 @@ function initKeyboard() {
   applyKb(0, layoutH());
   const vv = window.visualViewport;
   let pending = false;
-  const onVV = () => { if (pending) return; pending = true; requestAnimationFrame(() => { pending = false; measureKb(); }); };
+  const onVV = () => { unshift(); if (pending) return; pending = true; requestAnimationFrame(() => { pending = false; measureKb(); }); };
   if (vv) { vv.addEventListener('resize', onVV); vv.addEventListener('scroll', onVV); }
   window.addEventListener('resize', onVV);
+  window.addEventListener('scroll', () => { if (unshift()) onVV(); }, { passive: true });
   window.addEventListener('orientationchange', () => setTimeout(measureKb, 300));
   document.addEventListener('touchend', e => { const t = e.changedTouches[0]; if (t) lastTouchY = t.clientY; }, { passive: true, capture: true });
   document.addEventListener('touchstart', e => {
@@ -1488,13 +1505,12 @@ function initKeyboard() {
     if (e.target.type === 'date') { if (KB.h > 0) { KB.hold = true; KB.guess = false; clearTimeout(KB.timer); } return; }
     if (!isField(e.target)) return;
     if (KB.h === 0) guessKb();
-    if (e.target.tagName === 'INPUT') { const el = e.target; revealField(el); setTimeout(() => revealField(el), 480); }
-    /* Feld in einer Liste: so weit scrollen, dass die Tippstelle über der Tastatur liegt */
-    const sc = e.target.closest('.scroll');
-    if (sc && KB.h > 0 && lastTouchY) {
-      const limit = layoutH() - KB.h - 96;
-      if (lastTouchY > limit) sc.scrollTop += lastTouchY - limit;
-    }
+    /* Das Feld (bei langen Texten die Tippstelle) landet zwischen oberem Rand und Tastatur – nie darüber hinaus */
+    const el = e.target, ty = lastTouchY;
+    unshift();
+    revealField(el, ty);
+    setTimeout(() => { unshift(); revealField(el, ty); }, 120);
+    setTimeout(() => { measureKb(); revealField(el, ty); }, 480);
     setTimeout(measureKb, 450);
   });
   document.addEventListener('focusout', e => {
@@ -1508,14 +1524,29 @@ function initKeyboard() {
     setTimeout(() => { if (!isField(document.activeElement)) measureKb(); }, 500);
   });
 }
-/* Einzeiliges Feld ganz ins Sichtfeld über der Tastatur holen */
-function revealField(el) {
+/* Feld ins Sichtfeld über der Tastatur holen. Kurze Felder ganz, lange Textfelder an der Tippstelle (ty) oder am Textende. */
+function revealField(el, ty) {
   if (document.activeElement !== el) return;
   const sc = el.closest('.sheet-body, .scroll');
   if (!sc) return;
   const r = el.getBoundingClientRect(), b = sc.getBoundingClientRect();
-  if (r.bottom > b.bottom - 16) sc.scrollTop += r.bottom - (b.bottom - 16);
-  else if (r.top < b.top + 8) sc.scrollTop -= b.top + 8 - r.top;
+  const vv = window.visualViewport;
+  const top = Math.max(b.top, vv ? vv.offsetTop : 0) + 8;
+  const bot = Math.min(b.bottom, vv ? vv.offsetTop + vv.height : b.bottom) - 16;
+  const room = bot - top;
+  if (room <= 40) return;
+  let d = 0;
+  if (r.height <= room) {
+    if (r.bottom > bot) d = r.bottom - bot;
+    else if (r.top < top) d = r.top - top;
+  } else {
+    /* Lang: Tippstelle bzw. Textende sichtbar, aber die Oberkante nie weiter hoch als nötig */
+    const atEnd = el.selectionEnd === el.value.length && !(ty > r.top && ty < r.bottom);
+    const y = atEnd ? r.bottom - 6 : (ty > r.top && ty < r.bottom ? ty : r.top + 30);
+    if (y + 40 > bot) d = y + 40 - bot;
+    else if (y - 30 < top) d = Math.max(r.top - top, y - 30 - top);
+  }
+  if (Math.abs(d) >= 1) sc.scrollTop += d;
 }
 /* Beim Schreiben am Textende bleibt die letzte Zeile sichtbar */
 function keepEndVisible(ta) {
@@ -2289,7 +2320,7 @@ function planAddFree() {
   const input = $('#plan-input');
   const text = input.value.replace(/\s+/g, ' ').trim();
   if (liveGoals(P.day).length >= MAX_GOALS) { planFull(); return; }
-  if (!text) { input.focus(); return; }
+  if (!text) { try { input.focus({ preventScroll: true }); } catch (e) { input.focus(); } return; }
   addGoal(P.day, { text });
   input.value = '';
   haptic();
