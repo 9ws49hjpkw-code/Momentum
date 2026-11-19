@@ -90,8 +90,8 @@ Wünsche nie löschen, nur verschieben. Den Text des Nutzers nie umschreiben.
      ab (abgekapselt: eigener Speicher, kein Service Worker) und erneuert die Liste `versionen/index.html`. Mitcommitten.
      Ältere Versionen und `matze/` nie anfassen, sie sind eingefroren.
    - `git -c push.negotiate=true push origin autopilot:main`.
-   - Tag setzen: `git tag -a vx.y.z -m "Momentum x.y.z: <ein Satz>" origin/main` (vorher `git fetch --depth=5 origin main`),
-     dann `git -c push.negotiate=true push origin vx.y.z`.
+   - Git-Tags gehen aus diesen Sitzungen nicht (der Zugang erlaubt nur Branches). Die Versionsgeschichte ist `versionen/`
+     plus Commit-Nachrichten, die mit „x.y.z:“ beginnen.
    - Notion: Punkte nach „Erledigt → Version x.y.z · TT.MM.“ verschieben, je ein Satz, was gebaut wurde.
      Dazu der Link zum Ausprobieren: https://9ws49hjpkw-code.github.io/Momentum/versionen/x.y.z/
      Hängende und wartende Punkte zurück nach „Neue Wünsche“ mit Hinweis.

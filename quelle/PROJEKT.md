@@ -69,5 +69,5 @@ Tägliche Weiterentwicklung über drei geplante Aufgaben und die Notion-Seite �
   Erzeugt mit `node quelle/archiv.js` (Daten der Liste: `quelle/versionen.json`). Archivkopien sind abgekapselt:
   eigene Datenbank „momentum-archiv-x.y.z“, kein Service Worker, keine Update-Prüfung, kein Manifest.
   Sie berühren die echten Daten nie. Bereits archivierte Versionen werden nie überschrieben.
-- Git-Tags `vx.y.z` markieren jede Version im Verlauf.
+- Commit-Nachrichten einer Version beginnen mit „x.y.z:“. (Git-Tags lassen sich aus Claude-Sitzungen nicht pushen.)
 - `matze/`: von Hand geschriebener Türsteher („Heißt du Matze?“), der zu `versionen/1.1.1/` führt. Eingefroren.
