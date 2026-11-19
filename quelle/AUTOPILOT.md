@@ -86,8 +86,14 @@ Wünsche nie löschen, nur verschieben. Den Text des Nutzers nie umschreiben.
    - Volle Testreihe aus CLAUDE.md. Bei sichtbaren Änderungen `gallery.js` und Screenshots prüfen.
    - `quelle/PROJEKT.md` um einen kurzen Abschnitt „Neu in x.y.z“ ergänzen.
    - `git fetch --depth=50 origin main`; hat sich `main` bewegt, `autopilot` darauf rebasen und Tests erneut laufen lassen.
+   - **Version einfrieren:** `node quelle/archiv.js "Ein Satz, was neu ist"` legt die neue Version unter `versionen/x.y.z/`
+     ab (abgekapselt: eigener Speicher, kein Service Worker) und erneuert die Liste `versionen/index.html`. Mitcommitten.
+     Ältere Versionen und `matze/` nie anfassen, sie sind eingefroren.
    - `git -c push.negotiate=true push origin autopilot:main`.
+   - Tag setzen: `git tag -a vx.y.z -m "Momentum x.y.z: <ein Satz>" origin/main` (vorher `git fetch --depth=5 origin main`),
+     dann `git -c push.negotiate=true push origin vx.y.z`.
    - Notion: Punkte nach „Erledigt → Version x.y.z · TT.MM.“ verschieben, je ein Satz, was gebaut wurde.
+     Dazu der Link zum Ausprobieren: https://9ws49hjpkw-code.github.io/Momentum/versionen/x.y.z/
      Hängende und wartende Punkte zurück nach „Neue Wünsche“ mit Hinweis.
 5. Abschlussmeldung, kurz: Version, was neu ist, was hängt, ehrlicher Hinweis, was nur in der Chrome-Simulation getestet ist.
    Morgens tippt der Nutzer in der App auf „Aktualisieren“.

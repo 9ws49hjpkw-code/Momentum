@@ -63,3 +63,11 @@ BUILD-Nummer in build.js erhöhen, alle 6 Dateien neu liefern.
 
 ## Autopilot (ab 19.11.2026)
 Tägliche Weiterentwicklung über drei geplante Aufgaben und die Notion-Seite „Momentum – Wünsche“. Regeln und Ablauf: quelle/AUTOPILOT.md. Arbeitsbranch: autopilot.
+
+## Versionsarchiv (ab 19.11.2026)
+- `versionen/` im Root: jede veröffentlichte Version eingefroren zum Ausprobieren, Liste unter `versionen/index.html`.
+  Erzeugt mit `node quelle/archiv.js` (Daten der Liste: `quelle/versionen.json`). Archivkopien sind abgekapselt:
+  eigene Datenbank „momentum-archiv-x.y.z“, kein Service Worker, keine Update-Prüfung, kein Manifest.
+  Sie berühren die echten Daten nie. Bereits archivierte Versionen werden nie überschrieben.
+- Git-Tags `vx.y.z` markieren jede Version im Verlauf.
+- `matze/`: von Hand geschriebener Türsteher („Heißt du Matze?“), der zu `versionen/1.1.1/` führt. Eingefroren.
