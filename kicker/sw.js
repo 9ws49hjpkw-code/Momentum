@@ -1,9 +1,10 @@
 /* Kickerabend · Offline-Cache. Neue Versionen werden angeboten, nicht erzwungen. */
-const VERSION = 'kickerabend-b3';
+const VERSION = 'kickerabend-b4';
 const ASSETS = ['./', './index.html', './manifest.json', './icon-180.png', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(VERSION).then(c => c.addAll(ASSETS)));
+  // cache: 'reload' = immer frisch vom Server holen, nie aus dem Browser-Zwischenspeicher
+  e.waitUntil(caches.open(VERSION).then(c => c.addAll(ASSETS.map(u => new Request(u, { cache: 'reload' })))));
 });
 self.addEventListener('activate', (e) => {
   e.waitUntil(caches.keys()
