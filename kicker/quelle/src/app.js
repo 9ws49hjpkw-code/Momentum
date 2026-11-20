@@ -41,7 +41,7 @@ const TEAM_NAMES = ['Kurbelkönige', 'Stangenfieber', 'Torfabrik', 'Die Abstaube
 
 /* ---------- Zustand ---------- */
 function blank() {
-  return { v: 1, view: 'home', roster: [], draft: null, party: null, cup: null, tab: { party: 'plan', cup: 'bracket' }, celebrated: {} };
+  return { v: 1, view: 'home', roster: [], draft: null, party: null, cup: null, tab: { party: 'plan', cup: 'bracket' }, celebrated: {}, egg: { asked: {} } };
 }
 function load() {
   try {
@@ -58,7 +58,7 @@ try { navigator.storage && navigator.storage.persist && navigator.storage.persis
 if ((S.view === 'party' && !S.party) || (S.view === 'cup' && !S.cup) ||
     (['names', 'partyCfg', 'teams'].includes(S.view) && !S.draft)) S.view = 'home';
 
-const ui = { lastView: null, nowKey: null, reroll: false, modal: null };
+const ui = { lastView: null, nowKey: null, reroll: false, modal: null, eggBusy: false, eggT: null };
 
 /* ---------- Helfer ---------- */
 const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
@@ -117,6 +117,7 @@ function render() {
   main.addEventListener('scroll', onScroll, { passive: true }); onScroll();
   ui.lastView = S.view;
   ui.reroll = false;
+  if (S.view === 'party' || S.view === 'cup') eggMaybeAsk();
 }
 
 /* ---------- Start ---------- */
@@ -167,7 +168,7 @@ function resumeCard(title, text, frac, mode) {
 function viewNames() {
   const D = S.draft;
   const n = D.names.length;
-  const fields = D.names.map((v, i) => nameField(i, v)).join('');
+  const fields = D.names.map((v, i) => nameField(i, v) + (isMatze(v) ? eggQ(i) : '')).join('');
   const body = `<div class="narrow setup">
     <div><div class="eyebrow">Schritt 1 von 2</div><h2 class="h-lg">Wer spielt mit?</h2></div>
     <div class="stepper">
@@ -586,12 +587,12 @@ function teamsListHTML(ctx) {
 /* =========================================================
    Sheets & Dialoge
    ========================================================= */
-function openSheet(html, onClose) {
+function openSheet(html, onClose, sticky) {
   closeSheet(true);
   const scrim = document.createElement('div');
   scrim.className = 'scrim';
   scrim.innerHTML = `<div class="sheet" role="dialog" aria-modal="true">${html}</div>`;
-  scrim.addEventListener('click', (e) => { if (e.target === scrim) closeSheet(); });
+  if (!sticky) scrim.addEventListener('click', (e) => { if (e.target === scrim) closeSheet(); });
   document.body.appendChild(scrim);
   ui.modal = { el: scrim, onClose };
   return scrim;
@@ -647,9 +648,12 @@ function partyResultSheet(i) {
   $('[data-save]', el).addEventListener('click', () => {
     if (st.saving) return; st.saving = true;
     const wasDone = partyState().cur === -1;
+    const mcInfo = r ? null : partyMcInfo(i, st.ga, st.gb);
     P.results[i] = { ga: st.ga, gb: st.gb };
     save(); closeSheet(); render();
-    if (!wasDone && partyState().cur === -1 && !S.celebrated.party) { S.celebrated.party = true; save(); setTimeout(celebrate, 450); }
+    const fin = !wasDone && partyState().cur === -1 && !S.celebrated.party;
+    if (fin) { S.celebrated.party = true; save(); }
+    afterResult(mcInfo, fin);
   });
   const del = $('[data-del]', el);
   if (del) del.addEventListener('click', () => {
@@ -703,7 +707,7 @@ function cupResultSheet(id) {
   }));
   $('[data-x]', el).addEventListener('click', () => closeSheet());
 
-  const apply = async (newRes) => {
+  const apply = async (newRes, mcInfo = null) => {
     const next = { ...C.results };
     if (newRes) next[id] = newRes; else delete next[id];
     const san = KL.cupSanitize(ctx.br, C.seeds, next);
@@ -721,12 +725,15 @@ function cupResultSheet(id) {
     const after = cupCtx();
     if (after.champ === null) S.celebrated.cup = false;
     save(); render();
-    if (!wasChamp && after.champ !== null && !S.celebrated.cup) { S.celebrated.cup = true; save(); setTimeout(celebrate, 450); }
+    const fin = !wasChamp && after.champ !== null && !S.celebrated.cup;
+    if (fin) { S.celebrated.cup = true; save(); }
+    afterResult(mcInfo, fin);
   };
   $('[data-save]', el).addEventListener('click', () => {
     if (st.saving || st.winner == null) return; st.saving = true;
     const sub = r ? r.sub : (C.joker != null ? jokerSub(ctx, id) : undefined);
-    apply({ a: A, b: B, winner: st.winner, ga: st.goals ? st.ga : null, gb: st.goals ? st.gb : null, sub: sub === undefined ? null : sub });
+    const res = { a: A, b: B, winner: st.winner, ga: st.goals ? st.ga : null, gb: st.goals ? st.gb : null, sub: sub === undefined ? null : sub };
+    apply(res, r ? null : cupMcInfo(C, res));
   });
   const del = $('[data-del]', el);
   if (del) del.addEventListener('click', () => { if (st.saving) return; st.saving = true; apply(null); });
@@ -753,7 +760,133 @@ function menuSheet() {
     }
   }));
 }
-function resetAll() { S.party = null; S.cup = null; S.draft = null; S.celebrated = {}; S.view = 'home'; save(); render(); }
+function resetAll() { S.party = null; S.cup = null; S.draft = null; S.celebrated = {}; S.egg = { asked: {} }; S.view = 'home'; save(); render(); }
+
+
+/* =========================================================
+   Easter Egg: McMartin (Wertung bleibt ganz normal)
+   ========================================================= */
+const MC = 'McMartin';
+const low = (n) => String(n || '').trim().toLocaleLowerCase('de');
+const isMatze = (n) => low(n) === 'matze';
+const isMc = (n) => low(n) === 'matze' || low(n) === 'mcmartin';
+const TRAKTOR = [
+  'Alle Spieler, die einen Traktor haben, bekommen nur die Hälfte der Punkte.',
+  'Schiedsrichter-Entscheid: Tore von Traktorbesitzern zählen nur halb.',
+  'Traktor auf dem Spielfeld erkannt. Punkte werden halbiert.'
+];
+const EGG_WIN_LINE = '<div class="egg-line">🛒 Herzlichen Glückwunsch! Und jetzt ab zu Edeka nach Bargfeld-Stegen.</div>';
+
+function eggQ(i) {
+  return `<div class="egg-q" id="eggq-${i}"><span class="egg-icon xs">🚜</span><div class="q">Besitzt du einen Traktor?</div>
+    <div class="egg-btns"><button data-egg-yes="${i}">Ja</button><button data-egg-yes="${i}">Ja</button></div></div>`;
+}
+function eggSyncQ(i, v) {
+  const q = $('#eggq-' + i), f = $('#f' + i);
+  if (isMatze(v) && !q && f) f.insertAdjacentHTML('afterend', eggQ(i));
+  else if (!isMatze(v) && q) q.remove();
+}
+function eggRename(i, btn) {
+  const q = btn.closest('.egg-q');
+  if (q) q.querySelectorAll('button').forEach(x => { x.disabled = true; });
+  const inp = $('#name-' + i);
+  if (inp) inp.blur();
+  eggBanner({ icon: '🚫', title: 'Name nicht verfügbar', text: `Du heißt ab jetzt ${MC}.`, ms: 2800 }).then(() => {
+    if (!S.draft) return;
+    S.draft.names[i] = MC;
+    const inp2 = $('#name-' + i);
+    if (inp2) { inp2.value = MC; const f = inp2.closest('.field'); f.classList.remove('mc', 'err'); void f.offsetWidth; f.classList.add('mc'); }
+    const q2 = $('#eggq-' + i); if (q2) q2.remove();
+    const err = $('#nameErr'); if (err) err.textContent = '';
+    save();
+  });
+}
+function eggBanner({ icon, title, text, ms = 3600 }) {
+  return new Promise(res => {
+    ui.eggBusy = true;
+    const ov = document.createElement('div');
+    ov.className = 'egg-ov';
+    ov.innerHTML = `<div class="egg-card"><div class="egg-icon">${icon}</div><div class="egg-title">${esc(title)}</div>${text ? `<div class="egg-text">${esc(text)}</div>` : ''}<div class="egg-tap">Tippen zum Schließen</div></div>`;
+    let done = false;
+    const close = () => { if (done) return; done = true; ov.classList.add('out'); setTimeout(() => { ov.remove(); ui.eggBusy = false; res(); }, 250); };
+    ov.addEventListener('click', close);
+    setTimeout(close, ms);
+    document.body.appendChild(ov);
+  });
+}
+function eggAsk(partner) {
+  ui.eggBusy = true;
+  const el = openSheet(`<div class="egg-sheet"><div class="egg-icon sm">🚜</div>
+      <h3 class="h-lg">${esc(partner)}, möchtest du wirklich mit ${MC} zusammen spielen?</h3>
+      <div class="btns"><button class="btn btn-primary" data-no>Nein</button></div></div>`, () => { ui.eggBusy = false; }, true);
+  $('[data-no]', el).addEventListener('click', () => {
+    $('.egg-sheet', el).innerHTML = `<div class="egg-icon sm">🤷</div>
+      <h3 class="h-lg">Schade, da muss ich dich leider enttäuschen.</h3>
+      <p class="lead" style="margin:0">Geht nicht anders.</p>
+      <div class="btns"><button class="btn btn-primary" data-ok>Na gut, los geht's</button></div>`;
+    $('[data-ok]', el).addEventListener('click', () => closeSheet());
+  });
+}
+// Aufstellung eines Turnier-Teams (Joker ersetzt ggf. einen Spieler)
+function lineup(C, t, sub) { return C.teams[t].m.map(i => (sub != null && i === sub) ? C.joker : i); }
+function eggPartnerNow() {
+  if (S.view === 'party' && S.party) {
+    const { P, cur } = partyState();
+    if (cur < 0) return null;
+    const mt = P.matches[cur];
+    for (const side of [mt.a, mt.b]) {
+      const k = side.findIndex(p => isMc(P.players[p]));
+      if (k >= 0) return { key: 'p' + cur, partner: P.players[side[1 - k]] };
+    }
+  } else if (S.view === 'cup' && S.cup) {
+    const ctx = cupCtx();
+    if (!ctx.cur) return null;
+    const it = ctx.info[ctx.cur];
+    const sub = ctx.C.joker != null ? jokerSub(ctx, ctx.cur) : null;
+    for (const t of [it.a, it.b]) {
+      const line = lineup(ctx.C, t, sub);
+      const k = line.findIndex(p => isMc(ctx.C.players[p]));
+      if (k >= 0) return { key: 'c' + ctx.cur + ':' + line.join('-'), partner: ctx.C.players[line[1 - k]] };
+    }
+  }
+  return null;
+}
+function eggMaybeAsk() {
+  clearTimeout(ui.eggT);
+  ui.eggT = setTimeout(() => {
+    if (ui.eggBusy || ui.modal || document.querySelector('.win-ov')) return;
+    const x = eggPartnerNow();
+    if (!x) return;
+    if (!S.egg) S.egg = { asked: {} };
+    if (S.egg.asked[x.key]) return;
+    S.egg.asked[x.key] = true; save();
+    eggAsk(x.partner);
+  }, 450);
+}
+function partyMcInfo(i, ga, gb) {
+  const P = S.party, mt = P.matches[i];
+  const inA = mt.a.some(p => isMc(P.players[p])), inB = mt.b.some(p => isMc(P.players[p]));
+  if (!inA && !inB) return null;
+  const mine = inA ? ga : gb, other = inA ? gb : ga;
+  return { won: mine > other };
+}
+function cupMcInfo(C, res) {
+  for (const t of [res.a, res.b]) if (lineup(C, t, res.sub).some(p => isMc(C.players[p]))) return { won: t === res.winner };
+  return null;
+}
+// Nach einem neuen Ergebnis: ggf. Spruch zeigen, dann Siegerehrung oder nächste Frage
+function afterResult(mcInfo, fin) {
+  setTimeout(async () => {
+    if (mcInfo) {
+      if (mcInfo.won) await eggBanner({ icon: '🛒', title: 'Herzlichen Glückwunsch!', text: 'Und jetzt ab zu Edeka nach Bargfeld-Stegen.' });
+      else {
+        S.egg.n = ((S.egg.n || 0) + 1); save();
+        await eggBanner({ icon: '🚜', title: 'Achtung, neue Regel!', text: TRAKTOR[(S.egg.n - 1) % TRAKTOR.length] });
+      }
+    }
+    if (fin) celebrate(); else eggMaybeAsk();
+  }, 420);
+}
 
 /* =========================================================
    Siegerehrung
@@ -775,6 +908,7 @@ function celebrate() {
       <div><div class="eyebrow">Punkte-Party · Sieg${first.length > 1 ? ' geteilt' : ''}</div></div>
       <div class="champ">${first.map(nm).join(' &amp; ')}</div>
       <div class="champ-sub">${plural(first[0].goals, 'Tor', 'Tore')} gesammelt · ${first[0].w} Siege</div>
+      ${first.some(r => isMc(P.players[r.p])) ? EGG_WIN_LINE : ''}
       <div class="podium">${pod(rows[1], 'p2', rows[1] ? rows[1].place : '')}${pod(rows[0], 'p1', rows[0].place)}${pod(rows[2], 'p3', rows[2] ? rows[2].place : '')}</div>
       <div class="facts">
         <div class="fact"><span>Meiste Siege</span><b>${nm(mostWins)} · ${mostWins.w}</b></div>
@@ -794,6 +928,7 @@ function celebrate() {
       <div class="eyebrow">Turniersieger</div>
       <div class="champ">${esc(ctx.tname(ctx.champ))}</div>
       <div class="champ-sub">${mem(ctx.champ)} · ${plural(ctx.wins[ctx.champ], 'Sieg', 'Siege')}, ${plural(ctx.losses[ctx.champ], 'Niederlage', 'Niederlagen')}</div>
+      ${C.teams[ctx.champ].m.some(i => isMc(C.players[i])) ? EGG_WIN_LINE : ''}
       <div class="podium">${pod(ctx.res.second, 'p2', 2)}${pod(ctx.champ, 'p1', 1)}${pod(ctx.res.third, 'p3', 3)}</div>
       <div class="facts">
         <div class="fact"><span>Gespielte Partien</span><b class="num">${ctx.playedCount}</b></div>
@@ -854,6 +989,7 @@ function rerollParty() {
   const P = S.party;
   P.matches = KL.partyBuild(P.players.length, P.k);
   P.stats = KL.partyStats(P.players.length, P.matches);
+  S.egg = { asked: {} };
   ui.reroll = true; ui.nowKey = null;
   save(); render();
 }
@@ -866,6 +1002,8 @@ function readNames() {
 }
 
 document.addEventListener('click', async (e) => {
+  const eg = e.target.closest('[data-egg-yes]');
+  if (eg) { eggRename(Number(eg.dataset.eggYes), eg); return; }
   const b = e.target.closest('[data-act]');
   if (!b || b.closest('.sheet')) return;
   const act = b.dataset.act;
@@ -886,7 +1024,7 @@ document.addEventListener('click', async (e) => {
       if (d > 0) {
         D.names.push(S.roster[n - 1] && !D.names.includes(S.roster[n - 1]) ? S.roster[n - 1] : '');
         $('#names').insertAdjacentHTML('beforeend', nameField(n - 1, D.names[n - 1], true));
-      } else { D.names.pop(); const f = $('#f' + n); if (f) f.remove(); }
+      } else { D.names.pop(); const f = $('#f' + n); if (f) f.remove(); const q = $('#eggq-' + n); if (q) q.remove(); }
       $('#cnt').textContent = n;
       const [mb, pb] = document.querySelectorAll('.stepper button');
       mb.disabled = n <= 4; pb.disabled = n >= 16;
@@ -895,6 +1033,13 @@ document.addEventListener('click', async (e) => {
     }
     case 'names-next': {
       const { final, dup } = readNames();
+      const mz = D.names.map((v, i) => i).filter(i => isMatze(D.names[i]));
+      if (mz.length) {
+        mz.forEach(i => eggSyncQ(i, D.names[i]));
+        const q = $('#eggq-' + mz[0]); if (q) { q.scrollIntoView({ behavior: 'smooth', block: 'center' }); q.animate?.([{ transform: 'scale(1)' }, { transform: 'scale(1.03)' }, { transform: 'scale(1)' }], { duration: 400 }); }
+        $('#nameErr').textContent = 'Erst noch die Traktor-Frage beantworten.';
+        return;
+      }
       document.querySelectorAll('.field').forEach((f, i) => f.classList.toggle('err', dup.has(i)));
       if (dup.size) { $('#nameErr').textContent = 'Zwei Spieler heißen gleich. Bitte die Namen unterscheidbar machen, z. B. „Tim K.“ und „Tim S.“.'; return; }
       const changed = JSON.stringify(final) !== JSON.stringify(D.final || []);
@@ -914,7 +1059,7 @@ document.addEventListener('click', async (e) => {
       b.disabled = true;
       const matches = KL.partyBuild(n, D.k);
       S.party = { players: D.names.slice(), k: D.k, matches, stats: KL.partyStats(n, matches), results: {} };
-      S.cup = null; S.celebrated = {}; S.tab.party = 'plan'; S.view = 'party';
+      S.cup = null; S.celebrated = {}; S.egg = { asked: {} }; S.tab.party = 'plan'; S.view = 'party';
       ui.reroll = true; ui.nowKey = null;
       save(); render(); break;
     }
@@ -961,7 +1106,7 @@ document.addEventListener('click', async (e) => {
       const left = D.names.map((_, i) => i).filter(i => !used.has(i));
       const teams = D.teams.map((t, i) => ({ name: (t.name || '').trim() || `Team ${i + 1}`, m: t.m.slice() }));
       S.cup = { players: D.names.slice(), teams, joker: left.length === 1 ? left[0] : null, seeds: KL.shuffle([...Array(T).keys()]), results: {}, history: [], jokerPick: {} };
-      S.party = null; S.celebrated = {}; S.tab.cup = 'bracket'; S.view = 'cup'; ui.nowKey = null;
+      S.party = null; S.celebrated = {}; S.egg = { asked: {} }; S.tab.cup = 'bracket'; S.view = 'cup'; ui.nowKey = null;
       save(); render(); break;
     }
     case 'cup-result': cupResultSheet(b.dataset.id); break;
@@ -977,6 +1122,7 @@ document.addEventListener('input', (e) => {
   const t = e.target;
   if (t.dataset.name != null && S.draft) {
     S.draft.names[Number(t.dataset.name)] = t.value;
+    eggSyncQ(Number(t.dataset.name), t.value);
     t.closest('.field').classList.remove('err');
     const err = $('#nameErr'); if (err) err.textContent = '';
     saveSoon();

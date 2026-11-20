@@ -1,6 +1,6 @@
 import base64, json, re, os, zipfile
 ROOT = os.path.dirname(os.path.abspath(__file__))
-BUILD = '4'
+BUILD = '5'
 src = open(f'{ROOT}/src/index.src.html').read()
 logic = open(f'{ROOT}/src/logic.js').read()
 app = open(f'{ROOT}/src/app.js').read().replace('__BUILD__', BUILD)
