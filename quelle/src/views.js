@@ -158,6 +158,7 @@ const fWd = fmt({ weekday: 'short' });
 function tiMeta(t, ctx) {
   const m = [];
   if (ctx === 'done') m.push(h('span', null, doneLabel(t)));
+  else if (ctx === 'chron') { if (t.doneAt) { const b = berlin(t.doneAt); m.push(h('span', null, b.hour + ':' + b.minute)); } }
   else {
     if (ctx === 'over') m.push(h('span.over', null, dueLabel(t.due)));
     else if (ctx === 'later') m.push(h('span', null, dueLabel(t.due)));
@@ -177,6 +178,23 @@ function tiCard(t, ctx) {
       h('span.row-title', null, taskTitle(t)),
       meta.length ? h('span.row-meta', null, meta) : null),
     tl ? h('span.ti-time', null, tl) : null);
+}
+/* Rückblick: Erledigtes nach Tag gruppiert, neueste zuerst, rechts der Zähler des ganzen Tages */
+function doneChronicle(shown, all) {
+  const dk = t => t.doneAt ? dayOf(t.doneAt) : '0000-00-00';
+  const count = new Map();
+  for (const t of all) { const k = dk(t); count.set(k, (count.get(k) || 0) + 1); }
+  const groups = new Map();
+  for (const t of shown) { const k = dk(t); if (!groups.has(k)) groups.set(k, []); groups.get(k).push(t); }
+  const day = today(), out = [];
+  for (const [k, list] of groups) {
+    const d = k === '0000-00-00' ? null : diffDays(k, day);
+    const title = d === null ? 'Früher' : d === 0 ? 'Heute' : d === -1 ? 'Gestern' : cap(fWeekday.format(D(k)));
+    out.push(h('div.ag-day.dc-day', { data: { day: k } },
+      h('h3.ag-h', null, h('b', null, title), d === null ? null : h('span', null, plainDate(k)), h('span.dc-n', null, (count.get(k) || list.length) + ' geschafft')),
+      h('div.ti-list', null, list.map(t => tiCard(t, 'chron')))));
+  }
+  return out;
 }
 function loadOf(list) { return list.reduce((n, t) => n + (t.dur || 30), 0); }
 function weekBand(day, open) {
@@ -294,7 +312,7 @@ function renderTasks() {
     const shown = done.slice(0, ui.doneLimit);
     doneSec = h('section.sec', null,
       h('button.done-toggle', { type: 'button', 'aria-expanded': String(ui.doneOpen), data: { act: 'toggleDone' } }, 'Erledigt', h('span.n', null, done.length), ic('chevD')),
-      ui.doneOpen ? h('div.ti-list', { style: 'margin-top:6px' }, shown.map(t => tiCard(t, 'done'))) : null,
+      ui.doneOpen ? h('div.dchron', null, doneChronicle(shown, done)) : null,
       ui.doneOpen && done.length > shown.length ? btn('.more', 'moreDone', {}, 'Mehr anzeigen') : null);
   }
   fill(box,
