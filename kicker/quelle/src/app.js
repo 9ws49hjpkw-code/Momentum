@@ -878,10 +878,10 @@ function cupMcInfo(C, res) {
 function afterResult(mcInfo, fin) {
   setTimeout(async () => {
     if (mcInfo) {
-      if (mcInfo.won) await eggBanner({ icon: '🛒', title: 'Herzlichen Glückwunsch!', text: 'Und jetzt ab zu Edeka nach Bargfeld-Stegen.' });
+      if (mcInfo.won) await eggBanner({ icon: '🛒', title: 'Herzlichen Glückwunsch!', text: 'Und jetzt ab zu Edeka nach Bargfeld-Stegen.', ms: 7600 });
       else {
         S.egg.n = ((S.egg.n || 0) + 1); save();
-        await eggBanner({ icon: '🚜', title: 'Achtung, neue Regel!', text: TRAKTOR[(S.egg.n - 1) % TRAKTOR.length] });
+        await eggBanner({ icon: '🚜', title: 'Achtung, neue Regel!', text: TRAKTOR[(S.egg.n - 1) % TRAKTOR.length], ms: 7600 });
       }
     }
     if (fin) celebrate(); else eggMaybeAsk();
