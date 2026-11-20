@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  Momentum 1.1.1 · eine einzige Datei, keine Abhängigkeiten.
+  Momentum 1.2.0 · eine einzige Datei, keine Abhängigkeiten.
 
   Für spätere Updates (damit keine Daten verloren gehen):
   - Daten liegen in IndexedDB "momentum", Version 1. Stores: tasks, ideas, topics (Schlüssel id),
@@ -16,7 +16,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Momentum</title>
-<meta name="momentum-build" content="1.1.1">
+<meta name="momentum-build" content="1.2.0">
 <meta name="description" content="Aufgaben, Ideen und Journal. Schnell rein, Kopf sortiert, wieder raus.">
 <meta name="theme-color" content="#04070C">
 <meta name="color-scheme" content="dark">
@@ -91,12 +91,27 @@ svg{display:block}
     radial-gradient(120% 42% at 50% 112%,rgba(28,170,214,.13) 0%,transparent 70%),
     linear-gradient(180deg,#060A12 0%,#04070C 42%,#03050A 100%);
 }
+/* Eck-Ringe oben rechts: leuchten in der Farbe des Bereichs, schimmern langsam; bei Überfälligem ins Rot */
+#ambient{--rc:98,217,255;transition:none}
+body[data-tab="tasks"] #ambient{--rc:150,132,255}
+body[data-tab="ideas"] #ambient{--rc:255,190,98}
+body[data-tab="journal"] #ambient{--rc:96,236,190}
+body.alarm #ambient{--rc:255,84,110}
 #ambient::before,#ambient::after{
   content:"";position:absolute;border-radius:50%;
-  border:1px solid rgba(140,224,255,.075);
+  border:1px solid rgba(var(--rc),.34);
+  box-shadow:0 0 14px rgba(var(--rc),.22),inset 0 0 14px rgba(var(--rc),.12);
+  transition:border-color 1s ease,box-shadow 1s ease;
 }
 #ambient::before{width:500px;height:500px;right:-310px;top:-290px}
-#ambient::after{width:320px;height:320px;right:-220px;top:-200px;border-color:rgba(140,224,255,.06)}
+#ambient::after{width:320px;height:320px;right:-220px;top:-200px;border-color:rgba(var(--rc),.26)}
+.amb-glow{position:absolute;right:-180px;top:-190px;width:460px;height:460px;border-radius:50%;pointer-events:none;
+  background:radial-gradient(closest-side,rgba(var(--rc),.26),rgba(var(--rc),.08) 55%,rgba(var(--rc),0) 100%);transition:background 1s ease}
+body.live .amb-glow{animation:amb 14s ease-in-out infinite}
+body.live #ambient::before{animation:ringglow 9s ease-in-out infinite}
+body.live #ambient::after{animation:ringglow 9s -4.5s ease-in-out infinite}
+@keyframes amb{0%,100%{opacity:.7;transform:scale(1) translate3d(0,0,0)}40%{opacity:1;transform:scale(1.08) translate3d(-10px,8px,0)}70%{opacity:.82;transform:scale(.96) translate3d(6px,-4px,0)}}
+@keyframes ringglow{0%,100%{opacity:.75}50%{opacity:1}}
 
 /* ---------- Alarm-Rand: Überfälliges leuchtet rot am Bildschirmrand ---------- */
 #alarm{position:fixed;inset:0;z-index:40;pointer-events:none;opacity:0;--ai:0;border-radius:0;transition:opacity .8s ease}
@@ -113,6 +128,42 @@ svg{display:block}
 @keyframes al-in{0%{box-shadow:inset 0 0 0 0 rgba(255,40,70,.0),inset 0 0 0 0 rgba(255,40,70,0)}12%{box-shadow:inset 0 0 18px 6px rgba(255,40,70,.4),inset 0 0 0 0 rgba(255,40,70,0)}100%{box-shadow:inset 0 0 90px 70px rgba(255,40,70,0),inset 0 0 160px 120px rgba(255,40,70,0)}}
 body:not(.live) #alarm,body.layered #alarm{opacity:0}
 body.layered #alarm::before,body.layered #alarm::after{animation-play-state:paused}
+
+/* ---------- Seitenwechsel im HUD-Stil: Scanlinie fegt, neue Ansicht baut sich auf ---------- */
+#hud{position:fixed;inset:0;z-index:35;pointer-events:none;--hc:98,217,255;opacity:0}
+body[data-tab="tasks"] #hud{--hc:150,132,255}
+body[data-tab="ideas"] #hud{--hc:255,190,98}
+body[data-tab="journal"] #hud{--hc:96,236,190}
+#hud::before{content:"";position:absolute;left:0;right:0;top:0;height:2px;background:linear-gradient(90deg,rgba(var(--hc),0),rgba(var(--hc),.95) 20%,#fff 50%,rgba(var(--hc),.95) 80%,rgba(var(--hc),0));box-shadow:0 0 14px rgba(var(--hc),.9),0 0 40px rgba(var(--hc),.5)}
+#hud::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(var(--hc),.07) 0 1px,transparent 1px 4px),linear-gradient(180deg,rgba(var(--hc),.12),rgba(var(--hc),0) 30%)}
+#hud.run{animation:hud-fade .46s ease-out both}
+#hud.run::before{animation:hud-scan .46s cubic-bezier(.3,.1,.3,1) both}
+#hud.run::after{animation:hud-grid .46s ease-out both}
+@keyframes hud-fade{0%{opacity:1}75%{opacity:1}100%{opacity:0}}
+@keyframes hud-scan{0%{transform:translate3d(0,0,0)}100%{transform:translate3d(0,100vh,0)}}
+@keyframes hud-grid{0%{opacity:.9;clip-path:inset(0 0 100% 0)}100%{opacity:0;clip-path:inset(0 0 0 0)}}
+.view.reveal{animation:v-reveal .46s cubic-bezier(.3,.1,.3,1) both}
+@keyframes v-reveal{0%{clip-path:inset(0 0 100% 0);filter:brightness(1.7) saturate(1.3)}12%{transform:translate3d(-2px,0,0)}18%{transform:translate3d(2px,0,0)}24%{transform:none}100%{clip-path:inset(0 0 -2% 0);filter:none}}
+
+/* ---------- Leise Dauer-Schwingung (gewünscht): Felder schweben minimal, Glanz und Kanten atmen ---------- */
+body.live #today > .goals,body.live #today > .ogoals,body.live #today > .sec > .group,body.live #today .idea-card,body.live #tasks .wb-day.on,body.live #tasks .tl-b.live{animation:drift 9s ease-in-out infinite}
+body.live #today > .ogoals{animation-duration:7.5s;animation-delay:-2s}
+body.live #today > .sec:nth-of-type(2n) > .group{animation-duration:10.5s;animation-delay:-4s}
+body.live #today > .sec:nth-of-type(3n) > .group{animation-duration:8.2s;animation-delay:-6s}
+body.live #today .idea-card:nth-child(2n){animation-delay:-3s}
+@keyframes drift{0%,100%{translate:0 0}50%{translate:0 -1.6px}}
+.group{position:relative}
+.goals::after{animation:sheen 13s ease-in-out infinite;transform-origin:50% 50%}
+body:not(.live) .goals::after{animation:none}
+@keyframes sheen{0%,100%{transform:translate3d(-14%,0,0);opacity:.7}50%{transform:translate3d(14%,0,0);opacity:1}}
+body.live .holo::before{animation:edge-breathe 6s ease-in-out infinite}
+@keyframes edge-breathe{0%,100%{opacity:.78}50%{opacity:1}}
+body.live .group.glass::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:3;
+  background:linear-gradient(115deg,rgba(190,236,255,0) 30%,rgba(190,236,255,.045) 48%,rgba(190,236,255,0) 64%);background-size:100% 100%;
+  animation:sheen 16s ease-in-out infinite}
+/* Beim Tippen und in Sheets ist Ruhe */
+body.kb-open #app *,body.kb-open .amb-glow,body.layered #app *,body.layered .amb-glow{animation-play-state:paused!important}
+body.kb-open #ambient::before,body.kb-open #ambient::after,body.layered #ambient::before,body.layered #ambient::after{animation-play-state:paused}
 
 /* ---------- App-Rahmen ---------- */
 #app{
@@ -159,15 +210,15 @@ body.kb-open .inner{padding-bottom:32px}
 /* Lichtlinie = Tagesbilanz: blau erledigt, matt offen, rot überfällig */
 .beam{position:relative;height:1px;margin:18px 0 24px;--a:0%;--o:0%;overflow-x:clip}
 .beam > i{position:absolute;display:block}
-.b-track{inset:0;background:linear-gradient(90deg,rgba(150,215,255,.16),rgba(150,215,255,.11) 70%,rgba(150,215,255,.05))}
-.b-done{left:0;top:0;height:1px;width:var(--a);background:linear-gradient(90deg,#9BE8FF,#62D9FF);box-shadow:0 0 6px rgba(98,217,255,.9),0 0 14px rgba(98,217,255,.4);transition:width .9s var(--ease)}
-.b-over{right:0;top:-.5px;height:2px;width:var(--o);border-radius:1px;background:linear-gradient(90deg,#FF7083,#FF3E56);box-shadow:0 0 7px rgba(255,62,86,.95),0 0 18px rgba(255,62,86,.45);transition:width .9s var(--ease)}
+.b-track{inset:0;background:linear-gradient(90deg,rgba(150,215,255,.3),rgba(150,215,255,.2) 70%,rgba(150,215,255,.09));box-shadow:0 0 8px rgba(98,217,255,.12)}
+.b-done{left:0;top:-.5px;height:2px;border-radius:1px;width:var(--a);background:linear-gradient(90deg,#C4F2FF,#62D9FF);box-shadow:0 0 6px rgba(98,217,255,1),0 0 16px rgba(98,217,255,.7),0 0 30px rgba(98,217,255,.35);transition:width .9s var(--ease)}
+.b-over{right:0;top:-1px;height:3px;width:var(--o);border-radius:2px;background:linear-gradient(90deg,#FF8595,#FF3E56);box-shadow:0 0 8px rgba(255,62,86,1),0 0 20px rgba(255,62,86,.65),0 0 34px rgba(255,62,86,.3);transition:width .9s var(--ease)}
 .beam.calm .b-done,.beam.calm .b-over{width:0}
 .b-c{inset:0;pointer-events:none;transform:translateX(calc(var(--pos) * (100% - 4px)))}
 .b-light{position:absolute;top:-.5px;left:2px;width:260px;height:2px;margin-left:-130px;border-radius:2px;background:radial-gradient(50% 50% at 50% 50%,rgba(var(--tc),.95),rgba(var(--tc),.35) 45%,rgba(var(--tc),0) 100%);box-shadow:0 0 0 0 transparent}
 .b-light::after{content:"";position:absolute;left:25%;right:25%;top:-5px;bottom:-5px;border-radius:50%;background:radial-gradient(50% 50% at 50% 50%,rgba(var(--tc),.32),rgba(var(--tc),0));filter:blur(3px)}
-.b-dot{position:absolute;left:0;top:-1.5px;width:4px;height:4px;border-radius:50%;background:#fff;box-shadow:0 0 6px 1px rgba(var(--tc),1),0 0 14px 3px rgba(var(--tc),.55)}
-.b-cap{position:absolute;right:0;top:8px;font-size:12px;line-height:15px;font-weight:500;letter-spacing:.01em;color:var(--ink3);font-variant-numeric:tabular-nums;white-space:nowrap;transition:opacity .4s ease}
+.b-dot{position:absolute;left:-1px;top:-2.5px;width:6px;height:6px;border-radius:50%;background:#fff;box-shadow:0 0 8px 2px rgba(var(--tc),1),0 0 20px 5px rgba(var(--tc),.6)}
+.b-cap{position:absolute;right:0;top:9px;font-size:12px;line-height:15px;font-weight:500;letter-spacing:.01em;color:var(--ink2);font-variant-numeric:tabular-nums;white-space:nowrap;transition:opacity .4s ease}
 .b-cap b{font-weight:600;color:var(--ice)}
 .b-cap em{font-style:normal;font-weight:600;color:#FF6B7D}
 .beam.calm .b-cap{opacity:0}
@@ -888,8 +939,9 @@ body.enter .view.active .beam::after{content:"";position:absolute;left:0;right:0
 </style>
 </head>
 <body class="intro">
-<div id="ambient" aria-hidden="true"></div>
+<div id="ambient" aria-hidden="true"><i class="amb-glow"></i></div>
 <div id="alarm" aria-hidden="true" data-l="0"></div>
+<div id="hud" aria-hidden="true"></div>
 <div id="intro" aria-hidden="true"><div class="in-scan"></div><div class="in-box">
 <svg viewBox="0 0 220 220">
 <g class="in-cross"><path d="M4 110H50M170 110H216M110 4V50M110 170V216"/></g>
@@ -3215,6 +3267,16 @@ function collapseRow(w) {
   const only = g && g.classList.contains('group') && g.children.length === 1;
   return collapse(only ? (g.closest('.sec') || g) : w);
 }
+/* Seitenwechsel: Scanlinie in der Bereichsfarbe, neue Ansicht baut sich von oben auf. Blockiert keine Eingabe. */
+let hudT = 0;
+function hudSweep(view) {
+  if (reduced()) return;
+  const hud = $('#hud');
+  if (hud) { hud.classList.remove('run'); void hud.offsetWidth; hud.classList.add('run'); }
+  if (view) { void view.offsetWidth; view.classList.add('reveal'); }
+  clearTimeout(hudT);
+  hudT = setTimeout(() => { if (hud) hud.classList.remove('run'); for (const v of $$('.view.reveal')) v.classList.remove('reveal'); }, 520);
+}
 /* Der Lichtpunkt gleitet von der Stelle des alten Bereichs zur neuen */
 const BEAM_POS = { today: 0, tasks: 1 / 3, ideas: 2 / 3, journal: 1 };
 function glideBeam(from, to) {
@@ -3235,7 +3297,9 @@ function go(name) {
   const from = ui.tab;
   ui.tab = name;
   Sound.play('swipe');
-  for (const v of $$('.view')) v.classList.toggle('active', v.id === 'v-' + name);
+  document.body.dataset.tab = name;
+  for (const v of $$('.view')) { v.classList.toggle('active', v.id === 'v-' + name); v.classList.remove('reveal'); }
+  hudSweep($('#v-' + name));
   glideBeam(from, name);
   for (const b of $$('.tab')) { const on = b.dataset.tab === name; b.classList.toggle('on', on); b.setAttribute('aria-current', on ? 'page' : 'false'); }
 }
@@ -3762,6 +3826,7 @@ async function boot() {
   }
   try {
     seedTopics();
+    document.body.dataset.tab = ui.tab;
     curDay = today(); curHour = hourNow();
     initKeyboard();
     bindEvents();

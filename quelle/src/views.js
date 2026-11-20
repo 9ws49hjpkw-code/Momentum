@@ -991,6 +991,16 @@ function collapseRow(w) {
   const only = g && g.classList.contains('group') && g.children.length === 1;
   return collapse(only ? (g.closest('.sec') || g) : w);
 }
+/* Seitenwechsel: Scanlinie in der Bereichsfarbe, neue Ansicht baut sich von oben auf. Blockiert keine Eingabe. */
+let hudT = 0;
+function hudSweep(view) {
+  if (reduced()) return;
+  const hud = $('#hud');
+  if (hud) { hud.classList.remove('run'); void hud.offsetWidth; hud.classList.add('run'); }
+  if (view) { void view.offsetWidth; view.classList.add('reveal'); }
+  clearTimeout(hudT);
+  hudT = setTimeout(() => { if (hud) hud.classList.remove('run'); for (const v of $$('.view.reveal')) v.classList.remove('reveal'); }, 520);
+}
 /* Der Lichtpunkt gleitet von der Stelle des alten Bereichs zur neuen */
 const BEAM_POS = { today: 0, tasks: 1 / 3, ideas: 2 / 3, journal: 1 };
 function glideBeam(from, to) {
@@ -1011,7 +1021,9 @@ function go(name) {
   const from = ui.tab;
   ui.tab = name;
   Sound.play('swipe');
-  for (const v of $$('.view')) v.classList.toggle('active', v.id === 'v-' + name);
+  document.body.dataset.tab = name;
+  for (const v of $$('.view')) { v.classList.toggle('active', v.id === 'v-' + name); v.classList.remove('reveal'); }
+  hudSweep($('#v-' + name));
   glideBeam(from, name);
   for (const b of $$('.tab')) { const on = b.dataset.tab === name; b.classList.toggle('on', on); b.setAttribute('aria-current', on ? 'page' : 'false'); }
 }

@@ -62,19 +62,19 @@ Umsetzung: navigator.setAppBadge(n) / clearAppBadge, nur wenn unterstützt; Erla
 Wünsche (Zitate): „Leichte Balken oben (Balance) mehr leuchten lassen, präsenter, sichtbarer.“ · „Oben rechts das Leuchten schimmern um den Doppel linien 1/4 Kreis in der Ecke mehr sichtbar farbig leuchten“ · „ne coole Animation wenn man von Page zu Page wechselt im jarvis style“ · „die einzelnen Felder … minimal floatend bewegen … eine Art Schwingung allzeit anwesend … Farbfelder schwingen und wechseln minimal (oder die Linien drum rum leicht bewegen / leuchten)“
 Hinweis: Der Nutzer wünscht ausdrücklich Daueranimation – Wunsch geht vor dem allgemeinen Standard. Minimal halten, nur transform/opacity (GPU), „Bewegung reduzieren“ = alles aus.
 
-### D1. Lichtlinie (Balance) präsenter  [offen]
+### D1. Lichtlinie (Balance) präsenter  [erledigt]
 Umsetzung: styles.css .beam: Höhe 1→2px für erledigt/überfällig, stärkerer Glow (box-shadow in Bereichsfarbe), b-dot heller, Beschriftung etwas heller.
 Prüfung: t10 läuft weiter; Screenshot ansehen.
 
-### D2. Eck-Ringe oben rechts leuchten farbig  [offen]
+### D2. Eck-Ringe oben rechts leuchten farbig  [erledigt]
 Umsetzung: #ambient::before/::after: Ringfarbe in Bereichsfarbe (Variable je aktivem Tab), radial-gradient-Schimmer hinter den Ringen, langsames Schimmern (12–16 s). Bei Überfälligem leicht ins Rot (mit C1 koppeln).
 Prüfung: Screenshot; reduzierte Bewegung = statisch.
 
-### D3. Seitenwechsel im Jarvis-Stil  [offen]
+### D3. Seitenwechsel im Jarvis-Stil  [erledigt]
 Umsetzung: views.js go(): kurze HUD-Überblendung (~350 ms): Scanlinie fegt in Bereichsfarbe über den Bildschirm, neue Ansicht baut sich mit leichtem Glitch/Scan-Reveal (clip-path + opacity) auf, Lichtpunkt gleitet wie bisher. Darf Eingabe nicht blockieren, Doppeltipp auf Tabs sicher.
 Prüfung: monkey.js (viele Tabwechsel) ohne Fehler; Test: nach Tabwechsel ist neue Ansicht nach ≤ 600 ms .active und klickbar.
 
-### D4. Ständige leise Schwingung  [offen]
+### D4. Ständige leise Schwingung  [erledigt]
 Umsetzung: Karten auf Heute (.card/.goal/.row-Gruppen): sehr langsames Schweben (translateY ±1.5px, 7–11 s, versetzte Phasen), Glas-Hintergründe mit sanft wanderndem Farbverlauf (background-position), Kantenlinien leicht atmend. Pausiert bei kb-open und offenen Layern (Akku/Ruhe beim Tippen).
 Prüfung: Test: mit reduced motion keine laufende Animation (getAnimations().length auf Karten = 0); Screenshot.
 
