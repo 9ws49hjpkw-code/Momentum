@@ -17,47 +17,94 @@ function haptic() {
   } catch (e) {}
 }
 
-/* ----- Töne: leise, synthetisch erzeugt (keine Dateien). Der Stummschalter wird beachtet (audioSession „ambient“).
-   iOS erlaubt Ton erst nach der ersten Berührung – vorher bleibt es still. Schalter in den Einstellungen. ----- */
+/* ----- Töne: dezent, synthetisch (keine Dateien). Weiche Glas-Pings und Luft statt Effekt-Klänge, mit etwas Raum.
+   Der Stummschalter wird beachtet (audioSession „ambient“). iOS erlaubt Ton erst nach einer Berührung:
+   der Start-Klang kommt dann beim ersten Tippen nach (innerhalb weniger Sekunden). Schalter in den Einstellungen. ----- */
 const Sound = (() => {
   const KEY = 'momentum.sound';
-  let ctx = null, master = null;
+  let ctx = null, out = null, room = null, noiseBuf = null, pend = null;
   const on = () => { try { return localStorage.getItem(KEY) !== '0'; } catch (e) { return true; } };
   const set = v => { try { localStorage.setItem(KEY, v ? '1' : '0'); } catch (e) {} };
-  function unlock() {
-    if (ctx || !on()) return;
+  function build() {
     const C = window.AudioContext || window.webkitAudioContext;
-    if (!C) return;
+    if (!C) return false;
     try { if (navigator.audioSession) navigator.audioSession.type = 'ambient'; } catch (e) {}
-    try { ctx = new C(); master = ctx.createGain(); master.gain.value = 1; master.connect(ctx.destination); } catch (e) { ctx = null; return; }
-    if (ctx.state === 'suspended' && ctx.resume) ctx.resume().catch(() => {});
+    try {
+      ctx = new C();
+      const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 7200; lp.Q.value = .4;
+      out = ctx.createGain(); out.gain.value = 1; out.connect(lp); lp.connect(ctx.destination);
+      /* kleiner Raum: kurzer, dunkler Nachhall */
+      const len = Math.floor(ctx.sampleRate * 1.4), ir = ctx.createBuffer(2, len, ctx.sampleRate);
+      for (let c = 0; c < 2; c++) { const d = ir.getChannelData(c); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3.2); }
+      const cv = ctx.createConvolver(); cv.buffer = ir;
+      const dark = ctx.createBiquadFilter(); dark.type = 'lowpass'; dark.frequency.value = 3800;
+      room = ctx.createGain(); room.gain.value = .32;
+      room.connect(cv); cv.connect(dark); dark.connect(lp);
+      noiseBuf = ctx.createBuffer(1, Math.floor(ctx.sampleRate * .6), ctx.sampleRate);
+      const n = noiseBuf.getChannelData(0); for (let i = 0; i < n.length; i++) n[i] = Math.random() * 2 - 1;
+    } catch (e) { ctx = null; return false; }
+    return true;
   }
-  function tone(f, at, dur, vol, type, f2) {
-    const t = ctx.currentTime + at, o = ctx.createOscillator(), g = ctx.createGain();
-    o.type = type || 'sine';
-    o.frequency.setValueAtTime(f, t);
-    if (f2) o.frequency.exponentialRampToValueAtTime(f2, t + dur);
+  function unlock() {
+    if (!on()) return;
+    if (!ctx && !build()) return;
+    const go = () => { const q = pend; pend = null; if (q && performance.now() - q.t < 6000) play(q.n); };
+    if (ctx.state !== 'running' && ctx.resume) ctx.resume().then(go, () => {}); else go();
+  }
+  /* Zurück in die App: kurzer Start-Klang, wenn das System den Ton wieder freigibt */
+  function wake() {
+    if (!on() || !ctx) return;
+    const p = ctx.state === 'running' ? Promise.resolve() : (ctx.resume ? ctx.resume() : Promise.reject());
+    p.then(() => play('wake'), () => {});
+  }
+  /* weicher Ton mit leiser Obertonlinie (Glas/Mallet), wet = Anteil Raum */
+  function ping(f, at, dur, vol, o) {
+    o = o || {};
+    const t = ctx.currentTime + at, g = ctx.createGain();
+    const parts = o.pure ? [[1, 1]] : [[1, 1], [2.756, .14], [5.404, .04]];
+    for (const [m, v] of parts) {
+      const os = ctx.createOscillator(), gg = ctx.createGain();
+      os.type = 'sine'; os.frequency.setValueAtTime(f * m, t);
+      if (o.to) os.frequency.exponentialRampToValueAtTime(o.to * m, t + dur);
+      gg.gain.value = v; os.connect(gg); gg.connect(g);
+      os.start(t); os.stop(t + dur + .05);
+    }
+    const atk = o.atk || .004;
     g.gain.setValueAtTime(0.0001, t);
-    g.gain.exponentialRampToValueAtTime(Math.min(0.15, vol), t + 0.008);
+    g.gain.exponentialRampToValueAtTime(Math.min(.08, vol), t + atk);
     g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-    o.connect(g); g.connect(master);
-    o.start(t); o.stop(t + dur + 0.02);
+    g.connect(out);
+    if (o.wet !== 0) { const w = ctx.createGain(); w.gain.value = o.wet == null ? .7 : o.wet; g.connect(w); w.connect(room); }
+  }
+  /* Luft: gefiltertes Rauschen, optional gleitend */
+  function air(at, dur, vol, f, f2, q) {
+    const t = ctx.currentTime + at, src = ctx.createBufferSource(), bp = ctx.createBiquadFilter(), g = ctx.createGain();
+    src.buffer = noiseBuf; bp.type = 'bandpass'; bp.Q.value = q || 1.4;
+    bp.frequency.setValueAtTime(f, t); if (f2) bp.frequency.exponentialRampToValueAtTime(f2, t + dur);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(Math.min(.06, vol), t + Math.min(.06, dur * .4));
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    src.connect(bp); bp.connect(g); g.connect(out);
+    const w = ctx.createGain(); w.gain.value = .5; g.connect(w); w.connect(room);
+    src.start(t); src.stop(t + dur + .05);
   }
   const P = {
-    tap() { tone(1650, 0, .045, .035, 'sine', 1300); },
-    open() { tone(520, 0, .12, .04, 'sine', 780); },
-    swipe() { tone(300, 0, .22, .03, 'triangle', 900); },
-    save() { tone(880, 0, .09, .06); tone(1320, .07, .16, .05); },
-    check(prio) { const b = [660, 784, 988][prio == null ? 1 : prio]; tone(b, 0, .1, .08); tone(b * 1.5, .06, .22, .07); if (prio === 2) tone(b * 2, .13, .3, .05); },
-    goal() { [523, 659, 784, 1047].forEach((f, i) => tone(f, i * .06, .5 - i * .05, .07)); tone(2093, .26, .5, .03); },
-    over() { tone(220, 0, .3, .07, 'triangle', 180); tone(233, .02, .32, .05, 'sine', 190); },
-    intro() { tone(392, 0, .5, .05, 'sine', 784); tone(1175, .42, .5, .05); tone(1568, .5, .6, .035); }
+    tap() { air(0, .03, .022, 5200, 0, 2.2); ping(2900, 0, .035, .006, { pure: 1, wet: 0 }); },
+    open() { air(0, .2, .016, 700, 2600, 1.1); },
+    swipe() { air(0, .24, .018, 900, 3200, 1.2); ping(1318, .1, .35, .014); },
+    save() { ping(1046, 0, .32, .018); ping(1568, .055, .45, .012); },
+    check(prio) { const f = [880, 1046, 1318][prio == null ? 1 : prio]; ping(f, 0, .5, .03); ping(f * 1.5, .07, .6, prio === 2 ? .016 : .01); },
+    goal() { [523, 784, 1175].forEach((f, i) => ping(f, i * .045, 1.3, .016, { atk: .03 })); ping(2349, .2, .9, .008); air(0, .5, .01, 1500, 5000, 1); },
+    over() { ping(196, 0, .28, .045, { pure: 1, to: 150, wet: .4 }); ping(196, .26, .34, .035, { pure: 1, to: 140, wet: .4 }); ping(784, .02, .5, .006, { wet: .9 }); },
+    intro() { ping(98, 0, 1.1, .03, { pure: 1, atk: .35, to: 147, wet: .3 }); air(.05, .75, .012, 400, 3600, .9); ping(1568, .78, 1.2, .016); ping(2349, .84, 1.1, .008); },
+    wake() { air(0, .3, .01, 600, 2800, 1); ping(1568, .12, .9, .012); }
   };
   function play(name, arg) {
-    if (!on() || !ctx || ctx.state !== 'running' || !P[name]) return;
+    if (!on() || !P[name]) return;
+    if (!ctx || ctx.state !== 'running') { if (name === 'intro' || name === 'over') pend = { n: name, t: performance.now() }; return; }
     try { P[name](arg); } catch (e) {}
   }
-  return { on, set: v => { set(v); if (v) unlock(); }, play, unlock, ready: () => !!ctx };
+  return { on, set: v => { set(v); if (v) unlock(); }, play, unlock, wake, ready: () => !!ctx };
 })();
 
 /* ----- Toast ----- */
@@ -230,6 +277,11 @@ function initKeyboard() {
   let pending = false;
   const onVV = () => { unshift(); if (pending) return; pending = true; requestAnimationFrame(() => { pending = false; measureKb(); }); };
   if (vv) { vv.addEventListener('resize', onVV); vv.addEventListener('scroll', onVV); }
+  /* iOS zieht beim Markieren/Cursor-Schieben Container seitlich mit – Listen und Sheets bleiben immer links bündig */
+  document.addEventListener('scroll', e => {
+    const s = e.target;
+    if (s && s.classList && s.scrollLeft && (s.classList.contains('sheet-body') || s.classList.contains('scroll'))) s.scrollLeft = 0;
+  }, true);
   window.addEventListener('resize', onVV);
   window.addEventListener('scroll', () => { if (unshift()) onVV(); }, { passive: true });
   window.addEventListener('orientationchange', () => setTimeout(measureKb, 300));

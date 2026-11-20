@@ -65,6 +65,12 @@ Themen: Klavier, Film/Foto, Sport (verwaltbar). Export/Import JSON.
   leise Dauer-Schwingung (drift über translate, Glanz, Kanten atmen), pausiert bei Tastatur/Sheets, aus bei „Bewegung reduzieren“. test/t16.js.
 - Tests: lib.tap wartet nicht mehr auf Playwrights Stabilität (die App schwebt absichtlich), sondern auf Sichtbarkeit und das Ende des Auftritts.
 
+## Neu in 1.2.1 (20.11.2026)
+- Startbild mit Überfälligem bleibt ca. 2,9 s (Tippen überspringt erst nach 1,9 s).
+- Roter Rand: Bewegung (Atmen, Welle zur Mitte) nur einmal beim Betreten der App, beim Zurückkehren und wenn die Stufe steigt (#alarm.pulse), sonst ruhig.
+- Erfassen-Sheet: .fold mit minmax(0,1fr) – Chip-Zeilen machten das Sheet breiter, iOS schob es beim Markieren seitlich. Dazu Rücksetzen von scrollLeft bei .sheet-body/.scroll.
+- Töne neu: weiche Glas-Pings, Luft, kleiner Raumhall, sehr leise. Start-Klang (iOS: kommt beim ersten Tippen nach, beim Zurückkehren „wake“). test/t17.js.
+
 Nicht bauen: Login, Cloud, Push, KI, Gamification, Statistik-Dashboards, Light Mode.
 
 ## Design

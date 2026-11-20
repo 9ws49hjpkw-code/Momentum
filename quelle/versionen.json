@@ -18,5 +18,10 @@
     "version": "1.2.0",
     "datum": "2026-11-20",
     "text": "Zeitstrahl auf der Aufgaben-Seite, Details und Notizen, roter Alarm-Rand, Folge-Aufgaben, Kurzbefehle, Töne und Bewegung"
+  },
+  {
+    "version": "1.2.1",
+    "datum": "2026-11-20",
+    "text": "Startbild mit Überfälligem bleibt länger, roter Rand bewegt sich nur einmal beim Öffnen, Aufgabe-Sheet verrutscht beim Markieren nicht mehr, neue dezente Töne mit Start-Klang."
   }
 ]

@@ -386,7 +386,7 @@ function bindEvents() {
   document.addEventListener('dragstart', e => e.preventDefault());
 
   /* Nichts verlieren, wenn die App in den Hintergrund geht */
-  document.addEventListener('visibilitychange', () => { if (document.hidden) flushAllJ(); else wake(); });
+  document.addEventListener('visibilitychange', () => { if (document.hidden) flushAllJ(); else { wake(); Sound.wake(); if (document.body.classList.contains('live')) alarmPulse(); } });
   window.addEventListener('pagehide', flushAllJ);
   window.addEventListener('pageshow', wake);
   window.addEventListener('focus', wake);
@@ -461,7 +461,7 @@ function startIntro() {
   if (reduced()) { INTRO.MIN = 0; return; }
   try { $('#in-hello').textContent = greeting(); } catch (e) {}
   document.body.classList.add('go');
-  el.addEventListener('pointerdown', () => { if (document.body.classList.contains('ready')) endIntro(true); });
+  el.addEventListener('pointerdown', () => { if (document.body.classList.contains('ready') && (!INTRO.over || performance.now() - INTRO.t0 > 1900)) endIntro(true); });
   setTimeout(() => { if (!INTRO.out) { INTRO.fx = true; FX.intro(INTRO.over > 0); Sound.play(INTRO.over > 0 ? 'over' : 'intro'); } }, 80);
   setTimeout(() => {
     if (INTRO.out) return;
@@ -476,6 +476,7 @@ function introAlarm() {
   if (!a.n || !el || INTRO.out) return;
   el.classList.add('over');
   if (a.level >= 3) el.classList.add('hard');
+  INTRO.MIN = 2900; /* die Zahl soll man in Ruhe lesen können */
   try { $('#in-hello').textContent = a.n === 1 ? '1 überfällig. Zeit, es zu erledigen.' : a.n + ' überfällig. Zeit, sie zu erledigen.'; } catch (e) {}
   if (INTRO.fx) FX.alarm();
 }
@@ -490,11 +491,12 @@ function endIntro(now) {
     if (!el || reduced() || !b.classList.contains('go')) {
       if (el) el.remove();
       b.classList.remove('intro', 'go'); b.classList.add('live');
+      alarmPulse();
       return;
     }
     b.classList.add('enter');
     setTimeout(() => { el.remove(); b.classList.remove('intro', 'go'); }, 480);
-    setTimeout(() => b.classList.add('live'), now ? 560 : 1050);
+    setTimeout(() => { b.classList.add('live'); alarmPulse(); }, now ? 560 : 1050);
     setTimeout(() => b.classList.remove('enter'), 1800);
   }, left);
 }

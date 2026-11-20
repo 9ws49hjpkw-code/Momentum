@@ -837,15 +837,26 @@ function alarmState() {
   const level = !score ? 0 : (og > 0 || score >= 8) ? 3 : score >= 4 ? 2 : 1;
   return { score, n, goals: og, level };
 }
+let alarmLvl = -1, alarmT = 0;
 function renderAlarm() {
   const a = alarmState(), el = $('#alarm');
   if (el) {
     el.dataset.l = String(a.level);
     el.style.setProperty('--ai', Math.min(1, a.score / 16).toFixed(3));
+    if (alarmLvl >= 0 && a.level > alarmLvl && document.body.classList.contains('live')) alarmPulse();
   }
+  alarmLvl = a.level;
   document.body.classList.toggle('alarm', a.level > 0);
   updateBadge(a.n);
   return a;
+}
+/* Der Rand bewegt sich nur kurz: beim Betreten der App und wenn es schlimmer wird – einmal, dann ruhig */
+function alarmPulse() {
+  const el = $('#alarm');
+  if (!el || reduced() || !(+el.dataset.l > 1)) return;
+  el.classList.remove('pulse'); void el.offsetWidth; el.classList.add('pulse');
+  clearTimeout(alarmT);
+  alarmT = setTimeout(() => el.classList.remove('pulse'), 2700);
 }
 /* Roter Zähler am App-Icon (nur wenn das System es erlaubt; keine Mitteilungen) */
 let badgeN = -1;
