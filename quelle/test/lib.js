@@ -110,7 +110,13 @@ async function swipe(page, sel, dx, opts) {
 // Echter Fingertipp an der Stelle des Elements (trifft, was dort wirklich oben liegt)
 async function tap(page, sel, n) {
   const loc = page.locator(sel).nth(n || 0);
-  await loc.scrollIntoViewIfNeeded().catch(() => {});
+  await loc.waitFor({ state: 'visible', timeout: 30000 }).catch(() => {});
+  // Ohne Playwrights Stabilitäts-Warten: die App schwebt absichtlich minimal (Dauer-Schwingung)
+  await loc.evaluate(e => {
+    if (e.scrollIntoViewIfNeeded) e.scrollIntoViewIfNeeded(true); else e.scrollIntoView({ block: 'center' });
+    const r = e.getBoundingClientRect(), hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+    if (hit && !e.contains(hit) && !hit.contains(e)) e.scrollIntoView({ block: 'center' });
+  }, null, { timeout: 30000 }).catch(() => {});
   const box = await loc.boundingBox();
   if (!box) throw new Error('nicht sichtbar: ' + sel);
   await page.touchscreen.tap(box.x + box.width / 2, box.y + box.height / 2);
