@@ -655,6 +655,8 @@ body.kb-open .e-secondary{display:none}
 /* Beim Tippen bleiben nur die nötigen Zeilen, damit Speichern über der Tastatur sichtbar ist */
 body.kb-open .fold.kbhide:not(:focus-within){display:none}
 body.kb-open #L-entry .frow{padding-top:7px}
+/* Die Zeitzeile erscheint sofort: nichts gleitet unter dem Finger weg, wenn man direkt auf Speichern tippt */
+#e-dur-fold{transition:none}
 body.kb-open #L-entry .e-actions{padding-top:12px}
 
 /* Buttons */

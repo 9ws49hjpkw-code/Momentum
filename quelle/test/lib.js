@@ -111,6 +111,8 @@ async function swipe(page, sel, dx, opts) {
 async function tap(page, sel, n) {
   const loc = page.locator(sel).nth(n || 0);
   await loc.waitFor({ state: 'visible', timeout: 30000 }).catch(() => {});
+  // Während des Auftritts nach dem Start gleitet alles noch: abwarten (früher übernahm das Playwrights Stabilitäts-Check)
+  await page.waitForFunction(() => !document.body.classList.contains('enter') && !document.querySelector('.view.reveal'), null, { timeout: 5000 }).catch(() => {});
   // Ohne Playwrights Stabilitäts-Warten: die App schwebt absichtlich minimal (Dauer-Schwingung)
   await loc.evaluate(e => {
     if (e.scrollIntoViewIfNeeded) e.scrollIntoViewIfNeeded(true); else e.scrollIntoView({ block: 'center' });
@@ -118,7 +120,7 @@ async function tap(page, sel, n) {
     if (hit && !e.contains(hit) && !hit.contains(e)) e.scrollIntoView({ block: 'center' });
   }, null, { timeout: 30000 }).catch(() => {});
   const box = await loc.boundingBox();
-  if (!box) throw new Error('nicht sichtbar: ' + sel);
+  if (!box) { if (process.env.SHOTFAIL) await page.screenshot({ path: process.env.SHOTFAIL }).catch(() => {}); throw new Error('nicht sichtbar: ' + sel); }
   await page.touchscreen.tap(box.x + box.width / 2, box.y + box.height / 2);
 }
 const sleep = ms => new Promise(r => setTimeout(r, ms));

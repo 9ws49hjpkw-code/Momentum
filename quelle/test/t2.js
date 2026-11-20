@@ -15,6 +15,7 @@ const assert = (c, m) => { if (!c) { console.log('  ✗ ' + m); process.exitCode
     if (o.idea) { await L.tap(p, '#e-seg [data-type="idea"]'); await p.waitForTimeout(450); }
     if (o.when === 'date') { await p.evaluate(d => { const e = document.querySelector('#e-date'); e.focus(); e.value = d; e.dispatchEvent(new Event('input', { bubbles: true })); e.dispatchEvent(new Event('change', { bubbles: true })); e.blur(); }, o.date); }
     else if (o.when) await L.tap(p, `#e-when [data-when="${o.when}"]`);
+    if (o.when) await p.waitForTimeout(450); // Zeitzeile klappt auf
     if (o.prio != null) await L.tap(p, `#e-prio [data-prio="${o.prio}"]`);
     if (o.topic != null) await L.tap(p, '#e-topics .chip', o.topic);
     if (o.shot) { await p.waitForTimeout(450); await L.shot(p, o.shot); }

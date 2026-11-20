@@ -34,7 +34,7 @@ const { start, ok } = require('./common');
   await p.touchscreen.tap(196, 30); await W(700);
   ok(!(await open('#L-settings')), 'Tipp neben das Sheet schließt es');
   await T('#today [data-act="plan"]'); await W(700);
-  await T('#L-plan [data-act="closeTop"]'); await W(600);
+  await T('#L-plan [data-act="closeTop"]'); await W(900);
   ok(!(await open('#L-plan')), 'X schließt');
   ok(await p.evaluate(() => !document.body.classList.contains('layered') && getComputedStyle(document.querySelector('#app')).transform === 'none' || getComputedStyle(document.querySelector('#app')).transform === 'matrix(1, 0, 0, 1, 0, 0)'), 'App steht wieder in voller Größe');
 
