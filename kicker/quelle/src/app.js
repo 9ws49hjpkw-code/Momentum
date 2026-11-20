@@ -332,7 +332,7 @@ function viewParty() {
     const rows = KL.partyTable(P.players.length, P.matches, P.results);
     panel = `<div class="th"><span>#</span><span>Spieler</span><span>S · U · N</span><span>Tore</span></div>
       <div class="table">${rows.map((r, i) => `<div class="tr ${r.place === 1 && done ? 'top1' : ''}" style="animation-delay:${i * 25}ms">
-        <span class="pl">${r.place}</span><span class="nm">${esc(nm(r.p))}<small>${r.played} / ${r.total} gespielt</small></span>
+        <span class="pl">${r.place}</span><span class="nm">${esc(nm(r.p))}${isMc(nm(r.p)) ? ' <span class="pill w" style="vertical-align:2px">🌾 Bauer</span>' : ''}<small>${r.played} / ${r.total} gespielt</small></span>
         <span class="wdl">${r.w} · ${r.d} · ${r.l}</span><span class="gl">${r.goals}</span></div>`).join('')}</div>
       <div class="muted" style="font-size:13px;padding:4px 4px 0">Gewertet wird: Tore, dann Siege, dann Tordifferenz.</div>`;
   }
@@ -768,14 +768,20 @@ function resetAll() { S.party = null; S.cup = null; S.draft = null; S.celebrated
    ========================================================= */
 const MC = 'McMartin';
 const low = (n) => String(n || '').trim().toLocaleLowerCase('de');
-const isMatze = (n) => low(n) === 'matze';
-const isMc = (n) => low(n) === 'matze' || low(n) === 'mcmartin';
+const isMatze = (n) => low(n) === 'matze' || low(n) === 'matz';
+const isMc = (n) => isMatze(n) || low(n) === 'mcmartin';
 const TRAKTOR = [
   'Alle Spieler, die einen Traktor haben, bekommen nur die Hälfte der Punkte.',
   'Schiedsrichter-Entscheid: Tore von Traktorbesitzern zählen nur halb.',
   'Traktor auf dem Spielfeld erkannt. Punkte werden halbiert.'
 ];
-const EGG_WIN_LINE = '<div class="egg-line">🛒 Herzlichen Glückwunsch! Und jetzt ab zu Edeka nach Bargfeld-Stegen.</div>';
+const BAUERNREGELN = [
+  'Steht der Bauer an der Stange, wird dem Gegner gar nicht bange.',
+  'Dreht der Bauer wild im Kreis, verliert er, wie ein jeder weiß.',
+  'Fährt der Bauer Traktor statt zu üben, bleibt sein Torkonto im Trüben.',
+  'Kräht der Bauer auf dem Mist, verliert er, wie’s gewöhnlich ist.'
+];
+const EGG_WIN_LINE = '<div class="egg-line">🛒 Herzlichen Glückwunsch, Bauer McMartin! Und jetzt ab zu Edeka nach Bargfeld-Stegen.</div>';
 
 function eggQ(i) {
   return `<div class="egg-q" id="eggq-${i}"><span class="egg-icon xs">🚜</span><div class="q">Besitzt du einen Traktor?</div>
@@ -817,7 +823,7 @@ function eggBanner({ icon, title, text, ms = 3600 }) {
 function eggAsk(partner) {
   ui.eggBusy = true;
   const el = openSheet(`<div class="egg-sheet"><div class="egg-icon sm">🚜</div>
-      <h3 class="h-lg">${esc(partner)}, möchtest du wirklich mit ${MC} zusammen spielen?</h3>
+      <h3 class="h-lg">${esc(partner)}, möchtest du wirklich mit Bauer ${MC} zusammen spielen?</h3>
       <div class="btns"><button class="btn btn-primary" data-no>Nein</button></div></div>`, () => { ui.eggBusy = false; }, true);
   $('[data-no]', el).addEventListener('click', () => {
     $('.egg-sheet', el).innerHTML = `<div class="egg-icon sm">🤷</div>
@@ -878,10 +884,13 @@ function cupMcInfo(C, res) {
 function afterResult(mcInfo, fin) {
   setTimeout(async () => {
     if (mcInfo) {
-      if (mcInfo.won) await eggBanner({ icon: '🛒', title: 'Herzlichen Glückwunsch!', text: 'Und jetzt ab zu Edeka nach Bargfeld-Stegen.', ms: 7600 });
+      if (mcInfo.won) await eggBanner({ icon: '🛒', title: 'Herzlichen Glückwunsch, Bauer McMartin!', text: 'Und jetzt ab zu Edeka nach Bargfeld-Stegen.', ms: 7600 });
       else {
         S.egg.n = ((S.egg.n || 0) + 1); save();
-        await eggBanner({ icon: '🚜', title: 'Achtung, neue Regel!', text: TRAKTOR[(S.egg.n - 1) % TRAKTOR.length], ms: 7600 });
+        // abwechselnd Traktor-Regel und Bauernregel
+        const n = S.egg.n - 1, half = Math.floor(n / 2);
+        if (n % 2 === 0) await eggBanner({ icon: '🚜', title: 'Achtung, neue Regel!', text: TRAKTOR[half % TRAKTOR.length], ms: 7600 });
+        else await eggBanner({ icon: '🌾', title: 'Alte Bauernregel', text: BAUERNREGELN[half % BAUERNREGELN.length], ms: 7600 });
       }
     }
     if (fin) celebrate(); else eggMaybeAsk();
