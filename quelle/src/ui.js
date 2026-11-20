@@ -464,9 +464,15 @@ const FX = (() => {
     if (!raf) raf = requestAnimationFrame(loop);
   }
   /* Start: ein Licht umrundet den Bildschirmrand, der Rahmen glimmt auf */
-  function intro() {
+  function intro(over) {
     if (reduced() || !ensure()) return;
-    push({ type: 'edge', start: .5, dist: 1, dirs: [1, -1], seg: 150, frame: .32, fk: 1, a: .9, life: 1450, c: C.cyan, to: C.ice, lin: false });
+    push({ type: 'edge', start: .5, dist: 1, dirs: [1, -1], seg: 150, frame: over ? .5 : .32, fk: 1, a: .9, life: 1450, c: over ? C.red : C.cyan, to: over ? [255, 120, 136] : C.ice, lin: false });
+    if (!raf) raf = requestAnimationFrame(loop);
+  }
+  /* Überfälliges beim Start: der Rahmen glimmt rot nach */
+  function alarm() {
+    if (reduced() || !ensure()) return;
+    push({ type: 'edge', start: 0, dist: 1, dirs: [1, -1], seg: 110, frame: .6, fk: 1.2, a: .8, life: 1300, c: C.red, delay: 120 });
     if (!raf) raf = requestAnimationFrame(loop);
   }
   /* Der Haken rastet ein: Lichtimpuls aus der Mitte */
@@ -478,7 +484,7 @@ const FX = (() => {
     for (let i = 0; i < 22; i++) push({ type: 'spark', x, y, ang: i / 22 * 6.283 + rnd(-.1, .1), v: rnd(260, 420), drag: 4.5, w: rnd(1, 1.5), a: rnd(.6, .95), life: rnd(500, 700), c: Math.random() < .4 ? C.white : C.cyan, delay: rnd(0, 50) });
     if (!raf) raf = requestAnimationFrame(loop);
   }
-  return { burst, intro, lock };
+  return { burst, intro, alarm, lock };
 })();
 /* Mitte des Abhak-Kreises einer Zeile */
 function checkPoint(el) {

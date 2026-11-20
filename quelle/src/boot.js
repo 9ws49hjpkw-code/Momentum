@@ -427,7 +427,7 @@ function startupImage() {
 }
 
 /* ===== Start-Animation ===== */
-const INTRO = { t0: 0, out: false, MIN: 1180 };
+const INTRO = { t0: 0, out: false, MIN: 1180, over: 0, fx: false };
 function greeting() {
   const hr = hourNow();
   return hr < 5 ? 'Gute Nacht' : hr < 11 ? 'Guten Morgen' : hr < 18 ? 'Schön, dass du da bist' : hr < 23 ? 'Guten Abend' : 'Gute Nacht';
@@ -440,12 +440,22 @@ function startIntro() {
   try { $('#in-hello').textContent = greeting(); } catch (e) {}
   document.body.classList.add('go');
   el.addEventListener('pointerdown', () => { if (document.body.classList.contains('ready')) endIntro(true); });
-  setTimeout(() => { if (!INTRO.out) FX.intro(); }, 80);
+  setTimeout(() => { if (!INTRO.out) { INTRO.fx = true; FX.intro(INTRO.over > 0); } }, 80);
   setTimeout(() => {
     if (INTRO.out) return;
     const r = $('#intro svg').getBoundingClientRect();
     FX.lock(r.left + r.width / 2, r.top + r.height / 2);
   }, 840);
+}
+/* Überfällig beim Öffnen: Startbild färbt sich rot, die Begrüßung nennt die Zahl */
+function introAlarm() {
+  const a = alarmState(), el = $('#intro');
+  INTRO.over = a.n;
+  if (!a.n || !el || INTRO.out) return;
+  el.classList.add('over');
+  if (a.level >= 3) el.classList.add('hard');
+  try { $('#in-hello').textContent = a.n === 1 ? '1 überfällig. Zeit, es zu erledigen.' : a.n + ' überfällig. Zeit, sie zu erledigen.'; } catch (e) {}
+  if (INTRO.fx) FX.alarm();
 }
 /* Erst wenn die Daten geladen sind und der Aufbau gelaufen ist, gleitet die App herein */
 function endIntro(now) {
@@ -488,6 +498,7 @@ async function boot() {
     bindEvents();
     mountJournal();
     renderAll();
+    introAlarm();
   } catch (e) {
     document.body.appendChild(h('div#fatal', null, h('div', null,
       h('h1', null, 'Start hat nicht geklappt'),

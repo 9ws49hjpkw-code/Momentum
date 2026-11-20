@@ -44,11 +44,11 @@ Prüfung: Test mit gefakter Uhr: Folgeaufgabe genau einmal, auch nach Neuladen.
 ## Paket C: Überfällig soll wehtun
 Wünsche (Zitate): „Wenn sie nicht erledigt wurden soll das richtig schmerzen. Unangenehm sein. … wenn überfällige Aufgaben sind, ein wenig rot mit einbauen? Oder in die Start Animation“ · „die Umrandung in der App rot leuchtend, wenn überfällige Aufgaben anstehen. Mehr leuchtend je mehr und aggressiver strahlend evtl. Bewegend, in die Mitte gerichtet, wenn wichtige und viele oder zb überfällige Tages Ziele anstehen.“
 
-### C1. Roter Leuchtrand  [offen]
+### C1. Roter Leuchtrand  [erledigt]
 Umsetzung: fixes Overlay #alarm (pointer-events:none, über #app, unter Layern) mit inset box-shadow in Rot. Stärke aus Score = Σ überfällige Aufgaben (Hoch 3, Normal 2, Niedrig 1) + überfällige Ziele ×4, gedeckelt. Stufen: 0 aus; leicht = ruhiger dünner Rand; mittel = atmend; stark (Ziel überfällig oder Score ≥ 8) = Pulsieren nach innen (Rand-Glow wandert zur Mitte). Aktualisierung in renderAll/balance(). Reduzierte Bewegung: statisch. Nicht während Intro.
 Prüfung: t10/t11 erweitern oder neuer Test: ohne Überfälliges kein #alarm-Glow (opacity 0); 1 Niedrig → Stufe 1; überfälliges Ziel → Stufe 3; nach Abhaken sinkt Stufe.
 
-### C2. Rot in der Startanimation  [offen]
+### C2. Rot in der Startanimation  [erledigt]
 Umsetzung: ui.js FX.intro / #intro: bei Überfälligem färbt sich der Lichtkopf/das Randlicht beim Umlauf rot, Begrüßung ersetzt durch z. B. „3 überfällig. Zeit, sie zu erledigen.“ Icon bleibt unverändert (Wunsch).
 Prüfung: t11: mit überfälliger Aufgabe hat body/#intro Klasse .over und Text nennt die Zahl; ohne bleibt alles wie bisher.
 
