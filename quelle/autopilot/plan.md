@@ -36,7 +36,7 @@ Verständnis (Empfehlung A): oben wischbares Wochenband (Tage mit Lichtbalken na
 Umsetzung: views.js renderTasks komplett neu (alte Gruppenlogik als Fallback „Später“ ab Tag 8), styles.css Abschnitt Aufgaben, Empty States.
 Prüfung: t3/t4 anpassen (wo sie Gruppen der Aufgaben-Seite prüfen), neuer Test: Block-Position entspricht Uhrzeit, Wochenband wechselt Tag, kein Swipe-Abhaken auf Aufgaben-Seite; Screenshots via gallery.js ansehen, auch 375×667.
 
-### B4. Folge-Erinnerung  [offen – F4: B]
+### B4. Folge-Erinnerung  [erledigt]
 Verständnis: „Drucken“ → zum Ende der geplanten Zeit erscheint „Stundenliste eintragen“ auf Heute. Kein Push/Hintergrund (tabu/unmöglich); bei offener App Toast + Ton zur Zeit.
 Umsetzung je nach Antwort: A) task.after (Text) → beim Erreichen von time+dur (oder beim Abhaken) neue Aufgabe anlegen, einmalig (task.afterDone). B) Regeln in meta 'rules' [{word, then}] + Einstellungs-Abschnitt. Erzeugung idempotent (kein Doppel bei Neuladen).
 Prüfung: Test mit gefakter Uhr: Folgeaufgabe genau einmal, auch nach Neuladen.
@@ -52,10 +52,10 @@ Prüfung: t10/t11 erweitern oder neuer Test: ohne Überfälliges kein #alarm-Glo
 Umsetzung: ui.js FX.intro / #intro: bei Überfälligem färbt sich der Lichtkopf/das Randlicht beim Umlauf rot, Begrüßung ersetzt durch z. B. „3 überfällig. Zeit, sie zu erledigen.“ Icon bleibt unverändert (Wunsch).
 Prüfung: t11: mit überfälliger Aufgabe hat body/#intro Klasse .over und Text nennt die Zahl; ohne bleibt alles wie bisher.
 
-### C3. Verschieben wird unbequem + Zähler  [offen – F5: C, „OK Daten“]
+### C3. Verschieben wird unbequem + Zähler  [erledigt]
 Umsetzung: task.moved (Zahl, Standard 0) bei jeder Datumsänderung einer überfälligen Aufgabe +1; Bestätigungsdialog „Schon 2× verschoben. Wirklich?“; Anzeige „3× verschoben“ in Rot an der Zeile. normalizeImport ergänzen.
 
-### C4. Roter Zähler am App-Icon  [offen – F5: C]
+### C4. Roter Zähler am App-Icon  [erledigt]
 Umsetzung: navigator.setAppBadge(n) / clearAppBadge, nur wenn unterstützt; Erlaubnis-Anfrage einmalig per Knopf in den Einstellungen (iOS braucht Notification-Erlaubnis). Keine Mitteilungen senden.
 
 ## Paket D: Design & Bewegung
@@ -81,12 +81,12 @@ Prüfung: Test: mit reduced motion keine laufende Animation (getAnimations().len
 ## Paket E: Ton
 Wunsch (Zitat): „Ton bei Aktionen. Zb App öffnen Animation = Ton, Aufgaben antippen = Ton, usw“
 
-### E1. Töne bei Aktionen  [offen]
+### E1. Töne bei Aktionen  [erledigt]
 Umsetzung: Web Audio, synthetisch erzeugt (keine Dateien): Start-Klang zur Intro, kurzer Klick beim Antippen, heller Ton beim Abhaken (höher nach Prio), Akkord beim Tagesziel, weicher Ton beim Speichern. Leise (Gain ≤ 0.15). navigator.audioSession.type = 'ambient' wenn vorhanden (Stummschalter wird respektiert). AudioContext erst nach erster Berührung entsperren (Intro-Ton nur, wenn möglich – iOS erlaubt ohne Geste keinen Ton; ehrlich melden). Schalter „Töne“ in den Einstellungen, Speicherung in localStorage 'momentum.sound' (keine Datenänderung), Standard an.
 Prüfung: Test: Schalter vorhanden, aus = keine AudioContext-Aufrufe (Spy), keine Konsolenfehler ohne Web Audio.
 
 ## Paket F: Kalender & Wecker
 Wünsche (Zitate): „dass diese App mit dem Kalender zusammen arbeiten kann … wöchentlich geplante Ereignisse“ · „Dass sie auch in der Lage ist Wecker zu stellen, einen zu erinnern … Kurzbefehlen …“
 
-### F1. Kurzbefehl-Brücke  [offen – F6: A+B, nach B1/B3]
+### F1. Kurzbefehl-Brücke  [erledigt]
 Verständnis: Web-App kann Kalender nicht lesen und keine Wecker stellen. Weg: shortcuts://run-shortcut?name=…&input=text&text=… aus Momentum (Termin/Wecker anlegen); Rückweg über Zwischenablage („Aus Kalender einfügen“). Anleitung für die Kurzbefehle in Notion schreiben.

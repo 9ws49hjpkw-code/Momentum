@@ -654,6 +654,23 @@ body.kb-open #L-entry .e-actions{padding-top:12px}
 .li-t span{display:block;margin-top:1px;font-size:13px;line-height:18px;color:var(--ink3)}
 .li > .ic{width:22px;height:22px;color:var(--ice)}
 .li > .ic.chev{width:17px;height:17px;color:var(--ink4)}
+.rule .li-t span{color:var(--ink2)}
+.rule .slot-x{margin-right:-8px}
+.r-intro{padding:0 2px 14px}
+.help p{font-size:15px;line-height:21px;color:var(--ink2)}
+.help h3{margin:20px 0 6px;font-size:16px;line-height:21px;font-weight:600;color:var(--ice)}
+.help ol{margin:0;padding-left:20px;font-size:15px;line-height:21px;color:var(--ink)}
+.help li + li{margin-top:4px}
+.help b{font-weight:600;color:#fff}
+.help code{font:13px/18px ui-monospace,Menlo,monospace;color:var(--ice);background:rgba(98,217,255,.1);padding:1px 5px;border-radius:5px;white-space:nowrap}
+.help .hint{margin-top:6px;font-size:13.5px;line-height:19px;color:var(--ink3)}
+.e-secondary .btn .ic{width:18px;height:18px}
+#dlg-text{white-space:pre-line}
+.r-add{display:flex;flex-direction:column;gap:10px;margin-top:18px}
+.sw{position:relative;flex:none;width:51px;height:31px;border-radius:16px;background:rgba(200,230,255,.14);transition:background .25s ease}
+.sw i{position:absolute;left:2px;top:2px;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.35);transition:transform var(--spring-d) var(--spring)}
+.sw.on{background:linear-gradient(180deg,#8FE6FF,#42C5F4);box-shadow:0 0 14px rgba(98,217,255,.35)}
+.sw.on i{transform:translateX(20px)}
 .li .dot{width:11px;height:11px;margin:0 5px}
 .li.add b{color:var(--ice);font-weight:600}
 .about{padding:26px 8px 6px;text-align:center;font-size:13px;line-height:19px;color:var(--ink3)}

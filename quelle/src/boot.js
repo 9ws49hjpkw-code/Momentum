@@ -1,7 +1,7 @@
 /* ===== Aktionen ===== */
 const A = {
   tab(b) { go(b.dataset.tab); },
-  plus() { openEntry({ mode: 'new' }); },
+  plus() { Sound.play('open'); openEntry({ mode: 'new' }); },
   settings() { renderSettings(); const L = openLayer('L-settings'); $('.sheet-body', L).scrollTop = 0; },
   closeTop() { const L = topLayer(); if (L) closeLayer(L); },
   reload() { flushAllJ(); location.reload(); },
@@ -15,6 +15,7 @@ const A = {
     if (t.done) { haptic(); setDone(id, false); renderAll(); return; }
     w.dataset.busy = '1';
     animating++;
+    Sound.play('check', t.prio);
     const pt = checkPoint(w);
     FX.burst(pt.x, pt.y, { prio: t.prio, over: groupOf(t, today()) === 'over', rect: w.getBoundingClientRect() });
     setDone(id, true);
@@ -23,6 +24,7 @@ const A = {
     wait(reduced() ? 60 : 470).then(() => collapseRow(w)).then(() => {
       animEnd();
       toast('Erledigt', { action: 'Rückgängig', onAction: () => { setDone(id, false); renderAll(); } });
+      setTimeout(followUp, 5600);
     });
   },
   editTask(b) { if (Date.now() - suppressClick < 400) return; openEntry({ mode: 'task', id: b.dataset.id }); },
@@ -35,9 +37,10 @@ const A = {
     for (const o of $$('.rw.open', w.parentElement)) if (o !== w) { o.classList.remove('open'); const m = $('.row-main', o); if (m) m.setAttribute('aria-expanded', 'false'); }
     w.classList.toggle('open', on);
     b.setAttribute('aria-expanded', String(on));
+    Sound.play('tap');
   },
   filter(b) { ui.filter = b.dataset.id || null; ui.doneLimit = 30; renderTasks(); },
-  tday(b) { ui.tday = b.dataset.day; haptic(); renderTasks(); },
+  tday(b) { ui.tday = b.dataset.day; haptic(); Sound.play('tap'); renderTasks(); },
   toggleDone() { ui.doneOpen = !ui.doneOpen; renderTasks(); },
   moreDone() { ui.doneLimit += 50; renderTasks(); },
 
@@ -48,6 +51,7 @@ const A = {
     if (!g) return;
     const done = !goalDone(g), row = b.closest('.goal'), card = b.closest('.goals');
     if (done) {
+      Sound.play('goal');
       const pt = checkPoint(row);
       FX.burst(pt.x, pt.y, { goal: true, rect: card.getBoundingClientRect() });
       quake(card);
@@ -67,6 +71,7 @@ const A = {
     for (const o of $$('.goal.open', row.parentElement)) if (o !== row) { o.classList.remove('open'); const x = $('.goal-text', o); if (x) x.setAttribute('aria-expanded', 'false'); }
     row.classList.toggle('open', on);
     b.setAttribute('aria-expanded', String(on));
+    Sound.play('tap');
   },
   goalNote(b) { openNote(b.dataset.gid); },
   noteSave() { saveNote(); },
@@ -76,6 +81,7 @@ const A = {
     const row = b.closest('.og'), card = b.closest('.ogoals');
     if (!g || !row || row.dataset.busy) return;
     row.dataset.busy = '1';
+    Sound.play('goal');
     const pt = checkPoint(row);
     FX.burst(pt.x, pt.y, { goal: true, over: true, rect: card.getBoundingClientRect() });
     quake(card);
@@ -239,6 +245,15 @@ const A = {
     renderAll();
   },
   exportData() { exportData(); },
+  badgeAsk() { badgeAsk(); },
+  rulesOpen() { openRules(); },
+  shortcutsHelp() { openHelp(); },
+  calPaste() { calPaste(); },
+  toCal() { const t = S.tasks.get(E.id); if (t && validTime(t.time)) taskToCal(t); },
+  toAlarm() { const t = S.tasks.get(E.id); if (t && validTime(t.time)) taskToAlarm(t); },
+  ruleAdd() { addRule(); },
+  ruleDel(b) { delRule(b.dataset.id); },
+  soundToggle() { Sound.set(!Sound.on()); renderSettings(); if (Sound.on()) Sound.play('save'); },
   dlgOk() { dialogAnswer(true); },
   dlgAlt() { dialogAnswer('alt'); },
   dlgCancel() { dialogAnswer(false); }
@@ -320,6 +335,10 @@ function bindEvents() {
   pi.addEventListener('input', () => $('#plan-add-btn').setAttribute('aria-disabled', String(pi.readOnly || !pi.value.trim())));
   pi.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); planAddFree(); } });
 
+  /* Folge-Regeln */
+  $('#rule-word').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); try { $('#rule-then').focus({ preventScroll: true }); } catch (x) {} } });
+  $('#rule-then').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addRule(); } });
+
   /* Thema */
   $('#topic-name').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); saveTopic(); } });
 
@@ -342,12 +361,14 @@ function bindEvents() {
     if (!t) return;
     animating++;
     const r = w.getBoundingClientRect();
+    Sound.play('check', t.prio);
     FX.burst(r.left + 29, r.top + r.height / 2, { prio: t.prio, over: groupOf(t, today()) === 'over', rect: r });
     setDone(id, true);
     renderBeams();
     wait(fly).then(() => collapseRow(w)).then(() => {
       animEnd();
       toast('Erledigt', { action: 'Rückgängig', onAction: () => { setDone(id, false); renderAll(); } });
+      setTimeout(followUp, 5600);
     });
   };
   bindSwipe($('#today'), swipeDone);
@@ -356,6 +377,11 @@ function bindEvents() {
   document.addEventListener('mousedown', e => {
     if (isField(document.activeElement) && e.target.closest && e.target.closest('button') && !isField(e.target)) e.preventDefault();
   });
+
+  /* Töne erst nach der ersten Berührung (iOS-Regel) */
+  const un = () => Sound.unlock();
+  document.addEventListener('touchend', un, { passive: true, capture: true });
+  document.addEventListener('pointerup', un, { passive: true, capture: true });
 
   /* Native-Gefühl: kein Zoom, kein Kontextmenü, :active auf iOS */
   document.addEventListener('gesturestart', e => e.preventDefault());
@@ -381,6 +407,7 @@ function wake() {
     rollJournal();
     renderAll();
   } else if (hr !== curHour) { curHour = hr; renderToday(); }
+  followUp();
   checkUpdate();
 }
 
@@ -440,7 +467,7 @@ function startIntro() {
   try { $('#in-hello').textContent = greeting(); } catch (e) {}
   document.body.classList.add('go');
   el.addEventListener('pointerdown', () => { if (document.body.classList.contains('ready')) endIntro(true); });
-  setTimeout(() => { if (!INTRO.out) { INTRO.fx = true; FX.intro(INTRO.over > 0); } }, 80);
+  setTimeout(() => { if (!INTRO.out) { INTRO.fx = true; FX.intro(INTRO.over > 0); Sound.play(INTRO.over > 0 ? 'over' : 'intro'); } }, 80);
   setTimeout(() => {
     if (INTRO.out) return;
     const r = $('#intro svg').getBoundingClientRect();
@@ -509,6 +536,7 @@ async function boot() {
   }
   document.body.classList.add('ready');
   endIntro(false);
+  setTimeout(followUp, 1600);
   if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
   setInterval(wake, 20000);
   setInterval(tickTasks, 30000);

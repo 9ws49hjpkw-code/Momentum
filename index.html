@@ -685,6 +685,23 @@ body.kb-open #L-entry .e-actions{padding-top:12px}
 .li-t span{display:block;margin-top:1px;font-size:13px;line-height:18px;color:var(--ink3)}
 .li > .ic{width:22px;height:22px;color:var(--ice)}
 .li > .ic.chev{width:17px;height:17px;color:var(--ink4)}
+.rule .li-t span{color:var(--ink2)}
+.rule .slot-x{margin-right:-8px}
+.r-intro{padding:0 2px 14px}
+.help p{font-size:15px;line-height:21px;color:var(--ink2)}
+.help h3{margin:20px 0 6px;font-size:16px;line-height:21px;font-weight:600;color:var(--ice)}
+.help ol{margin:0;padding-left:20px;font-size:15px;line-height:21px;color:var(--ink)}
+.help li + li{margin-top:4px}
+.help b{font-weight:600;color:#fff}
+.help code{font:13px/18px ui-monospace,Menlo,monospace;color:var(--ice);background:rgba(98,217,255,.1);padding:1px 5px;border-radius:5px;white-space:nowrap}
+.help .hint{margin-top:6px;font-size:13.5px;line-height:19px;color:var(--ink3)}
+.e-secondary .btn .ic{width:18px;height:18px}
+#dlg-text{white-space:pre-line}
+.r-add{display:flex;flex-direction:column;gap:10px;margin-top:18px}
+.sw{position:relative;flex:none;width:51px;height:31px;border-radius:16px;background:rgba(200,230,255,.14);transition:background .25s ease}
+.sw i{position:absolute;left:2px;top:2px;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.35);transition:transform var(--spring-d) var(--spring)}
+.sw.on{background:linear-gradient(180deg,#8FE6FF,#42C5F4);box-shadow:0 0 14px rgba(98,217,255,.35)}
+.sw.on i{transform:translateX(20px)}
 .li .dot{width:11px;height:11px;margin:0 5px}
 .li.add b{color:var(--ice);font-weight:600}
 .about{padding:26px 8px 6px;text-align:center;font-size:13px;line-height:19px;color:var(--ink3)}
@@ -898,7 +915,7 @@ body.enter .view.active .beam::after{content:"";position:absolute;left:0;right:0
       <div id="today"></div>
     </div></div></section>
     <section class="view" id="v-tasks" data-v="tasks" aria-label="Aufgaben"><div class="vbg"></div><div class="scroll"><div class="inner">
-      <header class="hero"><div><h1>Aufgaben</h1><p id="tasks-sub"></p></div></header>
+      <header class="hero"><div><h1>Aufgaben</h1><p id="tasks-sub"></p></div><button class="icon-btn" data-act="calPaste" aria-label="Termine aus dem Kalender einfügen"><span class="ic" data-ic="cal"></span></button></header>
       <div class="beam"><i class="b-track"></i><i class="b-done"></i><i class="b-over"></i><i class="b-c"><i class="b-light"></i><i class="b-dot"></i></i><span class="b-cap"></span></div>
       <div id="tasks"></div>
     </div></div></section>
@@ -1064,6 +1081,46 @@ body.enter .view.active .beam::after{content:"";position:absolute;left:0;right:0
       <div class="grow e-detail multi" id="note-grow"><textarea id="note-text" rows="3" placeholder="Was gehört dazu?" autocapitalize="sentences" aria-label="Notiz"></textarea></div>
       <div class="e-actions"><button class="btn btn-primary" data-act="noteSave">Speichern</button></div>
     </div>
+  </section></div>
+</div>
+
+<!-- Folge-Aufgaben -->
+<div class="layer" id="L-rules" hidden>
+  <div class="backdrop"></div>
+  <div class="sheet-pos"><section class="sheet tall" role="dialog" aria-modal="true" aria-label="Folge-Aufgaben">
+    <div class="grab" data-drag></div>
+    <div class="sheet-head" data-drag><h2>Folge-Aufgaben</h2><button class="icon-btn" data-act="closeTop" aria-label="Schließen"><span class="ic" data-ic="close"></span></button></div>
+    <div class="sheet-body">
+      <p class="e-note r-intro">Steht das Stichwort in einer Aufgabe, kommt zum Ende ihrer geplanten Zeit (oder sobald du sie abhakst) die Folge-Aufgabe auf „Heute“. Ton und Hinweis gibt es nur bei offener App.</p>
+      <div class="glass list" id="rules-list"></div>
+      <div class="r-add">
+        <div class="field"><input id="rule-word" type="text" maxlength="40" placeholder="Stichwort, z. B. Drucken" enterkeyhint="next" autocapitalize="sentences" autocomplete="off" aria-label="Stichwort"></div>
+        <div class="field"><input id="rule-then" type="text" maxlength="280" placeholder="Danach, z. B. Stundenliste eintragen" enterkeyhint="done" autocapitalize="sentences" autocomplete="off" aria-label="Folge-Aufgabe"></div>
+        <button class="btn btn-primary" data-act="ruleAdd" id="rule-add">Regel anlegen</button>
+      </div>
+    </div>
+  </section></div>
+</div>
+
+<!-- Kalender & Wecker über Kurzbefehle -->
+<div class="layer" id="L-help" hidden>
+  <div class="backdrop"></div>
+  <div class="sheet-pos"><section class="sheet tall" role="dialog" aria-modal="true" aria-label="Kalender und Wecker">
+    <div class="grab" data-drag></div>
+    <div class="sheet-head" data-drag><h2>Kalender & Wecker</h2><button class="icon-btn" data-act="closeTop" aria-label="Schließen"><span class="ic" data-ic="close"></span></button></div>
+    <div class="sheet-body help">
+      <p>Eine Web-App darf den Kalender nicht selbst lesen und keinen Wecker stellen. Drei Kurzbefehle übernehmen das. Einmal einrichten in der App „Kurzbefehle“, Namen genau so schreiben.</p>
+      <h3>1 · Momentum Termin</h3>
+      <ol><li>„Wörterbuch abrufen“ von <b>Kurzbefehl-Eingabe</b></li><li>„Kalenderereignis hinzufügen“: Titel = Wert <b>titel</b>, Start = <b>start</b>, Ende = <b>ende</b>, Notizen = <b>notiz</b></li></ol>
+      <p class="hint">In Momentum: Aufgabe mit Uhrzeit öffnen → „In Kalender“.</p>
+      <h3>2 · Momentum Wecker</h3>
+      <ol><li>„Wörterbuch abrufen“ von <b>Kurzbefehl-Eingabe</b></li><li>„Wecker erstellen“: Zeit = Wert <b>zeit</b>, Name = <b>titel</b></li></ol>
+      <p class="hint">In Momentum: Aufgabe mit Uhrzeit öffnen → „Wecker“.</p>
+      <h3>3 · Momentum Woche</h3>
+      <ol><li>„Kalenderereignisse suchen“: Startdatum liegt in den nächsten 7 Tagen</li><li>„Wiederholen mit jedem Objekt“, darin „Text“: <b>Startdatum</b> (Format eigenes: <code>yyyy-MM-dd HH:mm</code>) <code> | </code> Dauer in Minuten („Zeit zwischen Daten“) <code> | </code> <b>Titel</b></li><li>„Text kombinieren“ mit Zeilenumbruch</li><li>„In Zwischenablage kopieren“</li></ol>
+      <p class="hint">Danach in Momentum auf „Aufgaben“ das Kalender-Symbol oben rechts tippen. Schon übernommene Termine kommen nicht doppelt.</p>
+    </div>
+    <div class="sheet-foot"><button class="btn btn-primary" data-act="calPaste">Aus Kalender einfügen</button></div>
   </section></div>
 </div>
 
@@ -1588,6 +1645,49 @@ function haptic() {
     document.head.removeChild(label);
   } catch (e) {}
 }
+
+/* ----- Töne: leise, synthetisch erzeugt (keine Dateien). Der Stummschalter wird beachtet (audioSession „ambient“).
+   iOS erlaubt Ton erst nach der ersten Berührung – vorher bleibt es still. Schalter in den Einstellungen. ----- */
+const Sound = (() => {
+  const KEY = 'momentum.sound';
+  let ctx = null, master = null;
+  const on = () => { try { return localStorage.getItem(KEY) !== '0'; } catch (e) { return true; } };
+  const set = v => { try { localStorage.setItem(KEY, v ? '1' : '0'); } catch (e) {} };
+  function unlock() {
+    if (ctx || !on()) return;
+    const C = window.AudioContext || window.webkitAudioContext;
+    if (!C) return;
+    try { if (navigator.audioSession) navigator.audioSession.type = 'ambient'; } catch (e) {}
+    try { ctx = new C(); master = ctx.createGain(); master.gain.value = 1; master.connect(ctx.destination); } catch (e) { ctx = null; return; }
+    if (ctx.state === 'suspended' && ctx.resume) ctx.resume().catch(() => {});
+  }
+  function tone(f, at, dur, vol, type, f2) {
+    const t = ctx.currentTime + at, o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = type || 'sine';
+    o.frequency.setValueAtTime(f, t);
+    if (f2) o.frequency.exponentialRampToValueAtTime(f2, t + dur);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(Math.min(0.15, vol), t + 0.008);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(master);
+    o.start(t); o.stop(t + dur + 0.02);
+  }
+  const P = {
+    tap() { tone(1650, 0, .045, .035, 'sine', 1300); },
+    open() { tone(520, 0, .12, .04, 'sine', 780); },
+    swipe() { tone(300, 0, .22, .03, 'triangle', 900); },
+    save() { tone(880, 0, .09, .06); tone(1320, .07, .16, .05); },
+    check(prio) { const b = [660, 784, 988][prio == null ? 1 : prio]; tone(b, 0, .1, .08); tone(b * 1.5, .06, .22, .07); if (prio === 2) tone(b * 2, .13, .3, .05); },
+    goal() { [523, 659, 784, 1047].forEach((f, i) => tone(f, i * .06, .5 - i * .05, .07)); tone(2093, .26, .5, .03); },
+    over() { tone(220, 0, .3, .07, 'triangle', 180); tone(233, .02, .32, .05, 'sine', 190); },
+    intro() { tone(392, 0, .5, .05, 'sine', 784); tone(1175, .42, .5, .05); tone(1568, .5, .6, .035); }
+  };
+  function play(name, arg) {
+    if (!on() || !ctx || ctx.state !== 'running' || !P[name]) return;
+    try { P[name](arg); } catch (e) {}
+  }
+  return { on, set: v => { set(v); if (v) unlock(); }, play, unlock, ready: () => !!ctx };
+})();
 
 /* ----- Toast ----- */
 let toastTimer = 0;
@@ -2606,7 +2706,7 @@ function syncEntry() {
 }
 function openEntry(o) {
   const day = today();
-  Object.assign(E, { mode: o.mode, type: 'task', when: null, date: null, prio: 1, topicId: null, id: o.id || null, time: null, dur: null });
+  Object.assign(E, { mode: o.mode, type: 'task', when: null, date: null, prio: 1, topicId: null, id: o.id || null, time: null, dur: null, moveOk: false });
   let text = '', note = '';
   const sec = $('#e-secondary');
   sec.replaceChildren();
@@ -2620,6 +2720,7 @@ function openEntry(o) {
     else if (t.due === addDays(day, 1)) E.when = 'tomorrow';
     else { E.when = 'date'; E.date = t.due; }
     if (t.done) sec.appendChild(btn('.btn.btn-ghost.sm', 'eReopen', {}, 'Wieder öffnen'));
+    else if (validTime(t.time)) add(sec, [btn('.btn.btn-ghost.sm', 'toCal', {}, ic('cal'), 'Kalender'), btn('.btn.btn-ghost.sm', 'toAlarm', {}, ic('alarm'), 'Wecker')]);
     sec.appendChild(btn('.btn.btn-danger.sm', 'eDelete', {}, 'Löschen'));
   } else {
     const i = S.ideas.get(o.id);
@@ -2681,6 +2782,21 @@ function saveEntry() {
     const sp = splitBrackets(text);
     if (sp.details.length) { title = sp.text; note = sp.details.concat(note ? [note] : []).join('\n'); }
     const extra = { note, time: E.time, dur: E.dur };
+    if (E.mode === 'task') {
+      /* Überfälliges verschieben ist unbequem: Rückfrage, und es zählt sichtbar mit */
+      const old = S.tasks.get(E.id), day = today();
+      const moving = !!old && !old.done && old.due < day && w.due !== old.due;
+      if (moving && !E.moveOk) {
+        const n = diffDays(day, old.due);
+        dialog({
+          title: 'Wirklich verschieben?',
+          text: (old.moved ? 'Schon ' + old.moved + '× verschoben. ' : '') + 'Seit ' + plural(n, 'Tag', 'Tagen') + ' überfällig. Erledigen bringt dich weiter als Verschieben.',
+          ok: 'Trotzdem verschieben', danger: true, cancel: 'Zurück'
+        }).then(r => { if (r) { E.moveOk = true; saveEntry(); } });
+        return;
+      }
+      if (moving) extra.moved = (old.moved || 0) + 1;
+    }
     if (E.mode === 'task') updateTask(E.id, Object.assign({ text: title, due: w.due, now: w.now, prio: E.prio, topicId }, extra));
     else {
       ui.fresh = addTask(Object.assign({ text: title, due: w.due, now: w.now, prio: E.prio, topicId }, extra)).id;
@@ -2690,6 +2806,7 @@ function saveEntry() {
   } else if (E.mode === 'idea') updateIdea(E.id, { text, topicId });
   else { ui.fresh = addIdea({ text, topicId }).id; msg = 'Idee geparkt'; }
   haptic();
+  Sound.play('save');
   closeLayer('L-entry');
   renderAll();
   ui.fresh = null;
@@ -2718,6 +2835,7 @@ function saveNote() {
     saveGoals(N.day, goals);
   }
   haptic();
+  Sound.play('save');
   closeLayer('L-note');
   renderToday();
   toast('Notiz gespeichert');
@@ -2799,6 +2917,13 @@ function renderSettings() {
       h('div.glass.list', null,
         h('button.li', { type: 'button', data: { act: 'exportData' } }, ic('exportI'), h('span.li-t', null, h('b', null, 'Daten exportieren'), h('span', null, last))),
         h('label.li', { for: 'import-file' }, ic('importI'), h('span.li-t', null, h('b', null, 'Daten importieren'), h('span', null, 'Ersetzt alles, was jetzt in der App ist'))))),
+    h('div.sec', null,
+      h('h3.sec-h', null, 'Erinnern'),
+      h('div.glass.list', null,
+        h('button.li', { type: 'button', data: { act: 'soundToggle' } }, ic('sound'), h('span.li-t', null, h('b', null, 'Töne'), h('span', null, Sound.on() ? 'An · leise, Stummschalter wird beachtet' : 'Aus')), h('span.sw', { class: Sound.on() ? 'on' : '' }, h('i'))),
+        h('button.li', { type: 'button', data: { act: 'badgeAsk' } }, ic('alarm'), h('span.li-t', null, h('b', null, 'Roter Zähler am App-Icon'), h('span', null, badgeText()))),
+        h('button.li', { type: 'button', data: { act: 'rulesOpen' } }, ic('note'), h('span.li-t', null, h('b', null, 'Folge-Aufgaben'), h('span', null, rules().length ? plural(rules().length, 'Regel', 'Regeln') + ' aktiv' : 'Stichwort → Aufgabe danach')), ic('chevR', 'chev')),
+        h('button.li', { type: 'button', data: { act: 'shortcutsHelp' } }, ic('cal'), h('span.li-t', null, h('b', null, 'Kalender & Wecker'), h('span', null, 'Über Kurzbefehle, einmal einrichten')), ic('chevR', 'chev')))),
     h('div.about', null, h('b', null, 'Momentum ' + VERSION), 'Alles bleibt auf diesem iPhone. Kein Konto, keine Cloud. Ein Export ab und zu ist dein Backup.'));
 }
 function renderHues() {
@@ -2954,6 +3079,120 @@ function updateBadge(n) {
   } catch (e) {}
 }
 
+function badgeText() {
+  if (!('setAppBadge' in navigator)) return 'Geht erst in der installierten App (ab iOS 16.4)';
+  const p = 'Notification' in window ? Notification.permission : 'granted';
+  if (p === 'granted') return 'An · zeigt, wie viel überfällig ist';
+  if (p === 'denied') return 'Nicht erlaubt · in den iPhone-Einstellungen unter Momentum erlauben';
+  return 'Tippen, um es zu erlauben (es kommen keine Mitteilungen)';
+}
+async function badgeAsk() {
+  if (!('setAppBadge' in navigator)) { toast('Das geht nur in der installierten App.'); return; }
+  try { if ('Notification' in window && Notification.permission === 'default') await Notification.requestPermission(); } catch (e) {}
+  badgeN = -1;
+  renderAlarm();
+  renderSettings();
+}
+
+/* ----- Folge-Aufgaben: Regeln verwalten und auslösen ----- */
+function renderRules() {
+  const list = rules();
+  fill($('#rules-list'), list.length
+    ? list.map(r => h('div.li.rule', null, h('span.li-t', null, h('b', null, r.word), h('span', null, '→ ' + r.then)),
+      h('button.slot-x', { type: 'button', 'aria-label': 'Regel löschen', data: { act: 'ruleDel', id: r.id } }, ic('close'))))
+    : h('div.li', null, h('span.li-t', null, h('span', null, 'Noch keine Regel. Zum Beispiel: Drucken → Stundenliste eintragen.'))));
+}
+function openRules() {
+  renderRules();
+  $('#rule-word').value = ''; $('#rule-then').value = '';
+  const L = openLayer('L-rules');
+  $('.sheet-body', L).scrollTop = 0;
+  L._onClose = () => renderSettings();
+}
+function addRule() {
+  const word = $('#rule-word').value.replace(/\s+/g, ' ').trim(), then = $('#rule-then').value.replace(/\s+/g, ' ').trim();
+  if (!word) { nudge($('#rule-word').parentElement); return; }
+  if (!then) { nudge($('#rule-then').parentElement); return; }
+  const list = rules();
+  if (list.some(r => r.word.toLowerCase() === word.toLowerCase())) { nudge($('#rule-word').parentElement); toast('Das Stichwort gibt es schon.'); return; }
+  list.push({ id: uid(), word, then, since: Date.now() });
+  setMeta('rules', list);
+  $('#rule-word').value = ''; $('#rule-then').value = '';
+  const a = document.activeElement; if (a && a.blur) a.blur();
+  haptic(); Sound.play('save');
+  renderRules();
+  toast('Regel angelegt');
+}
+function delRule(id) {
+  const list = rules(), r = list.find(x => x.id === id);
+  if (!r) return;
+  setMeta('rules', list.filter(x => x.id !== id));
+  renderRules();
+  toast('Regel gelöscht', { action: 'Rückgängig', onAction: () => { const l = rules(); l.push(r); setMeta('rules', l); renderRules(); } });
+}
+/* Fällige Folge-Aufgaben anlegen (einmalig je Aufgabe) und melden */
+function followUp() {
+  const made = runRules();
+  if (!made.length) return;
+  for (const t of made) ui.fresh = t.id;
+  if (!layers.length && !animating) renderAll(); else renderAlarm();
+  ui.fresh = null;
+  haptics(2, 90);
+  Sound.play('save');
+  toast(made.length === 1 ? 'Jetzt dran: ' + made[0].text : plural(made.length, 'Folge-Aufgabe', 'Folge-Aufgaben') + ' auf „Heute“', { ms: 5000 });
+}
+
+/* ----- Kalender & Wecker über Kurzbefehle ----- */
+function runShortcut(name, data) {
+  const url = 'shortcuts://run-shortcut?name=' + encodeURIComponent(name) + '&input=text&text=' + encodeURIComponent(JSON.stringify(data));
+  try { location.href = url; } catch (e) {}
+}
+function taskToCal(t) {
+  const a = toMin(t.time), e = a + (t.dur || 30);
+  const endDay = addDays(t.due, Math.floor(e / 1440));
+  runShortcut('Momentum Termin', { titel: taskTitle(t), start: t.due + ' ' + t.time, ende: endDay + ' ' + fromMin(e), notiz: taskDetails(t).join('\n') });
+}
+function taskToAlarm(t) { runShortcut('Momentum Wecker', { titel: taskTitle(t), zeit: t.time, datum: t.due }); }
+/* Zeilen aus dem Kurzbefehl „Momentum Woche“: „2026-11-20 14:00 | 60 | Titel“ (auch ganztägig „2026-11-20 | | Titel“) */
+function parseCal(text) {
+  const out = [];
+  for (const raw of String(text || '').split(/\r?\n/)) {
+    const parts = raw.split(/\s*[|;\t]\s*/);
+    if (parts.length < 2) continue;
+    const m = parts[0].trim().match(/^(\d{4}-\d{2}-\d{2})(?:[ T](\d{1,2}):(\d{2}))?/);
+    if (!m || !validDay(m[1])) continue;
+    const title = (parts.length >= 3 ? parts.slice(2).join(' ') : parts[1]).replace(/\s+/g, ' ').trim().slice(0, 280);
+    if (!title) continue;
+    const time = m[2] != null ? String(+m[2]).padStart(2, '0') + ':' + m[3] : null;
+    const dur = parts.length >= 3 ? normDur(parseFloat(String(parts[1]).replace(',', '.'))) : null;
+    out.push({ due: m[1], time: validTime(time) ? time : null, dur, text: title });
+  }
+  return out;
+}
+async function calPaste() {
+  let text = '';
+  try { text = navigator.clipboard && navigator.clipboard.readText ? await navigator.clipboard.readText() : ''; } catch (e) { text = ''; }
+  const day = today();
+  const found = parseCal(text).filter(x => x.due >= day);
+  if (!found.length) {
+    const r = await dialog({ title: 'Keine Termine gefunden', text: 'Starte zuerst den Kurzbefehl „Momentum Woche“. Er kopiert deine Termine, dann hier noch einmal tippen.', ok: 'So richtest du es ein', cancel: 'OK' });
+    if (r) openHelp();
+    return;
+  }
+  const key = x => x.text.toLowerCase() + '|' + x.due + '|' + (x.time || '');
+  const have = new Set(Array.from(S.tasks.values()).map(t => key({ text: t.text, due: t.due, time: t.time })));
+  const fresh = found.filter(x => !have.has(key(x)));
+  if (!fresh.length) { toast('Alle Termine sind schon da.'); return; }
+  const ok = await dialog({ title: plural(fresh.length, 'Termin', 'Termine') + ' übernehmen?', text: fresh.slice(0, 4).map(x => shortDate(x.due) + (x.time ? ' ' + x.time : '') + ' · ' + x.text).join('\n') + (fresh.length > 4 ? '\n…' : '') + (found.length > fresh.length ? '\n' + plural(found.length - fresh.length, 'Termin ist', 'Termine sind') + ' schon da.' : ''), ok: 'Übernehmen' });
+  if (!ok) return;
+  for (const x of fresh) addTask({ text: x.text, due: x.due, now: false, prio: 1, topicId: null, time: x.time, dur: x.dur, src: 'cal' });
+  if (topLayer() && topLayer().id === 'L-help') closeLayer('L-help');
+  haptic(); Sound.play('save');
+  renderAll();
+  toast(plural(fresh.length, 'Termin', 'Termine') + ' im Zeitplan');
+}
+function openHelp() { const L = openLayer('L-help'); $('.sheet-body', L).scrollTop = 0; }
+
 /* ----- Alles zeichnen ----- */
 function renderAll() {
   renderAlarm();
@@ -2995,6 +3234,7 @@ function go(name) {
   if (a && a.blur && isField(a)) a.blur();
   const from = ui.tab;
   ui.tab = name;
+  Sound.play('swipe');
   for (const v of $$('.view')) v.classList.toggle('active', v.id === 'v-' + name);
   glideBeam(from, name);
   for (const b of $$('.tab')) { const on = b.dataset.tab === name; b.classList.toggle('on', on); b.setAttribute('aria-current', on ? 'page' : 'false'); }
@@ -3003,7 +3243,7 @@ function go(name) {
 /* ===== Aktionen ===== */
 const A = {
   tab(b) { go(b.dataset.tab); },
-  plus() { openEntry({ mode: 'new' }); },
+  plus() { Sound.play('open'); openEntry({ mode: 'new' }); },
   settings() { renderSettings(); const L = openLayer('L-settings'); $('.sheet-body', L).scrollTop = 0; },
   closeTop() { const L = topLayer(); if (L) closeLayer(L); },
   reload() { flushAllJ(); location.reload(); },
@@ -3017,6 +3257,7 @@ const A = {
     if (t.done) { haptic(); setDone(id, false); renderAll(); return; }
     w.dataset.busy = '1';
     animating++;
+    Sound.play('check', t.prio);
     const pt = checkPoint(w);
     FX.burst(pt.x, pt.y, { prio: t.prio, over: groupOf(t, today()) === 'over', rect: w.getBoundingClientRect() });
     setDone(id, true);
@@ -3025,6 +3266,7 @@ const A = {
     wait(reduced() ? 60 : 470).then(() => collapseRow(w)).then(() => {
       animEnd();
       toast('Erledigt', { action: 'Rückgängig', onAction: () => { setDone(id, false); renderAll(); } });
+      setTimeout(followUp, 5600);
     });
   },
   editTask(b) { if (Date.now() - suppressClick < 400) return; openEntry({ mode: 'task', id: b.dataset.id }); },
@@ -3037,9 +3279,10 @@ const A = {
     for (const o of $$('.rw.open', w.parentElement)) if (o !== w) { o.classList.remove('open'); const m = $('.row-main', o); if (m) m.setAttribute('aria-expanded', 'false'); }
     w.classList.toggle('open', on);
     b.setAttribute('aria-expanded', String(on));
+    Sound.play('tap');
   },
   filter(b) { ui.filter = b.dataset.id || null; ui.doneLimit = 30; renderTasks(); },
-  tday(b) { ui.tday = b.dataset.day; haptic(); renderTasks(); },
+  tday(b) { ui.tday = b.dataset.day; haptic(); Sound.play('tap'); renderTasks(); },
   toggleDone() { ui.doneOpen = !ui.doneOpen; renderTasks(); },
   moreDone() { ui.doneLimit += 50; renderTasks(); },
 
@@ -3050,6 +3293,7 @@ const A = {
     if (!g) return;
     const done = !goalDone(g), row = b.closest('.goal'), card = b.closest('.goals');
     if (done) {
+      Sound.play('goal');
       const pt = checkPoint(row);
       FX.burst(pt.x, pt.y, { goal: true, rect: card.getBoundingClientRect() });
       quake(card);
@@ -3069,6 +3313,7 @@ const A = {
     for (const o of $$('.goal.open', row.parentElement)) if (o !== row) { o.classList.remove('open'); const x = $('.goal-text', o); if (x) x.setAttribute('aria-expanded', 'false'); }
     row.classList.toggle('open', on);
     b.setAttribute('aria-expanded', String(on));
+    Sound.play('tap');
   },
   goalNote(b) { openNote(b.dataset.gid); },
   noteSave() { saveNote(); },
@@ -3078,6 +3323,7 @@ const A = {
     const row = b.closest('.og'), card = b.closest('.ogoals');
     if (!g || !row || row.dataset.busy) return;
     row.dataset.busy = '1';
+    Sound.play('goal');
     const pt = checkPoint(row);
     FX.burst(pt.x, pt.y, { goal: true, over: true, rect: card.getBoundingClientRect() });
     quake(card);
@@ -3241,6 +3487,15 @@ const A = {
     renderAll();
   },
   exportData() { exportData(); },
+  badgeAsk() { badgeAsk(); },
+  rulesOpen() { openRules(); },
+  shortcutsHelp() { openHelp(); },
+  calPaste() { calPaste(); },
+  toCal() { const t = S.tasks.get(E.id); if (t && validTime(t.time)) taskToCal(t); },
+  toAlarm() { const t = S.tasks.get(E.id); if (t && validTime(t.time)) taskToAlarm(t); },
+  ruleAdd() { addRule(); },
+  ruleDel(b) { delRule(b.dataset.id); },
+  soundToggle() { Sound.set(!Sound.on()); renderSettings(); if (Sound.on()) Sound.play('save'); },
   dlgOk() { dialogAnswer(true); },
   dlgAlt() { dialogAnswer('alt'); },
   dlgCancel() { dialogAnswer(false); }
@@ -3322,6 +3577,10 @@ function bindEvents() {
   pi.addEventListener('input', () => $('#plan-add-btn').setAttribute('aria-disabled', String(pi.readOnly || !pi.value.trim())));
   pi.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); planAddFree(); } });
 
+  /* Folge-Regeln */
+  $('#rule-word').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); try { $('#rule-then').focus({ preventScroll: true }); } catch (x) {} } });
+  $('#rule-then').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addRule(); } });
+
   /* Thema */
   $('#topic-name').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); saveTopic(); } });
 
@@ -3344,12 +3603,14 @@ function bindEvents() {
     if (!t) return;
     animating++;
     const r = w.getBoundingClientRect();
+    Sound.play('check', t.prio);
     FX.burst(r.left + 29, r.top + r.height / 2, { prio: t.prio, over: groupOf(t, today()) === 'over', rect: r });
     setDone(id, true);
     renderBeams();
     wait(fly).then(() => collapseRow(w)).then(() => {
       animEnd();
       toast('Erledigt', { action: 'Rückgängig', onAction: () => { setDone(id, false); renderAll(); } });
+      setTimeout(followUp, 5600);
     });
   };
   bindSwipe($('#today'), swipeDone);
@@ -3358,6 +3619,11 @@ function bindEvents() {
   document.addEventListener('mousedown', e => {
     if (isField(document.activeElement) && e.target.closest && e.target.closest('button') && !isField(e.target)) e.preventDefault();
   });
+
+  /* Töne erst nach der ersten Berührung (iOS-Regel) */
+  const un = () => Sound.unlock();
+  document.addEventListener('touchend', un, { passive: true, capture: true });
+  document.addEventListener('pointerup', un, { passive: true, capture: true });
 
   /* Native-Gefühl: kein Zoom, kein Kontextmenü, :active auf iOS */
   document.addEventListener('gesturestart', e => e.preventDefault());
@@ -3383,6 +3649,7 @@ function wake() {
     rollJournal();
     renderAll();
   } else if (hr !== curHour) { curHour = hr; renderToday(); }
+  followUp();
   checkUpdate();
 }
 
@@ -3442,7 +3709,7 @@ function startIntro() {
   try { $('#in-hello').textContent = greeting(); } catch (e) {}
   document.body.classList.add('go');
   el.addEventListener('pointerdown', () => { if (document.body.classList.contains('ready')) endIntro(true); });
-  setTimeout(() => { if (!INTRO.out) { INTRO.fx = true; FX.intro(INTRO.over > 0); } }, 80);
+  setTimeout(() => { if (!INTRO.out) { INTRO.fx = true; FX.intro(INTRO.over > 0); Sound.play(INTRO.over > 0 ? 'over' : 'intro'); } }, 80);
   setTimeout(() => {
     if (INTRO.out) return;
     const r = $('#intro svg').getBoundingClientRect();
@@ -3511,6 +3778,7 @@ async function boot() {
   }
   document.body.classList.add('ready');
   endIntro(false);
+  setTimeout(followUp, 1600);
   if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
   setInterval(wake, 20000);
   setInterval(tickTasks, 30000);
