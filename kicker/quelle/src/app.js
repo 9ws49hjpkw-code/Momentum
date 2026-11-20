@@ -133,7 +133,7 @@ function viewHome() {
   const body = `<div class="wrap home">
     <div class="hero">
       <div class="eyebrow">Kicker · 2 gegen 2</div>
-      <h2 class="h-xl">Kicker<span>abend.</span></h2>
+      <h2 class="h-xl">Kicker<span>abend.</span> <em class="by">by Nils</em></h2>
       <p class="lead">Modus wählen, Namen eintragen, losspielen. Wer gegen wen spielt, regelt die App.</p>
     </div>
     ${resume}

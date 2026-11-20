@@ -102,6 +102,7 @@ svg{display:block}
 .home{padding-top:clamp(12px,5vh,64px);display:grid;gap:34px}
 .home .hero{display:grid;gap:14px}
 .home .hero .h-xl span{color:var(--brass)}
+.home .hero .by{font:italic 400 clamp(22px,3.2vw,34px)/1 ui-serif,"New York",Georgia,serif;letter-spacing:0;color:var(--muted);white-space:nowrap;margin-left:.15em}
 .modes{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
 .mode{position:relative;text-align:left;border-radius:28px;padding:28px;min-height:280px;display:flex;flex-direction:column;gap:14px;
   background:radial-gradient(120% 90% at 100% 0%,rgba(228,183,108,.10),transparent 55%),var(--surface);
@@ -726,7 +727,7 @@ if (typeof module !== 'undefined') module.exports = KL;
 /* ===== Kickerabend · App ===== */
 (() => {
 'use strict';
-const BUILD = '1';
+const BUILD = '2';
 document.documentElement.lang = 'de';
 const KEY = 'kickerabend.v1';
 const MIN_PER_GAME = 6;          // grobe Schätzung inkl. Wechsel
@@ -858,7 +859,7 @@ function viewHome() {
   const body = `<div class="wrap home">
     <div class="hero">
       <div class="eyebrow">Kicker · 2 gegen 2</div>
-      <h2 class="h-xl">Kicker<span>abend.</span></h2>
+      <h2 class="h-xl">Kicker<span>abend.</span> <em class="by">by Nils</em></h2>
       <p class="lead">Modus wählen, Namen eintragen, losspielen. Wer gegen wen spielt, regelt die App.</p>
     </div>
     ${resume}
