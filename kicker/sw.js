@@ -1,5 +1,5 @@
 /* Kickerabend · Offline-Cache. Neue Versionen werden angeboten, nicht erzwungen. */
-const VERSION = 'kickerabend-b2';
+const VERSION = 'kickerabend-b3';
 const ASSETS = ['./', './index.html', './manifest.json', './icon-180.png', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', (e) => {
