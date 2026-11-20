@@ -21,17 +21,17 @@ Prüfung: neuer Test t12.js (oder Erweiterung t8 – erst grep, welcher Test Tas
 ## Paket B: Aufgaben-Seite als Zeit-Dashboard („Master Feature“)
 Wünsche (Zitate, gekürzt): „Mehr Infos, Details, Extras zu Aufgaben hinzufügen. In Klammern. Im heute Menü nur die Aufgabe selbst … Wenn man drauf klickt … sollen sich die Details zur Aufgabe enthüllen.“ · „Die Aufgaben Page … fast sinnlos … soll das Master Feature werden … visuell … Dashboard … wie lange dauert die Aufgabe? Wann muss sie erledigt sein am Tag, was ist dafür notwendig?“ · „An Aufgaben und Ziele Notizen anfügen … Dort muss man die garnicht abhaken können.“ · „mehr die Zeit übersichtlich einbauen … sehen wie man sich immer mehr darauf zu bewegt“ · „Zeitplan … chronologischen zeitstrahl … 3 Main Pages wären zu viel“ · „immer wenn ich etwas eintrage, kommt ein Feld in dem ich den zeitrahmen eintrage … nach Zeit sortiert … Werd kreativ“ · „Die Aufgaben Page braucht … ein brand neues Design“
 
-### B1. Neue Felder an Aufgaben/Zielen  [offen – F1: A, „OK Daten“]
+### B1. Neue Felder an Aufgaben/Zielen  [erledigt]
 Verständnis: optionale Felder task.note (Text), task.time ("HH:MM" oder null), task.dur (Minuten oder null); Ziel im Tagesplan: goal.note. Keine neue DB-Version, kein neuer Store (Felder nur ergänzen).
 Umsetzung: core.js addTask/updateTask, normalizeImport (note ≤ 5000, time /^\d\d:\d\d$/, dur 5–720), Standardwerte beim Lesen (fehlend = null/''). Capture-Sheet (views.js openEntry/saveEntry, body.html): bei Aufgaben Zeile „Zeit“ (natives time-Feld + Dauer-Chips 15/30/60/90) – freiwillig, falls F1=A.
 Prüfung: t7 (Update behält Daten) + neuer Test: alte Aufgabe ohne Felder rendert; Export→Import behält note/time/dur; Import ohne Felder klappt.
 
-### B2. Details „in Klammern“ + Aufklappen auf Heute  [offen – F2: C]
+### B2. Details „in Klammern“ + Aufklappen auf Heute  [erledigt]
 Verständnis: Text in (…) wird beim Speichern als Detail abgetrennt (bei C: in note übernommen) bzw. nur in der Anzeige versteckt (bei A, ohne Datenänderung). Heute: Tippen auf row-main klappt Details auf (Notiz, Uhrzeit, Dauer, Thema), Knopf „Bearbeiten“ öffnet das Sheet. Kreis bleibt Abhaken.
 Umsetzung: views.js taskRow/taskMeta, boot.js Aktion editTask → toggleDetails; CSS .row-detail mit Spring-Aufklappen, reduzierte Bewegung = sofort.
 Prüfung: Test: Aufgabe „Drucken (Stundenliste)“ zeigt auf Heute nur „Drucken“; Tippen zeigt „Stundenliste“; Bearbeiten öffnet Sheet; Kreis hakt weiter ab.
 
-### B3. Aufgaben-Seite neu: Zeitstrahl  [offen – F3: A]
+### B3. Aufgaben-Seite neu: Zeitstrahl  [erledigt]
 Verständnis (Empfehlung A): oben wischbares Wochenband (Tage mit Lichtbalken nach Last = Summe Dauer bzw. Anzahl), darunter gewählter Tag als senkrechter Zeitstrahl: Blöcke nach time/dur, Fach „im Lauf des Tages“ für Aufgaben ohne Uhrzeit, leuchtende Jetzt-Linie, Überfälliges rot oben. Sortierung nach Zeit, nicht nach Prio. Kein Abhaken/Wischen dort, Tippen = Details/Bearbeiten. Themen-Filter bleibt. Neues Design im violetten Hologramm-Stil des Tabs.
 Umsetzung: views.js renderTasks komplett neu (alte Gruppenlogik als Fallback „Später“ ab Tag 8), styles.css Abschnitt Aufgaben, Empty States.
 Prüfung: t3/t4 anpassen (wo sie Gruppen der Aufgaben-Seite prüfen), neuer Test: Block-Position entspricht Uhrzeit, Wochenband wechselt Tag, kein Swipe-Abhaken auf Aufgaben-Seite; Screenshots via gallery.js ansehen, auch 375×667.

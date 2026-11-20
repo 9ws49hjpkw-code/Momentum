@@ -37,6 +37,7 @@ const A = {
     b.setAttribute('aria-expanded', String(on));
   },
   filter(b) { ui.filter = b.dataset.id || null; ui.doneLimit = 30; renderTasks(); },
+  tday(b) { ui.tday = b.dataset.day; haptic(); renderTasks(); },
   toggleDone() { ui.doneOpen = !ui.doneOpen; renderTasks(); },
   moreDone() { ui.doneLimit += 50; renderTasks(); },
 
@@ -152,7 +153,12 @@ const A = {
     if (E.type === 'task' && /\n/.test(ta.value)) { ta.value = ta.value.replace(/\s*\n+\s*/g, ' '); $('#e-grow').dataset.v = ta.value; }
     syncEntry();
   },
-  eWhen(b) { E.when = b.dataset.when; syncEntry(); },
+  eWhen(b) {
+    const first = !E.when;
+    E.when = b.dataset.when; syncEntry();
+    /* Die Zeile für den Zeitrahmen klappt auf: Speichern bleibt über der Tastatur sichtbar */
+    if (first && KB.h > 0) setTimeout(() => { const sb = $('#L-entry .sheet-body'); if (sb) sb.scrollTop = sb.scrollHeight; }, 380);
+  },
   ePrio(b) { E.prio = +b.dataset.prio; syncEntry(); },
   eDur(b) { const d = +b.dataset.dur; E.dur = E.dur === d ? null : d; syncEntry(); },
   eReopen() {
@@ -345,7 +351,6 @@ function bindEvents() {
     });
   };
   bindSwipe($('#today'), swipeDone);
-  bindSwipe($('#tasks'), swipeDone);
 
   /* Tipp auf einen Button lässt die Tastatur offen (Fokus bleibt im Textfeld) */
   document.addEventListener('mousedown', e => {
@@ -495,6 +500,7 @@ async function boot() {
   endIntro(false);
   if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
   setInterval(wake, 20000);
+  setInterval(tickTasks, 30000);
   registerSW();
   setTimeout(startupImage, 1200);
 }
