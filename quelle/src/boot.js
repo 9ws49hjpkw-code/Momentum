@@ -159,12 +159,7 @@ const A = {
     if (E.type === 'task' && /\n/.test(ta.value)) { ta.value = ta.value.replace(/\s*\n+\s*/g, ' '); $('#e-grow').dataset.v = ta.value; }
     syncEntry();
   },
-  eWhen(b) {
-    const first = !E.when;
-    E.when = b.dataset.when; syncEntry();
-    /* Die Zeile für den Zeitrahmen klappt auf: Speichern bleibt über der Tastatur sichtbar */
-    if (first && KB.h > 0) setTimeout(() => { const sb = $('#L-entry .sheet-body'); if (sb) sb.scrollTop = sb.scrollHeight; }, 380);
-  },
+  eWhen(b) { E.when = b.dataset.when; syncEntry(); },
   ePrio(b) { E.prio = +b.dataset.prio; syncEntry(); },
   eDur(b) { const d = +b.dataset.dur; E.dur = E.dur === d ? null : d; syncEntry(); },
   eReopen() {
@@ -520,7 +515,7 @@ async function boot() {
   }
   try {
     seedTopics();
-    document.body.dataset.tab = ui.tab;
+    document.body.dataset.area = ui.tab;
     curDay = today(); curHour = hourNow();
     initKeyboard();
     bindEvents();

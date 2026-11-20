@@ -62,9 +62,9 @@ svg{display:block}
 }
 /* Eck-Ringe oben rechts: leuchten in der Farbe des Bereichs, schimmern langsam; bei Überfälligem ins Rot */
 #ambient{--rc:98,217,255;transition:none}
-body[data-tab="tasks"] #ambient{--rc:150,132,255}
-body[data-tab="ideas"] #ambient{--rc:255,190,98}
-body[data-tab="journal"] #ambient{--rc:96,236,190}
+body[data-area="tasks"] #ambient{--rc:150,132,255}
+body[data-area="ideas"] #ambient{--rc:255,190,98}
+body[data-area="journal"] #ambient{--rc:96,236,190}
 body.alarm #ambient{--rc:255,84,110}
 #ambient::before,#ambient::after{
   content:"";position:absolute;border-radius:50%;
@@ -84,7 +84,7 @@ body.live #ambient::after{animation:ringglow 9s -4.5s ease-in-out infinite}
 
 /* ---------- Alarm-Rand: Überfälliges leuchtet rot am Bildschirmrand ---------- */
 #alarm{position:fixed;inset:0;z-index:40;pointer-events:none;opacity:0;--ai:0;border-radius:0;transition:opacity .8s ease}
-#alarm::before,#alarm::after{content:"";position:absolute;inset:0;border-radius:inherit}
+#alarm::before,#alarm::after{content:"";position:absolute;inset:0;border-radius:inherit;will-change:opacity}
 #alarm[data-l="1"]{opacity:1}
 #alarm[data-l="1"]::before{box-shadow:inset 0 0 0 1.5px rgba(255,59,85,.5),inset 0 0 26px rgba(255,45,75,.22)}
 #alarm[data-l="2"]{opacity:1}
@@ -92,17 +92,17 @@ body.live #ambient::after{animation:ringglow 9s -4.5s ease-in-out infinite}
 #alarm[data-l="3"]{opacity:1}
 #alarm[data-l="3"]::before{box-shadow:inset 0 0 0 2.5px rgba(255,45,75,.9),inset 0 0 calc(44px + 30px * var(--ai)) rgba(255,30,62,.48),inset 0 0 8px rgba(255,120,140,.6);animation:al-breathe 1.9s ease-in-out infinite}
 /* Stark: Wellen laufen vom Rand zur Mitte */
-#alarm[data-l="3"]::after{box-shadow:inset 0 0 0 0 rgba(255,40,70,0);animation:al-in 2.4s cubic-bezier(.3,.6,.3,1) infinite}
+#alarm[data-l="3"]::after{border-radius:54px;box-shadow:inset 0 0 36px 12px rgba(255,40,70,.5),inset 0 0 0 2px rgba(255,90,110,.5);will-change:transform,opacity;animation:al-in 2.4s cubic-bezier(.3,.6,.3,1) infinite}
 @keyframes al-breathe{0%,100%{opacity:1}50%{opacity:.55}}
-@keyframes al-in{0%{box-shadow:inset 0 0 0 0 rgba(255,40,70,.0),inset 0 0 0 0 rgba(255,40,70,0)}12%{box-shadow:inset 0 0 18px 6px rgba(255,40,70,.4),inset 0 0 0 0 rgba(255,40,70,0)}100%{box-shadow:inset 0 0 90px 70px rgba(255,40,70,0),inset 0 0 160px 120px rgba(255,40,70,0)}}
+@keyframes al-in{0%{transform:scale(1.03);opacity:0}14%{opacity:1}100%{transform:scale(.62);opacity:0}}
 body:not(.live) #alarm,body.layered #alarm{opacity:0}
 body.layered #alarm::before,body.layered #alarm::after{animation-play-state:paused}
 
 /* ---------- Seitenwechsel im HUD-Stil: Scanlinie fegt, neue Ansicht baut sich auf ---------- */
 #hud{position:fixed;inset:0;z-index:35;pointer-events:none;--hc:98,217,255;opacity:0}
-body[data-tab="tasks"] #hud{--hc:150,132,255}
-body[data-tab="ideas"] #hud{--hc:255,190,98}
-body[data-tab="journal"] #hud{--hc:96,236,190}
+body[data-area="tasks"] #hud{--hc:150,132,255}
+body[data-area="ideas"] #hud{--hc:255,190,98}
+body[data-area="journal"] #hud{--hc:96,236,190}
 #hud::before{content:"";position:absolute;left:0;right:0;top:0;height:2px;background:linear-gradient(90deg,rgba(var(--hc),0),rgba(var(--hc),.95) 20%,#fff 50%,rgba(var(--hc),.95) 80%,rgba(var(--hc),0));box-shadow:0 0 14px rgba(var(--hc),.9),0 0 40px rgba(var(--hc),.5)}
 #hud::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(var(--hc),.07) 0 1px,transparent 1px 4px),linear-gradient(180deg,rgba(var(--hc),.12),rgba(var(--hc),0) 30%)}
 #hud.run{animation:hud-fade .46s ease-out both}
@@ -131,7 +131,8 @@ body.live .group.glass::after{content:"";position:absolute;inset:0;border-radius
   background:linear-gradient(115deg,rgba(190,236,255,0) 30%,rgba(190,236,255,.045) 48%,rgba(190,236,255,0) 64%);background-size:100% 100%;
   animation:sheen 16s ease-in-out infinite}
 /* Beim Tippen und in Sheets ist Ruhe */
-body.kb-open #app *,body.kb-open .amb-glow,body.layered #app *,body.layered .amb-glow{animation-play-state:paused!important}
+body:is(.kb-open,.layered) :is(#today > .goals,#today > .ogoals,#today > .sec > .group,#today .idea-card,#tasks .wb-day.on,#tasks .tl-b.live,.amb-glow),
+body:is(.kb-open,.layered) .goals::after,body:is(.kb-open,.layered) .holo::before,body:is(.kb-open,.layered) .group.glass::after{animation-play-state:paused!important}
 body.kb-open #ambient::before,body.kb-open #ambient::after,body.layered #ambient::before,body.layered #ambient::after{animation-play-state:paused}
 
 /* ---------- App-Rahmen ---------- */

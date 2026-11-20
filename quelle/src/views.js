@@ -466,7 +466,10 @@ function syncEntry() {
   for (const b of $$('#e-time [data-dur]')) b.classList.toggle('on', +b.dataset.dur === E.dur);
   $('#e-detail-fold').classList.toggle('off', !(isTask && E.mode === 'task'));
   /* Zeitrahmen (Uhrzeit + Dauer) erscheint, sobald ein Tag gewählt ist – freiwillig */
-  $('#e-dur-fold').classList.toggle('off', !(isTask && (E.when || E.time || E.dur || E.mode === 'task')));
+  const df = $('#e-dur-fold'), wasOff = df.classList.contains('off');
+  df.classList.toggle('off', !(isTask && (E.when || E.time || E.dur || E.mode === 'task')));
+  /* Klappt die Zeile bei offener Tastatur auf, bleibt Speichern sichtbar */
+  if (wasOff && !df.classList.contains('off') && KB.h > 0 && $('#L-entry').classList.contains('open')) setTimeout(() => { const sb = $('#L-entry .sheet-body'); if (sb) sb.scrollTop = sb.scrollHeight; }, 380);
   for (const b of $$('#e-topics [data-id]')) b.classList.toggle('on', b.dataset.id === E.topicId);
   let note = '';
   if (isNew && !isTask) note = 'Die Idee parkt. In 7 Tagen fragt „Heute“, was daraus wird.';
@@ -1021,7 +1024,7 @@ function go(name) {
   const from = ui.tab;
   ui.tab = name;
   Sound.play('swipe');
-  document.body.dataset.tab = name;
+  document.body.dataset.area = name;
   for (const v of $$('.view')) { v.classList.toggle('active', v.id === 'v-' + name); v.classList.remove('reveal'); }
   hudSweep($('#v-' + name));
   glideBeam(from, name);
