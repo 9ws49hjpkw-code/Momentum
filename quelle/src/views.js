@@ -783,6 +783,7 @@ function balance() {
   return { done, open, over, total: done + open + over };
 }
 function renderBeams() {
+  renderAlarm();
   const b = balance();
   const pct = n => (b.total ? Math.round(n / b.total * 1000) / 10 : 0) + '%';
   const cap = () => {
@@ -798,8 +799,40 @@ function renderBeams() {
   }
 }
 
+/* ----- Überfällig soll wehtun: roter Leuchtrand, stärker je mehr und wichtiger ----- */
+function alarmState() {
+  const day = today();
+  let score = 0, n = 0;
+  for (const t of S.tasks.values()) if (!t.done && t.due < day) { n++; score += t.prio === 2 ? 3 : t.prio === 1 ? 2 : 1; }
+  const og = overdueGoals(day).length;
+  score += og * 4; n += og;
+  const level = !score ? 0 : (og > 0 || score >= 8) ? 3 : score >= 4 ? 2 : 1;
+  return { score, n, goals: og, level };
+}
+function renderAlarm() {
+  const a = alarmState(), el = $('#alarm');
+  if (el) {
+    el.dataset.l = String(a.level);
+    el.style.setProperty('--ai', Math.min(1, a.score / 16).toFixed(3));
+  }
+  document.body.classList.toggle('alarm', a.level > 0);
+  updateBadge(a.n);
+  return a;
+}
+/* Roter Zähler am App-Icon (nur wenn das System es erlaubt; keine Mitteilungen) */
+let badgeN = -1;
+function updateBadge(n) {
+  if (n === badgeN || !('setAppBadge' in navigator)) return;
+  badgeN = n;
+  try {
+    const p = n > 0 ? navigator.setAppBadge(n) : navigator.clearAppBadge();
+    if (p && p.catch) p.catch(() => {});
+  } catch (e) {}
+}
+
 /* ----- Alles zeichnen ----- */
 function renderAll() {
+  renderAlarm();
   renderToday();
   renderTasks();
   renderIdeas();

@@ -98,6 +98,22 @@ svg{display:block}
 #ambient::before{width:500px;height:500px;right:-310px;top:-290px}
 #ambient::after{width:320px;height:320px;right:-220px;top:-200px;border-color:rgba(140,224,255,.06)}
 
+/* ---------- Alarm-Rand: Überfälliges leuchtet rot am Bildschirmrand ---------- */
+#alarm{position:fixed;inset:0;z-index:40;pointer-events:none;opacity:0;--ai:0;border-radius:0;transition:opacity .8s ease}
+#alarm::before,#alarm::after{content:"";position:absolute;inset:0;border-radius:inherit}
+#alarm[data-l="1"]{opacity:1}
+#alarm[data-l="1"]::before{box-shadow:inset 0 0 0 1.5px rgba(255,59,85,.5),inset 0 0 26px rgba(255,45,75,.22)}
+#alarm[data-l="2"]{opacity:1}
+#alarm[data-l="2"]::before{box-shadow:inset 0 0 0 2px rgba(255,59,85,.72),inset 0 0 calc(34px + 20px * var(--ai)) rgba(255,40,70,.36);animation:al-breathe 3.4s ease-in-out infinite}
+#alarm[data-l="3"]{opacity:1}
+#alarm[data-l="3"]::before{box-shadow:inset 0 0 0 2.5px rgba(255,45,75,.9),inset 0 0 calc(44px + 30px * var(--ai)) rgba(255,30,62,.48),inset 0 0 8px rgba(255,120,140,.6);animation:al-breathe 1.9s ease-in-out infinite}
+/* Stark: Wellen laufen vom Rand zur Mitte */
+#alarm[data-l="3"]::after{box-shadow:inset 0 0 0 0 rgba(255,40,70,0);animation:al-in 2.4s cubic-bezier(.3,.6,.3,1) infinite}
+@keyframes al-breathe{0%,100%{opacity:1}50%{opacity:.55}}
+@keyframes al-in{0%{box-shadow:inset 0 0 0 0 rgba(255,40,70,.0),inset 0 0 0 0 rgba(255,40,70,0)}12%{box-shadow:inset 0 0 18px 6px rgba(255,40,70,.4),inset 0 0 0 0 rgba(255,40,70,0)}100%{box-shadow:inset 0 0 90px 70px rgba(255,40,70,0),inset 0 0 160px 120px rgba(255,40,70,0)}}
+body:not(.live) #alarm,body.layered #alarm{opacity:0}
+body.layered #alarm::before,body.layered #alarm::after{animation-play-state:paused}
+
 /* ---------- App-Rahmen ---------- */
 #app{
   position:absolute;inset:0;z-index:1;
@@ -788,6 +804,14 @@ body.go .in-scan{animation:in-scan 1s .05s cubic-bezier(.5,0,.3,1) both}
 @keyframes in-hello{0%{opacity:0;transform:translateY(8px)}100%{opacity:1;transform:none}}
 @keyframes in-scan{0%{opacity:0;transform:translateY(0)}15%{opacity:1}85%{opacity:1}100%{opacity:0;transform:translateY(100vh)}}
 /* Auftritt der App */
+/* Start mit Überfälligem: Ring und Licht in Rot */
+#intro.over .in-ring{stroke:#FF5A70;filter:drop-shadow(0 0 8px rgba(255,52,80,.9))}
+#intro.over .in-head circle{filter:drop-shadow(0 0 4px #fff) drop-shadow(0 0 10px rgba(255,52,80,1))}
+#intro.over .in-pulse{stroke:#FF8A9A}
+#intro.over .in-word{color:#FFD6DC;text-shadow:0 0 12px rgba(255,52,80,.85)}
+#intro.over .in-hello{color:#FF8494;font-weight:600}
+#intro.over{background:radial-gradient(70% 42% at 50% 46%,rgba(255,40,70,.14),rgba(255,40,70,0) 70%)}
+#intro.over.hard{background:radial-gradient(80% 50% at 50% 46%,rgba(255,40,70,.22),rgba(255,40,70,0) 72%)}
 body.enter #intro{pointer-events:none;background:transparent;transition:background .4s ease}
 body.enter .in-box{animation:in-out .46s cubic-bezier(.5,0,.75,0) both}
 @keyframes in-out{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.65);filter:blur(3px)}}
@@ -848,6 +872,7 @@ body.enter .view.active .beam::after{content:"";position:absolute;left:0;right:0
 </head>
 <body class="intro">
 <div id="ambient" aria-hidden="true"></div>
+<div id="alarm" aria-hidden="true" data-l="0"></div>
 <div id="intro" aria-hidden="true"><div class="in-scan"></div><div class="in-box">
 <svg viewBox="0 0 220 220">
 <g class="in-cross"><path d="M4 110H50M170 110H216M110 4V50M110 170V216"/></g>
@@ -2011,9 +2036,15 @@ const FX = (() => {
     if (!raf) raf = requestAnimationFrame(loop);
   }
   /* Start: ein Licht umrundet den Bildschirmrand, der Rahmen glimmt auf */
-  function intro() {
+  function intro(over) {
     if (reduced() || !ensure()) return;
-    push({ type: 'edge', start: .5, dist: 1, dirs: [1, -1], seg: 150, frame: .32, fk: 1, a: .9, life: 1450, c: C.cyan, to: C.ice, lin: false });
+    push({ type: 'edge', start: .5, dist: 1, dirs: [1, -1], seg: 150, frame: over ? .5 : .32, fk: 1, a: .9, life: 1450, c: over ? C.red : C.cyan, to: over ? [255, 120, 136] : C.ice, lin: false });
+    if (!raf) raf = requestAnimationFrame(loop);
+  }
+  /* Überfälliges beim Start: der Rahmen glimmt rot nach */
+  function alarm() {
+    if (reduced() || !ensure()) return;
+    push({ type: 'edge', start: 0, dist: 1, dirs: [1, -1], seg: 110, frame: .6, fk: 1.2, a: .8, life: 1300, c: C.red, delay: 120 });
     if (!raf) raf = requestAnimationFrame(loop);
   }
   /* Der Haken rastet ein: Lichtimpuls aus der Mitte */
@@ -2025,7 +2056,7 @@ const FX = (() => {
     for (let i = 0; i < 22; i++) push({ type: 'spark', x, y, ang: i / 22 * 6.283 + rnd(-.1, .1), v: rnd(260, 420), drag: 4.5, w: rnd(1, 1.5), a: rnd(.6, .95), life: rnd(500, 700), c: Math.random() < .4 ? C.white : C.cyan, delay: rnd(0, 50) });
     if (!raf) raf = requestAnimationFrame(loop);
   }
-  return { burst, intro, lock };
+  return { burst, intro, alarm, lock };
 })();
 /* Mitte des Abhak-Kreises einer Zeile */
 function checkPoint(el) {
@@ -2876,6 +2907,7 @@ function balance() {
   return { done, open, over, total: done + open + over };
 }
 function renderBeams() {
+  renderAlarm();
   const b = balance();
   const pct = n => (b.total ? Math.round(n / b.total * 1000) / 10 : 0) + '%';
   const cap = () => {
@@ -2891,8 +2923,40 @@ function renderBeams() {
   }
 }
 
+/* ----- Überfällig soll wehtun: roter Leuchtrand, stärker je mehr und wichtiger ----- */
+function alarmState() {
+  const day = today();
+  let score = 0, n = 0;
+  for (const t of S.tasks.values()) if (!t.done && t.due < day) { n++; score += t.prio === 2 ? 3 : t.prio === 1 ? 2 : 1; }
+  const og = overdueGoals(day).length;
+  score += og * 4; n += og;
+  const level = !score ? 0 : (og > 0 || score >= 8) ? 3 : score >= 4 ? 2 : 1;
+  return { score, n, goals: og, level };
+}
+function renderAlarm() {
+  const a = alarmState(), el = $('#alarm');
+  if (el) {
+    el.dataset.l = String(a.level);
+    el.style.setProperty('--ai', Math.min(1, a.score / 16).toFixed(3));
+  }
+  document.body.classList.toggle('alarm', a.level > 0);
+  updateBadge(a.n);
+  return a;
+}
+/* Roter Zähler am App-Icon (nur wenn das System es erlaubt; keine Mitteilungen) */
+let badgeN = -1;
+function updateBadge(n) {
+  if (n === badgeN || !('setAppBadge' in navigator)) return;
+  badgeN = n;
+  try {
+    const p = n > 0 ? navigator.setAppBadge(n) : navigator.clearAppBadge();
+    if (p && p.catch) p.catch(() => {});
+  } catch (e) {}
+}
+
 /* ----- Alles zeichnen ----- */
 function renderAll() {
+  renderAlarm();
   renderToday();
   renderTasks();
   renderIdeas();
@@ -3365,7 +3429,7 @@ function startupImage() {
 }
 
 /* ===== Start-Animation ===== */
-const INTRO = { t0: 0, out: false, MIN: 1180 };
+const INTRO = { t0: 0, out: false, MIN: 1180, over: 0, fx: false };
 function greeting() {
   const hr = hourNow();
   return hr < 5 ? 'Gute Nacht' : hr < 11 ? 'Guten Morgen' : hr < 18 ? 'Schön, dass du da bist' : hr < 23 ? 'Guten Abend' : 'Gute Nacht';
@@ -3378,12 +3442,22 @@ function startIntro() {
   try { $('#in-hello').textContent = greeting(); } catch (e) {}
   document.body.classList.add('go');
   el.addEventListener('pointerdown', () => { if (document.body.classList.contains('ready')) endIntro(true); });
-  setTimeout(() => { if (!INTRO.out) FX.intro(); }, 80);
+  setTimeout(() => { if (!INTRO.out) { INTRO.fx = true; FX.intro(INTRO.over > 0); } }, 80);
   setTimeout(() => {
     if (INTRO.out) return;
     const r = $('#intro svg').getBoundingClientRect();
     FX.lock(r.left + r.width / 2, r.top + r.height / 2);
   }, 840);
+}
+/* Überfällig beim Öffnen: Startbild färbt sich rot, die Begrüßung nennt die Zahl */
+function introAlarm() {
+  const a = alarmState(), el = $('#intro');
+  INTRO.over = a.n;
+  if (!a.n || !el || INTRO.out) return;
+  el.classList.add('over');
+  if (a.level >= 3) el.classList.add('hard');
+  try { $('#in-hello').textContent = a.n === 1 ? '1 überfällig. Zeit, es zu erledigen.' : a.n + ' überfällig. Zeit, sie zu erledigen.'; } catch (e) {}
+  if (INTRO.fx) FX.alarm();
 }
 /* Erst wenn die Daten geladen sind und der Aufbau gelaufen ist, gleitet die App herein */
 function endIntro(now) {
@@ -3426,6 +3500,7 @@ async function boot() {
     bindEvents();
     mountJournal();
     renderAll();
+    introAlarm();
   } catch (e) {
     document.body.appendChild(h('div#fatal', null, h('div', null,
       h('h1', null, 'Start hat nicht geklappt'),
