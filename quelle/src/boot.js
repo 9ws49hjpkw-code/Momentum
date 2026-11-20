@@ -520,6 +520,7 @@ async function boot() {
   }
   try {
     seedTopics();
+    document.body.dataset.tab = ui.tab;
     curDay = today(); curHour = hourNow();
     initKeyboard();
     bindEvents();
