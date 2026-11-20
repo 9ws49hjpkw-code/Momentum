@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0.4" y2="1">
+      <stop offset="0" stop-color="#1D2129"/>
+      <stop offset="1" stop-color="#0B0D11"/>
+    </linearGradient>
+    <linearGradient id="brass" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#F3CF8E"/>
+      <stop offset="1" stop-color="#C28F45"/>
+    </linearGradient>
+    <linearGradient id="rod" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#E9ECF1"/>
+      <stop offset="1" stop-color="#8F95A0"/>
+    </linearGradient>
+    <radialGradient id="ball" cx="0.38" cy="0.32" r="0.75">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#C9CCD2"/>
+    </radialGradient>
+  </defs>
+  <rect width="1024" height="1024" fill="url(#bg)"/>
+  <!-- Spielfigur -->
+  <circle cx="470" cy="268" r="78" fill="url(#brass)"/>
+  <rect x="384" y="330" width="172" height="330" rx="70" fill="url(#brass)"/>
+  <rect x="360" y="620" width="220" height="118" rx="46" fill="url(#brass)"/>
+  <!-- Stange -->
+  <rect x="0" y="392" width="1024" height="40" rx="0" fill="url(#rod)"/>
+  <rect x="372" y="380" width="196" height="64" rx="18" fill="#B98A44"/>
+  <!-- Ball -->
+  <circle cx="712" cy="760" r="76" fill="url(#ball)"/>
+</svg>

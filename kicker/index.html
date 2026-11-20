@@ -1,0 +1,1756 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Kickerabend</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Kicker">
+<meta name="theme-color" content="#0D0F13">
+<meta name="format-detection" content="telephone=no">
+<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAA3P0lEQVR42u19efRtd1Xf3t9z7v3NL2/IS14mQt4DYgaIxIAkQLEKLjCkg62uVtG2umrb1Uoba11V0FbbakXqWl1dSq0FUUFba2utthAWaJhaEMikGchIyJy8vN97v/kO5/vpH/fec77D/k73vUiA3JXh/qZzz/meffZ378/+7M/miy65jJwXiHj6DiBmnrwhImYiTH8l/Gr/fvJb5nvjlzA9WvRQRBmfBiJmAognnwbnJNrTQOxkzc/h2RkSgcDE7XGcC0PyuNPrJEL3R+ZniksmHCFvvcwVNw+C9kyde8L2L9oHV9JdQHv/pgaC7o6Ccm6neUC4l9QeInil8P4bMxU2vwnns5FlYc4fwjhzcWn88xM/p/0Z5NNA8LIQfA5SL/uR8Fff+wSIKw0iUq0JmDfTXBfmTGtA1pUY1hq97fb5hpZeMFakbS9sFuZtNAwPWX7MMRMQMcSLMI/uGSAk60S2U+0uIbZ2qUdmciYKE6fH5snZx0H+6krPGTwPAv8pia4CpPU39j7HTWX5CfOQU3cLsuwW5laSt/dB+mvR2K1rDh3GXRWk1935NIiHJW9Xk0+TFQOzw1i2kWcTiLg+SL+dWujoz2H/2PsoJF2St9btdXPYQlEQCEHY23IuDyi06bAHQsALc67DIOLJ06LE62AqCSsQWw4yVj/g2qTTI+E5jGzSyHM8kZtYZhAQLgUZOxnktS3YBuF+MLr72cadIT+U2MetX+VJQGreXiQNK+IhzN0+7FFjV+rHsuGnrPg5gxw/lIQmfngAI8ixnitEgilkh8nC6sE6lemGCFDpId3g0g/gFc3CpuyThOO/2cuipHWBd5CogcONKODupik/7EfY3kcivZNJPhHyz9i+FPewgPd0IeT1kH40ScgBMx5H79EKR9yYeo78qIJ9A0YwUoHkU1M5CkeelYwcP3pf4briskzAf/DjV2vdQbYTEHi5SiK1gG3lpdEJHPAkGOwYYI/Ku8xZchXw6EjuppFsKgQYeM9aZgbtbAGQ/CciuzAghAJw92PkZGvxjDK1eXtvGFJMlhNVOE9FGNqwNhgV9kQI3k3EYRzkrAFiLhAFKXledoEghhjwkmYyyIjfNhYCeXEHyYrm2s9mM95HyQrIWw6XmClPENJY1uBu2TJ8Dnl7yIE14T6zyNg2AwkOHIdhQXkxONKDHmAbRKpiYO0g8GAKFKV/sKHl0hcQeO5g4BXhR886eSXA/H5iBeuJDl+sHVgidTe9v+Kcuo17PRyAVPLcDhLf5wIQ18NmkY+Ne9EaJF+cuyXBfwCZ8lPc6aWrINzMOZkVMncaCfJDLuSOmL3baDEQf+AQwGkQTFtR/MCnI++AwQGh3S035oJ9WQijUYmtvoXPJfDJx4JzMvA8nAwhD1LkeBFcI84vtUHwNMjFO8qqg4h9MOQcJPsCxEBaiDc5XnxzszfFsAu5MQgaRNlr6F6vmUqZ4RkXWJ2bRgIp2I+EyKb9JjsIj788iKQcKC2WIuCykCiwUvJ6IMTMwR0k5ocd36bEMDa153Om75CQLyCE8sdwBYgFQY6YU+gLM5sLBG/slr9DRgDKJgKYtW/X56dxGrF+ZBXluSS9S9Z7J4+dgo2DIHAG8nKFKBq2ZbMbUJVVQPwiP8qQIA/mSN0XCHCJRM5ALIMXIk1I3i4jiSIP/4rBtmF2S05E2TmPCc7BIduIh7YIsb18L8YFxV3IJlbwkMqhScyBc6JSmnJvKV5WLNDmBBLEEfAJqRo5hVIgJF0MOAafI54ywHQL4ZwreNYIFrYg3dsYUBHcQeBHFalVRQAJRLZl2lwKaUekBHrfEnZgoAcUZKyE2S05VuPj+C0eomKIJWIPOttBIqZBAMoeMZiAIEToJhuogFhbhESn4EglDikGWhhDQ2AnKwEYzFiKKVKgRqpAGH4sbdTOLfK2J6LKWFjuosNnDReQlmDBy4h7hCwKlvygw/PiCPloxAhwSQCC84PNaGRrX4+0plk1iUBCwtZDEi5usRKyLWQyWzEfFtj9KUcLZ/nsM+leonTZiq3STnvEdQKVwOcuLSPPeULEMWL8XYRqAu7uoaS4vIRCFbnuWA4gY6TISuyRWbXNIk2mjoOoZXBoD0kAnQiC/YjuIIiQbGR3J+wg/ncDV6mCy+Z6aDHnzQAHEWKDCBfDpRTrKGrPQRQLmcXSJOiAZC+M5NyQ9CqJKnyWNcMLswJmGwyMlVzeQPzxL+F2CxE7UID6RCogiYOAIsgEsukUDkQN5OxHiICkYP8JycJ6M6jKcMnY4R0kaoAgmoBg3nIh2pOUd3/k8jDySLSS8TAyK7Uc5LskErEwLUsuBYRIj9GPd9tRssNMRJqsxAQPAvRXVslSHCFl5RNUIDMbQSW0BEQ5vXCjA2RVjHOTUoQBHoRicqY8ZA4ROIfKytDyObPIoEFxmO1UJ5RDGWKXwZtfLnYRXuR03QX5qAgXIUK3Bh7NH8nsk8M5SIDbQnkcN4iFOqRhD8TzNp/24QVO8OL3bIdhnCSjI/uALNY3l5BiEncgrwekbS1ikZuS3QNS5jwFbBRGD0g2D0ACWBDiTGXTbZCuFLlLiKwVilx8t4GzEreqZAnIrCGBipkxUWdmNe+mS4pW5oK8RQ8ksqD0851XgUacV1HSKidGFezzIfMDYwoUx9x0AXWi8CwaH0RGGtJkf//QQLkFUS5F19lBmJiZWehL0kAhGiYHvqayAXI734Rlc/EsT+wBAsqGfJYpsxXog41akOF+6rS+Rm5LORWsRjafHCE5DjHmCvg7pVgxDYd6dzhqGt1llqBacb9fLfQqZmo0Uv7YLHCBnZs2XWWP2AOvJyfcywP76IHQ2jkOF6y/Y3dgcNA51BkUPzb+554Hhyhm5MP3LAYokcKYpGQS8KWBy2MmpXhndzQYNRccXn31xUcuvfjA+YdX+j3VjJun1nfve3j9i18++fCTmwCtLfWISAOR5J/zIwN5qTjH/lvVmPCew0Xbp+F9QCDMdDUQ3TZq12uxdStZ2gbE80Js74iubRqOlHojOX2ESvForLc2B6+89Jzv/Y7L3viqF517cLnfU4CGBqAJGI6aE6d2P/NnT/7Xj97/iduerBQtLdZNA6ki0YGMZg7DoaAcZX6Yg00/0r4yX9CNAl0NIuLzX/TS0MbmhxFZIUX3N7M/4mCdMqG4QGxdSdZvT9/XFW9uD/evLfzTt73qe9582dpKvbU9HI7GTaMJk5cGQIRK8XK/GjfNH33hsZ//wO33PnJq/0q/0ZhxMyXZJ7u2mRedIBKwuGsW9EK5O8hUK6pdQQRvROQo1dq+Q232avsz9vsdOPOhzVMD4njIBEODLINt5VjGqc3BlS85/Js/c/1bX390Z2+0vTuEBhMxg3ny+1O3rRu9uzcajJrLLj7rO6698LFntv/0gfWlhXq2ouFbWqJUEbl2uK7Dq4dkazpMwsmJjBszz4JNnqM1ipmr1bMOzg7SmRrPE+MYOwgLQAUn1sheDs59TgyrndDJUSt1anvwzS8//7/87A3nH145cWqXGWr6AGkYbgMAQU+2YAa2d0cLPfXW6y48fmrv8/c8u7xQA+42KtgHQnkFx/YOc4kRsTYufMZANNH4K3MUzjlO/q3Wzjo0e+wYcttnBGuaedypq+BIqwTH806QJVdYoH+CmTVPlIp4dzi++Mi+3/7ZG85a7W9tD+uKyDYI6NYygEkiCw2AmcZjPRo3b/ymI3c/fOqeL59aXKiA/I4BihmE7VJ5Fp0zExX2TMLb3ez2hPl9WiceOV1MCezngChekAUEhJpofBUsIVfP7gFBhEmFmfQh6Off/oYjh5a3doZVxZ2zsC2EoGdfdO5EMZpGD0fNO7//yvMOLQ1GWnFxPSVSTLTuqwD2oXAfQde2keb6ZIo0tEKBU9knpIlYwQoHUnIb4WcqVgdNFEstO5t9QKXUqa3Bd7/x0m979YvWT+3WimdOYmYHevqGOi9iWY0GFNPu3vjCs5d+6K3H9gYNMwcqIIj3BYUIgHBVb6iUFekmNAyeIMvAPAYbYrfA0+fg5HllCSwk4awy5SYOFmphdjw3jT5rtf+Df+Xle3sjZrIcgzZ3E/M71u+QBrRWik5tDd7y6iOXXrS2O2iUSrMTcijAAZpUquQPv6wJwADCyiKLzobgQouug1Cxpk8EwH4gUgWQaxSALMmYxUQEhJqWa2yKeWt39NqrLrji6KHt3SETxBf5G4z1ZuJXMB7rs1bqb7/m3L1hw8EUHhSQuBWoBmeCNsVoQ04CeL5CFksqdSKRQKVAE+T/LKNgm5byimfvwU9lIiat9bdcc1GlSJs3Wzu7iTa9iGEq5nc0EQbD5pu/4cDKYtXB6inZJVltEDk1Zs9Be0qHAIE731HYXwWRTALYKCOJNEFEvB/yhWrhSFtAchUBwlqQcoSwEpfxrUZjZal/1UvPHgzHTMZuYmStOuAqoDVNncrUepiwN2wuOmfpvIOLo7FmpoTmEQSRu0gDZsSs4BkYo0iSGckegkyVHGXxN8Lt73FDRUQpLa9pIVChBlIiPK0djsd6/9rCOQeWRqMxBbYS8iJQAKQ1edEpgKbRKwvqnP0L40azqNPpx6WYp4YOF6aaifBgahYoB9jseALz0RmUS5+IigQFBL9Ssk/Igb/gSoEhk1Qx/a7WWFmsl/pV05h4xjTeJNeRyNmK+Tta61rR2nLdBHgLQv7OBeTSQKgKKpIWl+PNlgiHImtw2j5qoYU9Gpq7tRdmqVGTCrEsCOMfsgOs7gyYZoCXNgNPsvcXc8eZpDSG6Ti/xuwRJyDP1EBq8RJsEBDPgWjGe7tQnMtYJ5dqh4yPGKAAeS2bOpUwSGQ1S7WY496g2R2MiawNhdztogPBPMvQZoBChPG42d4bKw7oQYT7wQqyeiO2m8M2gFh7ORc5LqPMPPlaIcUQRPopyB2QEZN9KtDWlA21rtSpzcGzJ3cqRRb2Zd91J1uRMlsQtNZQRDuD8TOnhpWyHukiTBPx5AER0dssy2AnsPApBVlW6tA1ph5c5XakOl0ByAh2A8Mw2PljFOGEQGDWTlXxxs7wni+t9yqltbmzeLmJ9SM3s51Yhta6UvTEicGTJ/b6tYLbwZO7gTJcjSq05DyUQh1C8mhRdgpdvy+CaG2PTKpQIRNJzk4khrVknzCPtqZMwukqPPjU7Y8Tad3efg/PIC24CiM60TP70P2abrv/1KntcaVCk0tK9ZXN1S+DvwRepsH6NDmF2cdEUBl4dp9UdOAL5OazAjcoinYgb8dCaLaTeFpaY3mxd/Mtj33piY2FWk0efw/PaN2Gm5tQu8VoTNz13rD5yC3P1BVjjntoRwW2x0ehp2BHhlLoHMzVPUIybjB3GhXIKv2K6xy0NHQsPxT1MCBm5/Byxpm99Hvq8eM7v/PRB5YXq/FY+zkqCXmsg5wC0ONGryyq/3fX+u0Pbi4vVlqXoMFw9eF43qTU6LDFPESPDJHisHIRjNoKkNJ4pListVDggzj2LNKEDk94r7MKFpoj3eNojbXl3m986It3PnhiebEaN4ZZaBMhhY2pd9AGoLVGxbSzO37vTY/yPAV6AJlSzsE2GgCAgf2Ep9hkaMpzHDRCWFJLeQX13LTWU31EV/6IsB7CopCcAbcGIPc25KBepU5tDX/qVz8/HjeVoqZpyKBukBRqaAMU0RqN1qtL6pf/98N3Pry1vFBp5PEXpjd1xljyypNzYRU8l5AvYhrMiLdcWkZSrZ51wNrYuai/qY2EbMIXz+lDOe4zMyhYABb79X2PbTy9vvuW11zYNHrcaJqWaLXWJpNDG3EotRHHgdX6A3/0+K/e9Oi+pVoDCRKce4I8f1LKHGoG5uKOIKO5JzDqN3rk6T2tVtcO5FwRAnTF00HzvCqAsXf4VPhsDw9geaG+5d5nHz++8/pXnFMxRqPxjBfJggmDAN00YwIWe+o3P/b4f/iDLy/1K3Bi7CnzrCLGOM2FmN+siNx2kvZo7JafpIoZR24oH7ngaJ5NdmRwNtOxbhY0ZXYcWM1SoVFYwWnPyOprZupV6rEnN6+5/PB7/tnrzj93P6leVVXTniVnc2maZjweDQeDna2f+Y0/+90/fuzcw8vE1DRgu3nHmC5tDN3FnFxNB+TkOYkMkmLf7Kzam4NYJ6Z0z0DEVK3uO5AzltJwm9Lg6wzhLf+OZnPxs3j67WEUMzSd3Ny7/i+85Mf+zmsvPXrBwtKSqmpmJiZmnnXNTlpnWSmlqqq3sLCwvHLsooP9vrr9/me1Rq+nJmGDbRDMdLpbx8zns4lx8nzCANJfcnqaOueEDpbn8NveqHMOc0vuMVm9fRwDoDnCX+VQlmtuRop5NNYE/Mu///q/+53fyExbOwPdaLvgom3QvEM+FntVr8cf/ZNHf/w//skz63vLS3XT6MktPZ0H3KpcMMy59Bm+x7strRO3G4flgmB8wF5o5MfEc6zsO8BuPAp2wxcOPr2cE6iA/D7ehLJzXv+UUZklIqVo3EApet9Pv/X7b3jF+sbu3nDMJgw33VNmUg9wRbMG42Z7Z3T5i/e/4ZVHbr71iWc3Bgu9SuM0AqxuKyLYDT0lLojlTnJja8voI+Os9TSstlqbbSvsdiCT3OOV8vFG/6CcgHDW2cqJC9wArPvWZL0Gg/F73vGWv/bGb3jq+FalJjKrBvrpjwzrsNEppKCYtnZH5x1ces0Vhz/0mUd3h+O6YpxOxGlYBJfxKjjo8G3wgoPt2AF4SortPNFBTsk+ZWm9imQf+EAFfDARacGkLNknUKX45Obe3/uuq//Gmy9/+tmtXq1aNAnopADbWuz0S4ttgLab8uTW4PIX7/+J73/FYNgUtqZAmA6D/HHkUQXTrKk9ZXL5oU4JJlSr+w66iAXmACrc9kUW8QCOzwuKORMLIWUHMIViHgybFx056z0/8WatZ61sZqEV3TfJogJZIUjrSBTT9u7o5Zcc+NMH1+99ZGOxX8Wdx2z34C7YpKIGtHCaaSoecDKvz2uy5dDESKtHUc0KO6Gxa/F+Z7lkwvEJzsiSeEZIit8sYM32larmje3h991w1flH9o8bquq6qitVTf5Rqqqq2ftJcqKMFxvvmNU0g+HpN9727cd01npbiwGkZ1bEOoMgE9klUd08RSJJv84kPbAFyk5/u2Y1zfCEjZ7jlsdsAUpwYs8J6ARnzmJI1aRtHjX6bk1Pw9b2zS1Jf5JKbGyNLz6y8q2vPPupJ57aG4x4VgztkM8puq3b73V+hTwe8uzdYBeXX7T86ksPfPbu9bXlWik2G6utJH8KiUyaTdF2EBOoAxpmoeMsX4E3hZKnycvk+niKtLVCemy1XPM0cIQZ+be5C2aN1K23gbGyHRG5Ba/YOy7vP/uCrg+34wW0Ig95ZZYuIeP2tBjdLSRBFSiExgRDXEi/y0yjhv/Saw6/7Q2H+zWNGyQoKlxW12QmxXzTrSf/802Pj8ejqX1454+Z1IE5OQ5lYDEE/27chPDAyXDqGviE9i1Pu+flO10fveQSX9PHFQ8mcXru3Pm+VZexWJBcdmBmGozo6NnNP3jz2qjhcYN8+kX+q9H0Xa89uDOqP3YPLfe7na8Q8sjLLZAsGCBf4snMRNgeqoEM8IMf+vITxQLbZYHqGb9ZxjpoXS3uO/75X33qtv9W9fcRNc/Jx7BqhjtnXXjVBd/207oZMdPXyave3d2TtMw4g8CM09K2KdGhCE9hayr0drY2uq3yuTkTpdTeztbOzjYB9HXzqk9tbE4iJDbDBUsFS3jfqsZYf8UzrTrxT5jtiXjWr5kl7/zTIGjuYzwes3rOH2dovbGxCejQ2bqrYfxUXMAAcjj/apzZ02Diemtrx9ic7CYlU3vG4LGQGWt34C2sn4p/IuPKcIDZgtMgTQPGaMTPqQ8DMXOj9ebWNhnG8bxbjTN5GkRM9cbmJhvlNeeA1o1wTgM2sG8Ui+U/cYgHydVInQaBiDQqvTAa95mfa3evtd7a3GJoS6PqebMaZ/I0ZgFsvbc3+GreFrVWVd00Z4B7lMqLNLC3N7A8x9d8zPHlRx5hCirVUuA9+ym2qYYmypnlyrTGdTqt82DWI1p4MYarlRqAqudmbwGoIhqO6aGHH6mpsUAtMyQghOR+AzVD4yEVpWw5SKTIvitiP1tuEsnnXfQS1zhMDgYXoWGOEDV3kqYAM8MsXaMoW+m6pM1iDTMNRjh67sLPfd9FdcV7Q62UBUKwjIBxkWUopn3L1S/83uMfue3kymKlNVkQaZ7QrvEEBYavcA6NIagEDZHV1VlslnU4R+bD510cUTCmDAKgi5/JV4F8hMt9VFr5XSlZVUy7Q1zzktV/eMOFh9Z6Ey2Nwv5VRNXTedTgg3/85O9/9ni/ZpkFB/GmxLm9wWKZCYmGs5WUZHLqriADd6w70jMbZVFQmNsjnBjbj2WL1sM6P6a8x02ickw5frPzagcUEIjWlqubb3v2umte9o63vOqZE9uVYkutZVJ0Jadt2qzcakkxDASMG722XH38tmd+6+NPnb2vrzs2MCyc3K5qsFeBsv2MhzKzQP9oRWFni8jsFqICayi1A5h/wfaOSLa1mQetpR6G4BAE9prN2dH3n3Elpxw2sbYYUr4x2JqTAlS7FUlSA93XGtTvq35P9Xr9fn/S2urIFDtSPk73iia3kWVmOsyVqirFKwuKyB1KwjZNxvgh291ZLEgLMAW0/LryOIMDFA4gPjApRMyG28seHAQHEHOd7BvgHBJ7uaS/uBzuYIJcZc1Zl6PWWjcTlqZ/123qqHb8hKP3Mu2E0xpgPdHAFvlZCLO1cjgKEPkzoOB+lUfF9/o7nMcdeXdFUXAMJkL9igi3ZlNRi3SAs1ecloI8OUePT+VQwqwWXNjKdnCnvsLYZjk0qThvLhDJYz9F/U1QyRD4Wb8hAv1sxeqPDEXRWdjsbY4QVC3LFH0cSTMUCnTEBj139I2pEXQMDYI5Ndgk1ZisQbJJhK01deOZ4O7mUYoeyTOdpcXmufSt/eZQllWXysQZJmek4jKkQEBes1QFK+BtUT77lGL6QTA1CqY2YfCHjbtuUkjhehHLTgxTI2c2XNlUxzD9E7HhziGGLpwJr3mjR0U9doi3ZaZ9jrg4kxy0FugyAZIQ2ByUf1HqwFoyGHtH2/BuLWc3j1WwGFiCO7DOOGtSqfiVHH8Xqj+GBmR7G37iiJDCUMnUpWomROGxMl250CBmnvn+Qj8Bu3lwFnG7cpstARxdZ8rMCMhgC85mDXhuA2RaTPuLCAIkcMn1HNE+Q7HaSlT4ir1Je3OMm6Dw4Ftl6YoLzQu5UxXSAv+YXzAPAS1Dd0QeWbEC7M3C2hRCboMA013A1+LJ0LGXniNpdAlKppUjpG+M3Jl39jIgOMnWUPaRZEgDyvdUoPzoHQmF5CBzshvBVcFyjZ7djIS6hqXOZRjdTbbbMK3CDUgpPKQypykABcMAwk825hleHb/7waTHEm9hIfsoiBP9iSswDQGgUo7+FC8Pz/mRda2MhwPdFuPmpG0YYjaqGD7H3GjMVjgKzfu1g00Eo6FyPB9BtdmYnDMCOBk4soOI90B1hzHvSIm4DwQ0HYUqWIDkvKy+oPjcbFjyOoCXbxjxA6wAHYYrsVTS7Wg0KT7auf4ZaFwcWLVmyVIEz1lDkiBVdRAJji380k5DlGcQ2bJPcOFkmM08KNQmoOCMmCxT5a77RMwFzPjSdhskjYYwcQ8bp/UFyuBiFYHpJVmavf7UkHmYupAn41BAC1hukQKrfORKdH6deWDu6WfUWYaRb2QbmRMXQEhNAdliurjUchtmb60Jp4Z2/gJoISi0gSQygniugViDMShT28s4yHSkZpGSdHjK8dwSqXPLGzhWaqOhHYRnt8KaXxqIl+012gwWbmxshZhIJiBxkW8kZFmRyGUcOefchi2QFM7BzmhC8tbkI5iA32BJp9l4QJhr8ClcKQnyBi6ig9Jt4A82ZGImLt221EXV5qbinSyKR3GRNNILBeWPafwPD2FEaFgaZBDZmwUqgmAlmvfgDkXG6Yn7o82N8qoAWQPSTIirXQV7p7DdhmlK5Mi7tLcRVtFivscAxuPlKvjm5aK+8m84X4nNf80beATfOGQpa2MQ4az3dQ5kU4DFUilNRk3S1+82PUGHn8H0J3ZWIn3Z4WhwUNCYt5NrEPAn78Gm9s2lm83JHRnBKaEByQXv6EoUe3WEFQCeJzqAFVHN0I+cnSRUn4jP/oA1rsraLMxinJ+VGLuoIAqFrJwpA0RFbvnDQ0tgnSxS9S1kjjZPkQsUQ4Z2uHBSsriDmGAOz6MBHp5eDWECn6WtYJWj7KxDdhsm9O2YU3aUJUvboRDT5Ii+T2R8FoLDC7wdJDrcuc0XlaWS0Mo+lRVBEJ83E+EKxaZEwg63kOupzFvsug1IFgOyy/o2fI5oxS0ICtq0oiQghgCKlTmsKj4aIy8WYGu0ITFBGXFbN8BhXkYFzB2EswutUgUTFGBO+jbubAuBGNPwLa4smKQMZvuOWO3DypsJEk2qgIKFrLoIR8rxTnbKhRSf7s1Mbm8OCMdArALDXcpxeIpOE+PMv4a0d5j0HwelMLB2q94GCwVOYBh2NoO4s0MsRAPlDTVO0razHTVkEGoKgp2muL/BvJtD1MaZ+gD5IzhemUSXqsCioroxpr9xwE6e0LqN1jQAOS91vpWUKRLBKy844NLVy4Di4rPVWJzdFAfBonMprZYB5kwVuyhS530Uy7mXj5e0gEmHXHVsUDvGJAcWFUt0ZBE8ECuc+0TbFL3YbccIj4sMukYI9FOgNP1zoxK4OInKvn+wk9sIhyMnwkAg+gzlKumRlbBmnjibBty9w7IYuERKK9eBmE6IQFb0ulkWCUQwKLFyEH8qtFEEmROxRuKOqUwKFs0z/TTGoUIpaSWKHhDRYDhug2or5HQ9L0ABsrG10bR8VBqM9Cywc6v4GYA3AgQHzOVXkTmGUGTBd8Wk+HxPhOFzs0vDoWDNWb4NDCIE4rBGwTg4Zjp+cldrDS+FkNsOfMZ5Kx9q88eY6cTmsNGQxsRndjAhAkEE/9pjwmXWtCDALkisJkKz7O1qt1Czw2kM4YF0xxGixc4j/jzp5+pV6oHHNnb2xoqdQNN1G27QAZvqYYUmUy/0wBM7MY42eYr/cFBODrGGEHQVkCktnAN4+AATB3cQxAJdNZtMCWlMZH5IQeHOuRzFbgTCL0RmW7a9hFpjoV/d98jJR57aWuwprTW5s+x1N5Ncg7QmLTZCTkbB6W7uMNPOoLnzS1v9mtOtmVZ7FceZU4n8GAHKarrmCYmPh0x0AXYThrJnJhcZgn/xCM4nLArjKWNIJSzPtNivnzmx89sfuadXKxCzqrjTra46SetqIlpdsalvrSpWlTL+YVVVVUWslvrq43ccv+OhjZXFGolHHmKRNavqEXmsgeQwBLmRFYGWgew2IxBqhkgRLtk57CNMvzIsnpFfEERQYzI8xEEpOn5y58UX7H/xi87rrx48uDxTx7LkrcN61tNNRsMmjzW66bE++xy68tjxux86sbrcM7QpDPkCTgnQBqZaCM1BeYCmO2putsBsdgcVS8K6M+SZqVpa2WdNdplPLpTjwxkKdUelHY4DDQCK+dTW4G//5at+41//1Tdde2xvNB2sJJ8Dd7pAbI/dY3u+IxOxUg3UZZcc+u5vvWR1qffpO54kIqXYRo9cQb4svRu3+YlLJX05PsOP00cz+vuDZftqeWVf3i2EDFSyMGeGsybABAgqIQkiciZ0gogqpU5tDX70b13773/szUTY3B4wOcM0/C/1bGZ9N72LhEn3gNYEvTscQeMvXn3+BYeXb/qTRxSr0IBTh6EpmbopAsWe4klaJg3ijShGHqdOj1ONN51xUKHJUlgbLe0NIsUS9nmwMMRpjFNX6tTW3g1veNl73nH9iVM747GuuIXQbazDpvNE9hp/62EiDb2xPXj1ZYdHY33zrU8sL9aT34gIlnDk6TKGmIciDXscSqcDxWRPOEDAGNO3kCn0p8Znx40DEV180YFx0WAYFuAKk5LH0YGt0Oj3q//0k9cf2Lc4HI4Vd3edDNMgyUqS8YfVVA0w0c7e6KpjB//41iefPrnXq1SuYJUpBIuswW4sjCfiBGuHE1INpsKTO2Yv/FIZpRkkefJIRI1ICSfIMT66sWLuq1K8uTv8lmsuvvIlh7e2B8wTuSatte5mTU/eTv6B7t5rrWdZq3a+M/0TuL8APRo3+1bqt1574d6gUZy4fAQbjZDdyGIT4EC5vPYAfShLAcbmH9ZhDVL2BQpPDyeV4nUOxfBhkHkm4qkbfd1VF1ZMWms26OTOnuLuIO6mQ6Ff8L8cDsevfOn+JWPAPdK6KjkjEyNqiyjEHyFGu05bGzhLsqsWrmd2QOFaE3xx7woDSWnEVWQuAghVpS48Z3XcNAQNcDTOMIus3eT6PDOaSo4RYTSiQ/sWVhbrwahRMy07ez63fTvC7G+WOg44mu3mY0Ns2QBkgwiA9oaloPam2ZI8ATs2Dzk2FFj8Sw6i5hwL0uyrYqa6UtM9RIcGcpEBgFLUbnzDsvoaoLVmqhjdMC/ywUzkcAJZRizYUisr0Z3zOUdpNc8IzXH249rPdU3pYVDpKNTwnXWzYBHxyUNQW35QGxMosnNXAmn37sbTE8DSFPP2oPZTghAhYgADM7NixUrPrJZnA9y01gBky0AasbcnRFt7ByeoIqGIdGpbNXiaXTloCKf5wCT7G8/O3DfzVfE61KabCTgZNq6hWROkHNW3CTukKPAlM4FKHSu6So3Jirmq1HA42tncacZjruq6VkzcaN2MR6zU4uLi4sIiCFrrosdN7n9xvBpENrwAoPiWUrOUsBfJn+Y9/938BkS6laRJyWblmc2FmGJaGlrrmWpxwAhMQyHRbgQrmUDqs8hDa60VY8oKyBVvqqtqMBycXN8659xzX/va677xG6+69GWXHjiwn5i3t7cffPChO+6445Zbbn3wwQd7vd7K6opudOqgkGpsOfoKiQ2GndIyUy3WkjkYZyM4mdBB0yGCK/O0rdhwkFPcbtNUjkIXFpMDqWqL/SV1NVvNGggtveN9J/vIifX1Cy+44EduvPG7/vp3Hjt2rN/vN1rrptEaxMTM49H4yaee+thH/+i9v/a+L3z+C2tra1VVuS7EC0pYkm1DjCESAu1AJLkZJiaqxbZvhPaJeFIqkBBcmkORwEMcMNKgnd3RNBpVHgwatJJATtsFsAF3okEVDQbjcaNnab77RJFhGQBOndx42/d+z7/4qXcePXrJzs7u7u7u9vZOWxOcwivAvrW17/nev3nDDW/9tfe//93v/nd7e3uLS4tN05jzSCAZRCcWQzkKj8hZ4W5kxgQE4zxpqhBbnknmMDGFKZKI1+InbS8OtdPJf7nR+v5H1pmhO3Sr1TS38KsZwOXgXcZfmVFnC5pN4bDZX2ldMz16fGdrt6kUh3CuCd8awM7u7r/9uX/z/l9775EjR06cWB+PRr1evbDQ6/X7vemr7vV6da/WwMmTJzX0P3772z/4wd88++yzd3d2K1UFpeNBeRI/MahaIou7nHQVUFlHUr1ZZHOUBNqJhCQBCQL9XvXxWx/d3hkyYQZv6g4nnd1gCxjVs9+b/aTVTLd+wfyrSdAL3TQNs/6/d54ITO0wFLCZtra23/0L7/qxH71xfX19NBot9Pt1PZmfPuWMmBPSK8W9Xo+Zn37m6Wtfc+2v//r7Dxw8MBgMlFK5PB1ZLQwSiypGybTnmKNa6mornNbH8yIMtnPVshaY6dG68WRcEo0s9NTDT2y+/CWHrrzk4NbucBKSSltGW43T9pfhnNbYYCb/bbRe7PGjx3d/8X88QEyKhdL85JLqqlpfP3Hjjf/kJ9/5z585/my/16vqesozYsVKMXM3xoQmBLOpOmul1ObW1sUXX/zSl73sf/3+7ytVWVkJzz+v1y+0SMdxx9pXSytriZsSmEedTu2jNAfI01w4UMAXDsVMGvjT+49ff93Fq0v17mCs2IsiKZijBqAOcotzhKbRimmhxz/zwXvvenhraUFpd4DK9JSVqra3t6+++upf+ZX37O0Nqqqqqomb4Km36CyDDQ2QTuqBWW1tbV1xxRUbG5uf+tQnl5eXtT+xe67pvu4AsYxyf7W0vBYcqGZOVBfUeQsHZ7h2BppjXjW6uSwA9XvVE8/u3HH/s2+85oIDa/3dwbhp2uLbdLOY/G/6xvrSqMehzXtmv4L2d/VSX/UqftfvPPAHn31q33JPGzN5uklZmAwMosFg8Iu/+O6XX3nl3t5eXVcWQbFSrHhaajY6BMwe3kkVdzgcXn755R/68Ic3Tm1UdSVVxYLTn2QCT9qEEDYONw8LUrDKOCoUgVgsYkHCVThqJbMBqgCW+tX9j2187AuPnXdw6dj5a6uLda/mfs39mhf8N73pG+sf45s9+81iT1WK7nl061/91n0f+vzTa0t1JBdXSm1vb7/qVde84x0/vre31/oMxVM+a1WpCWUXpuaYs5ERABoOh2cfPvzs8Wc/9clPLC0vQyOTCAEvb4I5iBQRQEkCaeTxMZTZxZ0rrsFB3UtwJEh1HhQpeB9rrC33Hnp844fe9cmrX3bo9a848uIjK4v9ioyW19Z1G//TRGRyf7o9Zfaf4Vg/tT74/H0nP/fFU7vDZt9yPeleYSvQMixW8Wg4vP7661dWVk6un6yrSmjl9RtSpRBcKTXYG7zpTW963/ve24zHUkiWAMDN4dLEKZJFIMutzaFTnSHB7eaMBUKRSZ+TOeW2s8lSUOSkWH/3ajSW+jWIbvni8c/c+XSlFLNNHbPnmnKAw+QXABsNxbS8WK8uVVPokm12heFrm6ZZWV299jXfPBwM1UQUx86RQdqKecjQ8bfbcZl5MNg7evTo0aPH7rr7ruWlJQ0k9woH+bAfZecxzNrQ625isc04RQ6rRCYwwG6yEiRXE8Mxu+FpJhdM2J/anzUAEa0s9lbY1J7kQiar5YMnpzG5jY1OVJuZeDgannvuuRdeeOFgMDANQ08iCa0ZU4vRbYtMRzYz5LcBoqmpHT169Pbbb+flZQrIiJnzxXOKGEmYjA12fR31/4V9d8FiGZXBd3CyLrjmFjhOA8gCqShqJ5qSbwFTZjrRsMbM4/H40MFDq6ur42aslJoYAGuAoEljMt9yWks2QBZzTCFZM0EUq3PPPZegkwg1WfX+UMENWT1ZPFt3cA2p0Hc6QqPijUz1D7Ld15m4JC+BlshsGeJ0kJmsEN5x1hTCxcWFqq7Ho9FkCu70xmvNmKQpXb1whuC2MJv9Ikwy2KWlJT/z7+r0CGFanKMVwvHbwqhbHm/WeBgOyMAHwBTkpqoCxTJu+TDlEljUgc8Pm43Khc89yd2gwczD4Wg8GoNIQ7NmIj2twDGD2dY9nBZWLPPQpnmQBgaDgWgFnBAsSPe4scd9nubns9HOANfpMVT+LeJ0awJTnq3NN/Yp0cSc6ScCsyUR7NGLy1VUVbW+fmJza2ttbVVrMGkiBdIz4KvDRdGGHdBW8cdxHk3z9DNPEzO81YLg1nBawkwSOUXN062KIIEcOWWggKJlvJjCuUpzudeBuRp4pTlp0+y31+s9/fQzTzz+eF3VzRSM07rRzaREr5tGT94303daNxptvccKQTSYeWd390sPfamu6wnOYRmEMKi1tFmxC4A54OJVNqkCAWeFsicfQn4ASog5e5NGc9vGSZgSbIo/BehuSHbRC9Mr6rra2Dj1hVturXu9pmm0RmPah56Yxuy9idcaWO4Ev21006t7jz7yyAMPPLCwsODRz1DsWx1VCWSRU1VqLBPIn3UtLVNWDgJ5CEiiExmuwnSOOn9YBBsyma1gFwSJOAKgVPXhmz48GAxm47Fbs2h0M/EZzcxnTE2kMS1j5jmacbOwsPDxT3xi/cSzdd0zwDPkC1j668HdkPmsp0rJY6ydmRREc401dKbh5so+cVCMoCDRlndCBIrPyL2eyDDERuvV1dVPf/rTn/vc55aWlkfjUXv/m6l5zN7MvmgsH9JyBxql1MmTp/7n7/1e33UbPE9IYU49IuSrKCgp3Q86E8yxg0iuG1HgAJQcdptjJJ7vBIUEYeJKjIKaGeTzZsXDwfCXfumXATJtQndmMd1fzM3FeAOt9XA4Wtu373f/++/efdddS0tLWmvKHvjtcNhhDxopjVqrpeXViZexmRns8FeLyvGhluuUL3fOwu+dDnNCwm1ThXlUV18UKjwhUgV3slmLS4t3333XoUMHX/u6121sbEzQMHTI6BTDaOPPWdoyzWyHw9HK6uo9d9/9znf8BCuT+ZHnaKcDVTsYiOcU1iAiqhaX11hqbeeCYqkB4TJyOvTCY0JZoGVGl2MGtrBFbZ53NppNsE1JQQRstdfrffKTn7zsssuuuOLKjc1NZmWXWSaWYbDVZlYyGg6XlpfXT5x4+w//oyefeGJhYVHqhHArkuwVJ3lea/CNY5W9XjzO3z6Yi8QbEKOhBtv1o1hFXqLC8WfPNSX2FH7zgZiqqsbj5iM3feTYsWOveMVVu7s74/G4HZNkuImuxjJumvF4fNa+s5588sm3//AP33Xnnatrq1o3WW76TNmCvK3IDMA5OUcB/lykCJbkfsXaCeX7i8wcBIi7tKCRhZj+U/W9uq5Ho9Ef/uEfgnD11d+0vLI6HAzH43HT6JZeNMU8xo2GXlxcWlpauvnmm3/kxhvvu+/etX1rTdNEHAazER3zFCY74ybC+w8d4VxNK6cCiNA6pZfb4QIUMAy9PcpvnylUDmd/tmqkCV1u2oHQt6KU1nprY+Pqb7rmB37wB17/utfvO+ssQI/HTdM0k7rahB+2t7d75513fvADH/jQh/4PK7W0uDhuGg7p8VjDazAHn7TMOMIAg+lhWwoWkkEAi2qVbIo7IOVMBCqcczuDt0m+Eh/ih8AGoHh8FDNAqZjASqnt7S2t9aWXfsN111135cuvPO+88/ft21epanNr85mnn7733ns/89nP3H7bbTs7O2tra8TcKUpY5wprnBFnFTfPmHEEk0HrPNjxGyl3btRomYvKvbANYmqY0R68ZHWt9b2I00NY7CyFXbSSiDZ+qQlQqiKm3d3d0d4eV9XC4uLS4iIzDwbDvb3dZjRSdb28vFxV1WQrgRvRoWsD5eJZV2fOOEJNqhTLQRARTjDYEXEHKD20LdUHRZ/qRzSOypZ8fUF/k+hEJsmxGh52+ruKmRWjVQYAWjr6JEB146COt4ZJl9RzuoOQzCGFxbGPMDvFZwyxHSReWIkJFaLryQt07KaWif1tRgLApaPJbYI5oRVkdScQkQao6SiiU+BjZhMeXAHzIoBiXPiMvFoFY1uAlyF2XyI3QxSGZmSq58OUnJpfBcudIJKoGiem/iJEoZDmzyGjgueOwCYAsgY0gD93ozDgc3bnU4b7jlismgKZHiLaNY3gaqcyHwgNmgjC/m4bJ+LK3dKAFBsyz5gfki3I81whFvMah9QKTdH2V2lkUGi2Y/bzDbKqYihYYfZCxWyMDKXfhfdQAMUCTRAdEIQpR19x40jMjePUrBirZRcFU3QgNpDTPKxV50FHopkhdjF+tQJyv3SuTnlkmhEL6gTPI+tQgbE4VrSFSA99yYOJhMdPuwp4XiU9YyZtI+5gmfCcTgQ2GGQqPsOOOkDA88kaXOPg1KRXYRb0PNdjE99DfMMg9NQ+sIAjMYLuEcyOVBAKboTRPR29FFTIBPFnEbBHmXk+vxTiYAECuhwo8BbCGJDC3AzC9BEg4vkRuYvIMEJ7B0FBpBLXqQGYvnpeyqlASoN9kB7pGnympnOgKFPxN0ZaZl83JjogKm+Ic4CKZDPzUNArJrphPB9DiryANB4SZWOagWcalNc0FuANQzhOQfyK2IBPOIUVzPEB/lRDpz2L8VWwgwRT2bTsU9Q+EPQwyJY9nA5lZDEXgtdbDwp7j9wGCbl3MG/DC/CVLMAF4K8kgHXGQDCRRVuofj/DpqPy5WnB27y8luORQqKEA7EHpFSvChTsymVgzrD9+WYcjMw0G7HoAAIahKweEL8fEsnZeRkNgPA7kKLqrlmwd/DsMYdI+VeF50jP0Y3MLwXlKpiHe0CQbAegGBie5dlYDIii5yDFLPCHoz+/QM3nGiENB4t2FQNFDwqiQ0YCN0hUcQl7CHk8hxPqsllKK59b5kCaTF/DL0XFWBYyRw3nzJNBpAYX7BKRS6QQB6SBXK0lZE+hFzxNN975K1JD/4rA55GpMU4QwOVaMSafAmZaKjz+ud2VoLC6lTsBmMt6SoXoyU7H8TVtEBHPASkqhDm+icr7BxEPJnLlJQIRB0fIGZSsgERDmpaVCPr6sYhQbSXRFomsBoVQioe0wAxSg0WEnFWoyQYqfQXCBLP9iOmrDtU8w9sKIBTQS4UJo9EHKONooc+AWEOXxrWnUw+i6Ax5IJT8fp0aB3URFhCCsJmyq2ws1dnE0m5Z5AKx0OKGq4nWgaB14OvdDoISDEjc5WDFyu7eNkWbkzeHM8V/2mNzYqYEcmBVTy0Mhpd4wTySqexcROcMa0Ay5OSgbIyz3yGc4uaOi2EZDXvh5SOkyFGWcnQ2QJmksDwME6F89gyqYM2SMOCrvSL25+k5OD3wByIyhCSvAqFUOWQgkMfZFatguSQbeKf+wuv04HOIJSc3vwywQyPpDEfr7SCEKHwlO51lwTzffvmCcUSobvBLTkTZdPGg7iAQziez6oAhJVE3OwaAFyzitPpWBKQCQhckiloILP4MAo82ElFqJoO3MwyeVUu/BivoXwkQLCqfHooFE/yFvKCVTeINUpOM0y1NhuTqC68z5zlkdDRRDxODDkRyWndIL6LCC6GUyRs87Kh3vGAaZ+pVC1I9PE+vGIXnBUmAKbKaGaLTCK2A+QUI6zl4/X8jRnFCXXsXywAAAABJRU5ErkJggg==">
+<link rel="manifest" href="manifest.json">
+<style>
+/* Layout: App-Shell mit Kopfzeile, scrollendem Inhalt und Aktionsleiste im Daumenbereich.
+   Auf dem iPad quer: links "Jetzt spielt", rechts Plan/Bracket. */
+:root{
+  --bg:#0D0F13;
+  --surface:#15181E;
+  --surface-2:#1C2028;
+  --surface-3:#252A33;
+  --line:rgba(236,232,224,.08);
+  --line-2:rgba(236,232,224,.14);
+  --text:#F1EFEA;
+  --muted:#9097A3;
+  --dim:#5E6470;
+  --brass:#E4B76C;
+  --brass-2:#C9974B;
+  --brass-ink:#1A1408;
+  --brass-soft:rgba(228,183,108,.12);
+  --danger:#EE7B6E;
+  --ok:#8FD19E;
+  --r-lg:22px; --r-md:16px; --r-sm:12px;
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", system-ui, sans-serif;
+  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", system-ui, sans-serif;
+  --font-num: ui-rounded, "SF Pro Rounded", -apple-system, system-ui, sans-serif;
+  --ease: cubic-bezier(.2,.8,.2,1);
+  --sat: env(safe-area-inset-top, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+  --sal: env(safe-area-inset-left, 0px);
+  --sar: env(safe-area-inset-right, 0px);
+  color-scheme: dark;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0;background:var(--bg);color:var(--text);overflow:hidden;overscroll-behavior:none}
+body{font:16px/1.45 var(--font);-webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%;touch-action:manipulation}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;touch-action:manipulation}
+button,.chip,.tab,.seg{-webkit-user-select:none;user-select:none}
+input{font:inherit;color:inherit}
+svg{display:block}
+.num{font-family:var(--font-num);font-variant-numeric:tabular-nums}
+
+#app{position:fixed;inset:0;display:flex;flex-direction:column}
+.topbar{flex:none;display:flex;align-items:center;gap:12px;
+  padding:calc(var(--sat) + 10px) max(20px, var(--sar)) 10px max(20px, var(--sal));
+  min-height:calc(var(--sat) + 64px);border-bottom:1px solid transparent;transition:border-color .2s}
+.topbar.scrolled{border-bottom-color:var(--line)}
+.topbar h1{margin:0;font:700 19px/1.2 var(--font-display);letter-spacing:-.01em;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.topbar .sub{color:var(--muted);font-weight:500}
+.iconbtn{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--surface);border:1px solid var(--line);flex:none;transition:transform .15s var(--ease),background .2s}
+.iconbtn:active{transform:scale(.92);background:var(--surface-2)}
+.iconbtn svg{width:20px;height:20px;stroke:var(--text);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+
+.main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;
+  padding:8px max(20px, var(--sar)) calc(var(--sab) + 120px) max(20px, var(--sal))}
+.wrap{max-width:1180px;margin:0 auto}
+.narrow{max-width:760px;margin:0 auto}
+
+.view-enter{animation:viewIn .5s var(--ease) both}
+@keyframes viewIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+/* ---------- Typo ---------- */
+.eyebrow{font:600 12px/1 var(--font);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.h-xl{font:800 clamp(44px,8vw,84px)/.95 var(--font-display);letter-spacing:-.035em;margin:0}
+.h-lg{font:750 clamp(28px,4.4vw,40px)/1.05 var(--font-display);letter-spacing:-.025em;margin:0;text-wrap:balance}
+.h-md{font:700 22px/1.2 var(--font-display);letter-spacing:-.015em;margin:0}
+.lead{color:var(--muted);font-size:17px;max-width:56ch;margin:0}
+.muted{color:var(--muted)}
+.brass{color:var(--brass)}
+
+/* ---------- Buttons ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:56px;padding:0 26px;border-radius:999px;
+  font-weight:650;font-size:17px;letter-spacing:-.005em;transition:transform .15s var(--ease),opacity .2s,background .2s}
+.btn:active{transform:scale(.97)}
+.btn svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.btn-primary{background:linear-gradient(180deg,#EDC57F,var(--brass-2));color:var(--brass-ink);box-shadow:0 10px 30px -12px rgba(228,183,108,.55),inset 0 1px 0 rgba(255,255,255,.35)}
+.btn-ghost{background:var(--surface);border:1px solid var(--line-2);color:var(--text)}
+.btn-quiet{color:var(--muted);min-height:48px;padding:0 16px}
+.btn-danger{background:rgba(238,123,110,.12);color:var(--danger);border:1px solid rgba(238,123,110,.25)}
+.btn[disabled]{opacity:.35;pointer-events:none}
+.btn-block{width:100%}
+
+.actionbar{position:fixed;left:0;right:0;bottom:0;z-index:20;
+  padding:16px max(20px, var(--sar)) calc(var(--sab) + 16px) max(20px, var(--sal));
+  background:linear-gradient(180deg,rgba(13,15,19,0),rgba(13,15,19,.92) 35%,var(--bg));pointer-events:none}
+.actionbar .inner{max-width:760px;margin:0 auto;display:flex;gap:12px;align-items:center;pointer-events:auto}
+.actionbar .inner .btn-primary{flex:1}
+.actionbar .hint{flex:1;color:var(--muted);font-size:14px}
+
+/* ---------- Home ---------- */
+.home{padding-top:clamp(12px,5vh,64px);display:grid;gap:34px}
+.home .hero{display:grid;gap:14px}
+.home .hero .h-xl span{color:var(--brass)}
+.modes{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.mode{position:relative;text-align:left;border-radius:28px;padding:28px;min-height:280px;display:flex;flex-direction:column;gap:14px;
+  background:radial-gradient(120% 90% at 100% 0%,rgba(228,183,108,.10),transparent 55%),var(--surface);
+  border:1px solid var(--line);overflow:hidden;transition:transform .25s var(--ease),border-color .25s}
+.mode:active{transform:scale(.985);border-color:var(--line-2)}
+.mode .art{height:84px;display:flex;align-items:center}
+.mode .art svg{height:84px;width:auto}
+.mode h3{margin:0;font:750 30px/1.05 var(--font-display);letter-spacing:-.025em}
+.mode p{margin:0;color:var(--muted);font-size:16px;max-width:38ch}
+.mode .tags{margin-top:auto;display:flex;gap:8px;flex-wrap:wrap}
+.tag{font-size:13px;font-weight:600;padding:6px 11px;border-radius:999px;background:var(--surface-2);color:var(--muted);border:1px solid var(--line)}
+.mode .go{position:absolute;right:24px;bottom:24px;width:52px;height:52px;border-radius:50%;display:grid;place-items:center;background:var(--brass);color:var(--brass-ink)}
+.mode .go svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.resume{display:flex;align-items:center;gap:18px;padding:18px 18px 18px 22px;border-radius:22px;background:var(--brass-soft);border:1px solid rgba(228,183,108,.3);text-align:left;width:100%}
+.resume .t{flex:1;min-width:0}
+.resume .t b{display:block;font:700 18px/1.25 var(--font-display)}
+.resume .t span{color:var(--muted);font-size:14px}
+.resume .bar{height:6px;border-radius:3px;background:rgba(255,255,255,.08);margin-top:10px;overflow:hidden}
+.resume .bar i{display:block;height:100%;background:var(--brass);border-radius:3px}
+.foot{color:var(--dim);font-size:13px;text-align:center;padding-top:8px}
+
+/* ---------- Setup ---------- */
+.setup{display:grid;gap:26px;padding-top:8px}
+.stepper{display:flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px;width:max-content}
+.stepper button{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;background:var(--surface-2);transition:transform .15s var(--ease)}
+.stepper button:active{transform:scale(.9)}
+.stepper button[disabled]{opacity:.3}
+.stepper button svg{width:22px;height:22px;stroke:var(--text);stroke-width:2;fill:none;stroke-linecap:round}
+.stepper .val{min-width:96px;text-align:center}
+.stepper .val b{display:block;font:700 34px/1 var(--font-num)}
+.stepper .val small{color:var(--muted);font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+.names{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
+.field{position:relative}
+.field .idx{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--dim);font:600 14px var(--font-num);pointer-events:none}
+.field input{width:100%;height:56px;border-radius:16px;border:1px solid var(--line);background:var(--surface);padding:0 16px 0 46px;font-size:18px;outline:none;transition:border-color .2s,background .2s;-webkit-appearance:none}
+.field input:focus{border-color:rgba(228,183,108,.6);background:var(--surface-2)}
+.field input::placeholder{color:var(--dim)}
+.field.err input{border-color:var(--danger)}
+.field.new{animation:pop .35s var(--ease)}
+@keyframes pop{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+.errmsg{color:var(--danger);font-size:14px}
+
+.chips{display:flex;gap:10px;flex-wrap:wrap}
+.chip{min-width:64px;height:64px;border-radius:18px;display:grid;place-items:center;background:var(--surface);border:1px solid var(--line);font:700 24px var(--font-num);transition:transform .15s var(--ease),background .2s,color .2s,border-color .2s}
+.chip:active{transform:scale(.94)}
+.chip.on{background:var(--brass);color:var(--brass-ink);border-color:transparent}
+.chip.off{opacity:.28}
+.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:16px 18px}
+.stat b{display:block;font:700 30px/1.1 var(--font-num)}
+.stat span{color:var(--muted);font-size:13px}
+.note{display:flex;gap:12px;align-items:flex-start;padding:16px 18px;border-radius:16px;background:var(--surface);border:1px solid var(--line);color:var(--muted);font-size:15px}
+.note svg{flex:none;width:20px;height:20px;margin-top:1px;stroke:var(--brass);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.note b{color:var(--text);font-weight:600}
+
+.segctl{display:inline-flex;padding:5px;border-radius:999px;background:var(--surface);border:1px solid var(--line);gap:4px}
+.seg{height:46px;padding:0 20px;border-radius:999px;font-weight:600;color:var(--muted);transition:background .25s var(--ease),color .2s}
+.seg.on{background:var(--surface-3);color:var(--text)}
+
+.teams{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
+.team{grid-template-columns:minmax(0,1fr);border-radius:20px;background:var(--surface);border:1px solid var(--line);padding:14px 14px 16px;display:grid;gap:10px;animation:pop .4s var(--ease) both}
+.team .row{display:flex;gap:8px;align-items:center}
+.team input{flex:1;min-width:0;height:48px;border-radius:12px;border:1px solid transparent;background:var(--surface-2);padding:0 14px;font:700 18px var(--font-display);outline:none}
+.team input:focus{border-color:rgba(228,183,108,.6)}
+.team .members{color:var(--muted);font-size:16px;padding-left:4px}
+.team .members b{color:var(--text);font-weight:600}
+.smallbtn{width:48px;height:48px;border-radius:12px;display:grid;place-items:center;background:var(--surface-2);flex:none;transition:transform .15s var(--ease)}
+.smallbtn:active{transform:scale(.9)}
+.smallbtn svg{width:20px;height:20px;stroke:var(--muted);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.joker{border-radius:20px;padding:16px 18px;display:flex;gap:14px;align-items:center;border:1px dashed rgba(228,183,108,.45);background:var(--brass-soft)}
+.jbadge{flex:none;display:inline-grid;place-items:center;height:26px;padding:0 9px;border-radius:7px;background:var(--brass);color:var(--brass-ink);font:800 11px/1 var(--font);letter-spacing:.12em}
+.joker .t{color:var(--muted);font-size:15px}
+.joker .t b{color:var(--text);font-size:17px;display:block}
+.pool{display:flex;flex-wrap:wrap;gap:10px}
+.pchip{height:52px;padding:0 20px;border-radius:999px;background:var(--surface);border:1px solid var(--line-2);font-weight:600;font-size:17px;transition:transform .15s var(--ease),background .2s,color .2s}
+.pchip:active{transform:scale(.95)}
+.pchip.sel{background:var(--brass);color:var(--brass-ink);border-color:transparent}
+
+/* ---------- Live ---------- */
+.live{display:grid;gap:22px;padding-top:6px}
+@media (min-width:980px){
+  .live{grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);align-items:start;gap:28px}
+  .live .left{position:sticky;top:0}
+}
+.left{display:grid;gap:16px}
+.now{position:relative;border-radius:30px;padding:26px 26px 24px;overflow:hidden;
+  background:radial-gradient(90% 70% at 50% 0%,rgba(228,183,108,.16),transparent 60%),linear-gradient(180deg,#1A1E26,#14171D);
+  border:1px solid rgba(228,183,108,.22);box-shadow:0 30px 60px -30px rgba(0,0,0,.7)}
+.now.swap{animation:swapIn .6s var(--ease) both}
+@keyframes swapIn{from{opacity:0;transform:translateY(18px) scale(.98)}to{opacity:1;transform:none}}
+.now .top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}
+.live-dot{display:inline-flex;align-items:center;gap:8px;font:700 12px/1 var(--font);letter-spacing:.14em;text-transform:uppercase;color:var(--brass)}
+.live-dot i{width:8px;height:8px;border-radius:50%;background:var(--brass);box-shadow:0 0 0 0 rgba(228,183,108,.6);animation:pulse 2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(228,183,108,.55)}70%{box-shadow:0 0 0 10px rgba(228,183,108,0)}100%{box-shadow:0 0 0 0 rgba(228,183,108,0)}}
+.count{color:var(--muted);font:600 14px var(--font-num)}
+.versus{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:14px}
+.side{display:grid;gap:4px;min-width:0}
+.side.r{text-align:right}
+.side .who{font:750 clamp(22px,3vw,32px)/1.1 var(--font-display);letter-spacing:-.02em;hyphens:auto;-webkit-hyphens:auto;overflow-wrap:break-word}
+.side .sm .jk{color:var(--brass);font-weight:600}
+.side .who .amp{color:var(--dim);font-weight:500}
+.side .sm{color:var(--muted);font-size:15px;overflow-wrap:anywhere}
+.vs{font:800 14px/1 var(--font);letter-spacing:.18em;color:var(--brass);width:52px;height:52px;border-radius:50%;display:grid;place-items:center;border:1px solid rgba(228,183,108,.35)}
+.now .jline{margin-top:18px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;color:var(--muted);font-size:15px}
+.now .jline b{color:var(--text)}
+.now .jline button{margin-left:auto;color:var(--brass);font-weight:600;font-size:15px;min-height:44px;padding:0 6px}
+.now .cta{margin-top:22px}
+.pause{margin-top:14px;color:var(--muted);font-size:14px;text-align:center}
+.pause b{color:var(--text);font-weight:600}
+
+.next{border-radius:22px;padding:18px 20px;background:var(--surface);border:1px solid var(--line);display:grid;gap:8px}
+.next .row{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;font:650 18px/1.3 var(--font-display)}
+.next .row .v{color:var(--dim);font:600 13px var(--font);letter-spacing:.1em}
+.next .ph{color:var(--muted);font-style:normal;font-weight:500}
+
+.tabs{display:flex;gap:6px;padding:5px;border-radius:999px;background:var(--surface);border:1px solid var(--line);width:max-content;max-width:100%}
+.tab{height:44px;padding:0 20px;border-radius:999px;font-weight:600;color:var(--muted);transition:background .25s var(--ease),color .2s}
+.tab.on{background:var(--surface-3);color:var(--text)}
+.panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.right{display:grid;gap:16px;min-width:0}
+
+/* Spielplan */
+.plan{display:grid;gap:8px}
+.pm{display:grid;grid-template-columns:44px 1fr auto;align-items:center;gap:12px;padding:12px 14px;border-radius:16px;background:var(--surface);border:1px solid var(--line);text-align:left;width:100%;transition:transform .15s var(--ease),border-color .2s}
+.pm:active{transform:scale(.99)}
+.pm .no{font:700 15px var(--font-num);color:var(--dim);text-align:center}
+.pm .duo{font-weight:600;font-size:16px;line-height:1.35;min-width:0}
+.pm .duo .v{color:var(--dim);font-weight:500;font-size:13px;margin:0 6px;letter-spacing:.06em}
+.pm .duo .w{color:var(--brass)}
+.pm .res{font:700 20px var(--font-num);min-width:64px;text-align:right}
+.pm .res.todo{color:var(--dim);font-size:13px;font-weight:600;font-family:var(--font)}
+.pm.cur{border-color:rgba(228,183,108,.45);background:linear-gradient(90deg,rgba(228,183,108,.10),var(--surface) 60%)}
+.pm.cur .no{color:var(--brass)}
+.pm.done{opacity:.72}
+.plan.reroll .pm{animation:pop .45s var(--ease) both}
+
+/* Rangliste */
+.table{display:grid;gap:8px}
+.tr{display:grid;grid-template-columns:40px 1fr auto auto;gap:14px;align-items:center;padding:12px 16px;border-radius:16px;background:var(--surface);border:1px solid var(--line);animation:pop .4s var(--ease) both}
+.tr .pl{font:700 18px var(--font-num);color:var(--dim);text-align:center}
+.tr .nm{font-weight:650;font-size:17px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tr .nm small{display:block;color:var(--muted);font-weight:500;font-size:13px}
+.tr .wdl{color:var(--muted);font:600 14px var(--font-num);text-align:right}
+.tr .gl{font:800 26px var(--font-num);min-width:52px;text-align:right}
+.tr.top1{background:linear-gradient(90deg,rgba(228,183,108,.16),var(--surface) 70%);border-color:rgba(228,183,108,.35)}
+.tr.top1 .pl,.tr.top1 .gl{color:var(--brass)}
+.th{display:grid;grid-template-columns:40px 1fr auto auto;gap:14px;padding:0 16px;color:var(--dim);font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:600}
+.th span:nth-child(3){text-align:right}
+.th span:nth-child(4){min-width:52px;text-align:right}
+
+/* Bracket */
+.bk-sec{display:grid;gap:10px}
+.bk-scroll{-webkit-mask-image:linear-gradient(90deg,#000 92%,transparent);mask-image:linear-gradient(90deg,#000 92%,transparent);overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -4px;padding:4px 4px 10px}
+.bk{display:flex;gap:14px;align-items:stretch;width:max-content}
+.bk-col{display:flex;flex-direction:column;gap:10px;width:208px}
+.bk-cards{flex:1;display:flex;flex-direction:column;gap:10px;justify-content:space-around}
+.bk-col h4{margin:0 0 2px;font:600 12px/1 var(--font);letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.bm{border-radius:14px;background:var(--surface);border:1px solid var(--line);overflow:hidden;text-align:left;width:100%;transition:transform .15s var(--ease)}
+.bm:active{transform:scale(.98)}
+.bm .lab{display:flex;justify-content:space-between;padding:7px 12px 0;font:600 11px var(--font);letter-spacing:.1em;color:var(--dim);text-transform:uppercase}
+.bm .t{display:flex;justify-content:space-between;gap:8px;padding:6px 12px;font-weight:600;font-size:15px;white-space:nowrap}
+.bm .t span:first-child{overflow:hidden;text-overflow:ellipsis}
+.bm .t + .t{border-top:1px solid var(--line)}
+.bm .t:last-child{padding-bottom:9px}
+.bm .t.win{color:var(--brass)}
+.bm .t.lose{color:var(--dim)}
+.bm .t.ph{color:var(--dim);font-weight:500;font-style:italic}
+.bm .t .g{font-family:var(--font-num);color:inherit}
+.bm.cur{border-color:rgba(228,183,108,.55);box-shadow:0 0 0 3px rgba(228,183,108,.12)}
+.bm.byes{background:transparent;border-style:dashed}
+.byelist{display:flex;gap:8px;flex-wrap:wrap}
+
+.tlist{display:grid;gap:8px}
+.tl{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:14px 16px;border-radius:16px;background:var(--surface);border:1px solid var(--line)}
+.tl .nm{font-weight:700;font-size:17px}
+.tl .nm small{display:block;color:var(--muted);font-weight:500;font-size:14px}
+.tl .st{display:flex;align-items:center;gap:10px;justify-content:flex-end}
+.lives{display:flex;gap:5px}
+.lives i{width:10px;height:10px;border-radius:50%;background:var(--brass)}
+.lives i.gone{background:transparent;border:1.5px solid var(--dim)}
+.pill{font-size:12px;font-weight:700;letter-spacing:.06em;padding:5px 10px;border-radius:999px;background:var(--surface-2);color:var(--muted);white-space:nowrap}
+.pill.w{background:var(--brass-soft);color:var(--brass)}
+.pill.l{background:rgba(255,255,255,.06);color:var(--text)}
+.pill.out{color:var(--dim)}
+.tl.out{opacity:.5}
+
+/* ---------- Sheet / Modal ---------- */
+.scrim{position:fixed;inset:0;z-index:50;background:rgba(5,6,8,.6);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);display:flex;align-items:flex-end;justify-content:center;animation:fade .25s ease both}
+@media (min-width:700px){.scrim{align-items:center}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.sheet{grid-template-columns:minmax(0,1fr);width:100%;max-width:640px;max-height:calc(100% - var(--sat) - 20px);overflow-y:auto;background:linear-gradient(180deg,#1B1F27,#14171D);border:1px solid var(--line-2);
+  border-radius:28px 28px 0 0;padding:26px max(22px, var(--sar)) calc(var(--sab) + 22px) max(22px, var(--sal));animation:up .4s var(--ease) both;display:grid;gap:20px}
+@media (min-width:700px){.sheet{border-radius:28px;padding:30px}}
+@keyframes up{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+.sheet.closing{animation:down .22s ease both}
+.scrim.closing{animation:fade .22s ease reverse both}
+@keyframes down{to{transform:translateY(30px);opacity:0}}
+.sheet .head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.score{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.sc{border-radius:22px;background:var(--surface);border:1px solid var(--line);padding:18px 14px;display:grid;gap:14px;justify-items:center;text-align:center;transition:border-color .2s,background .2s}
+.sc.ahead{border-color:rgba(228,183,108,.5);background:linear-gradient(180deg,rgba(228,183,108,.12),var(--surface))}
+.sc .who{font:700 18px/1.25 var(--font-display);min-height:46px;display:flex;align-items:center;justify-content:center;hyphens:auto;-webkit-hyphens:auto;overflow-wrap:break-word;max-width:100%}
+.sc .big{font:800 76px/1 var(--font-num);letter-spacing:-.02em}
+.sc .big.bump{animation:bump .25s var(--ease)}
+@keyframes bump{40%{transform:scale(1.14)}}
+.sc .pm2{display:flex;gap:12px}
+.sc .pm2 button{width:68px;height:68px;border-radius:50%;background:var(--surface-2);border:1px solid var(--line-2);display:grid;place-items:center;transition:transform .12s var(--ease),background .2s}
+.sc .pm2 button:active{transform:scale(.88);background:var(--surface-3)}
+.sc .pm2 button svg{width:26px;height:26px;stroke:var(--text);stroke-width:2.2;fill:none;stroke-linecap:round}
+.sc .pm2 button.plus{background:var(--brass);border-color:transparent}
+.sc .pm2 button.plus svg{stroke:var(--brass-ink)}
+.pick{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.pk{border-radius:22px;padding:22px 16px;background:var(--surface);border:1.5px solid var(--line);display:grid;gap:6px;justify-items:center;text-align:center;min-height:150px;align-content:center;transition:transform .15s var(--ease),border-color .2s,background .2s}
+.pk:active{transform:scale(.97)}
+.pk b{font:750 clamp(18px,2.6vw,22px)/1.15 var(--font-display);hyphens:auto;-webkit-hyphens:auto;overflow-wrap:break-word;max-width:100%}
+.pk small{color:var(--muted);font-size:14px}
+.pk .crown{width:34px;height:34px;opacity:.18;transition:opacity .2s,transform .3s var(--ease)}
+.pk .crown svg{width:34px;height:34px;stroke:var(--brass);fill:none;stroke-width:1.7;stroke-linejoin:round}
+.pk.on{border-color:var(--brass);background:linear-gradient(180deg,rgba(228,183,108,.16),var(--surface))}
+.pk.on .crown{opacity:1;transform:translateY(-2px) scale(1.1)}
+.pk.on small{color:var(--brass)}
+.opt{border-top:1px solid var(--line);padding-top:16px;display:grid;gap:14px}
+.opt summary{list-style:none;color:var(--muted);font-weight:600;min-height:44px;display:flex;align-items:center;gap:8px;cursor:pointer}
+.opt summary::-webkit-details-marker{display:none}
+.mini{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.mini .ms{display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px}
+.mini .ms button{width:48px;height:48px;border-radius:50%;background:var(--surface-2);display:grid;place-items:center}
+.mini .ms button svg{width:20px;height:20px;stroke:var(--text);stroke-width:2.2;fill:none;stroke-linecap:round}
+.mini .ms b{font:800 26px var(--font-num)}
+.sheet .btns{display:grid;gap:10px}
+.menu{display:grid;gap:10px}
+.menu .btn{justify-content:flex-start}
+
+/* ---------- Siegerehrung ---------- */
+.win-ov{position:fixed;inset:0;z-index:60;background:radial-gradient(80% 60% at 50% 30%,rgba(228,183,108,.18),transparent 70%),rgba(8,9,12,.94);display:flex;align-items:center;justify-content:center;overflow-y:auto;
+  padding:calc(var(--sat) + 30px) max(20px, var(--sar)) calc(var(--sab) + 30px) max(20px, var(--sal));animation:fade .4s ease both}
+.win-box{width:100%;max-width:760px;display:grid;gap:26px;justify-items:center;text-align:center}
+.trophy{width:96px;height:96px;animation:rise .9s var(--ease) both}
+.trophy svg{width:96px;height:96px;stroke:var(--brass);fill:none;stroke-width:1.4;stroke-linejoin:round;stroke-linecap:round}
+@keyframes rise{from{opacity:0;transform:translateY(30px) scale(.8)}to{opacity:1;transform:none}}
+.champ{font:850 clamp(36px,7vw,72px)/1.02 var(--font-display);letter-spacing:-.035em;color:var(--brass);animation:rise .9s .15s var(--ease) both;hyphens:auto;-webkit-hyphens:auto;overflow-wrap:break-word;max-width:100%}
+.champ-sub{color:var(--muted);font-size:18px;animation:rise .9s .25s var(--ease) both}
+.podium{display:grid;grid-template-columns:1fr 1.15fr 1fr;align-items:end;gap:12px;width:100%}
+.pod{display:grid;gap:10px;justify-items:center}
+.pod .nm{font:700 clamp(15px,2.2vw,19px)/1.2 var(--font-display);hyphens:auto;-webkit-hyphens:auto;overflow-wrap:break-word;max-width:100%}
+.pod .pts{color:var(--muted);font:600 15px var(--font-num)}
+.pod .blk{width:100%;border-radius:18px 18px 6px 6px;background:var(--surface-2);border:1px solid var(--line);display:grid;place-items:start center;padding-top:14px;font:800 34px var(--font-num);color:var(--dim);transform-origin:bottom;animation:grow .9s var(--ease) both}
+.pod.p1 .blk{height:170px;background:linear-gradient(180deg,rgba(228,183,108,.35),rgba(228,183,108,.08));border-color:rgba(228,183,108,.4);color:var(--brass);animation-delay:.5s}
+.pod.p2 .blk{height:120px;animation-delay:.3s}
+.pod.p3 .blk{height:90px;animation-delay:.15s}
+.pod.p1 .nm{color:var(--brass);font-size:23px}
+@keyframes grow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;width:100%}
+.fact{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px 16px;text-align:left}
+.fact span{color:var(--muted);font-size:13px;display:block}
+.fact b{font:700 18px/1.3 var(--font-display)}
+.win-box .btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+#confetti{position:fixed;inset:0;z-index:70;pointer-events:none}
+
+.empty{border:1px dashed var(--line-2);border-radius:20px;padding:24px;color:var(--muted);text-align:center}
+.toast{position:fixed;left:50%;bottom:calc(var(--sab) + 24px);transform:translateX(-50%);z-index:80;background:var(--surface-3);border:1px solid var(--line-2);border-radius:999px;padding:12px 18px;display:flex;gap:12px;align-items:center;font-weight:600;animation:up .35s var(--ease) both;box-shadow:0 20px 40px -20px #000}
+.toast button{color:var(--brass);font-weight:700;min-height:40px}
+
+@media (max-width:520px){
+  .summary{grid-template-columns:1fr 1fr}
+  .summary .stat:last-child{grid-column:span 2}
+  .versus{grid-template-columns:1fr;text-align:center;gap:10px}
+  .side.r{text-align:center}
+  .vs{margin:0 auto;width:44px;height:44px}
+  .sc .big{font-size:60px}
+  .sc .pm2 button{width:58px;height:58px}
+  .tr{grid-template-columns:32px 1fr auto auto;gap:10px}
+  .th{grid-template-columns:32px 1fr auto auto;gap:10px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<canvas id="confetti" hidden></canvas>
+<script>
+/* ===== Kickerabend · Spiellogik (rein, ohne DOM) ===== */
+const KL = (() => {
+
+  /* ---------- Helfer ---------- */
+  function shuffle(arr, rnd = Math.random) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(rnd() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+  function matrix(n) { return Array.from({ length: n }, () => new Array(n).fill(0)); }
+
+  /* =========================================================
+     MODUS 1 · PUNKTE-PARTY (Rotations-Duo)
+     ========================================================= */
+
+  // Spiele pro Spieler sind nur gültig, wenn Spieler × Spiele durch 4 teilbar ist
+  function partyValid(n, k) { return n >= 4 && k >= 1 && (n * k) % 4 === 0; }
+
+  function partyNearestValid(n, k, max = 8) {
+    let best = null;
+    for (let c = 1; c <= max; c++) {
+      if (!partyValid(n, c)) continue;
+      if (best === null || Math.abs(c - k) < Math.abs(best - k) ||
+         (Math.abs(c - k) === Math.abs(best - k) && c > best)) best = c;
+    }
+    return best;
+  }
+
+  // Ein Versuch: Spielplan gierig aufbauen
+  function partyTry(n, k, rnd, b2bPen) {
+    const M = n * k / 4;
+    const rem = new Array(n).fill(k);
+    const last = new Array(n).fill(-99);   // Index des letzten Spiels
+    const last2 = new Array(n).fill(-99);  // Index des vorletzten Spiels
+    const partner = matrix(n), opp = matrix(n);
+    const matches = [];
+
+    for (let m = 0; m < M; m++) {
+      const left = M - m;
+      // Wer genau so viele Spiele übrig hat wie Partien übrig sind, MUSS jetzt spielen
+      // (das garantiert mathematisch, dass am Ende jeder exakt k Spiele hat)
+      const chosen = [];
+      for (let p = 0; p < n; p++) if (rem[p] === left) chosen.push(p);
+
+      while (chosen.length < 4) {
+        let bestP = -1, bestS = -Infinity;
+        for (let p = 0; p < n; p++) {
+          if (rem[p] <= 0 || chosen.includes(p)) continue;
+          let s = 0;
+          if (last[p] === m - 1) s -= (last2[p] === m - 2 ? 5000 : b2bPen); // 3x am Stück nie, 2x möglichst nicht
+          else if (last[p] === m - 2) s -= 25;
+          s += Math.min(m - last[p], 20) * 6;        // wer lange wartet, ist dran
+          s += rem[p] * 10;                          // wer noch viele Spiele hat
+          for (const c of chosen) s -= (partner[p][c] * 4 + opp[p][c] * 2) - (partner[p][c] + opp[p][c] === 0 ? 6 : 0);
+          s += rnd() * 14;                           // Zufall
+          if (s > bestS) { bestS = s; bestP = p; }
+        }
+        chosen.push(bestP);
+      }
+
+      // beste Aufteilung in 2 Duos
+      const [a, b, c, d] = chosen;
+      const splits = [[[a, b], [c, d]], [[a, c], [b, d]], [[a, d], [b, c]]];
+      let best = null, bestC = Infinity;
+      for (const [x, y] of splits) {
+        let cost = (partner[x[0]][x[1]] ** 2 + partner[y[0]][y[1]] ** 2) * 10;
+        for (const i of x) for (const j of y) cost += opp[i][j] ** 2 * 3;
+        cost += rnd() * 2;
+        if (cost < bestC) { bestC = cost; best = [x, y]; }
+      }
+      const [A, B] = best;
+      partner[A[0]][A[1]]++; partner[A[1]][A[0]]++;
+      partner[B[0]][B[1]]++; partner[B[1]][B[0]]++;
+      for (const i of A) for (const j of B) { opp[i][j]++; opp[j][i]++; }
+      for (const p of chosen) { rem[p]--; last2[p] = last[p]; last[p] = m; }
+      matches.push({ a: rnd() < .5 ? A : B, b: null });
+      matches[m].b = matches[m].a === A ? B : A;
+    }
+    return matches;
+  }
+
+  function partyStats(n, matches) {
+    const M = matches.length;
+    const partner = matrix(n), opp = matrix(n);
+    const games = new Array(n).fill(0);
+    const appear = Array.from({ length: n }, () => []);
+    let b2b = 0, triple = 0;
+    const met = matrix(n);
+    matches.forEach((mt, i) => {
+      const all = [...mt.a, ...mt.b];
+      for (const p of all) { games[p]++; appear[p].push(i); }
+      partner[mt.a[0]][mt.a[1]]++; partner[mt.a[1]][mt.a[0]]++;
+      partner[mt.b[0]][mt.b[1]]++; partner[mt.b[1]][mt.b[0]]++;
+      for (const x of mt.a) for (const y of mt.b) { opp[x][y]++; opp[y][x]++; }
+      for (const x of all) for (const y of all) if (x !== y) met[x][y] = 1;
+      if (i > 0) {
+        const prev = [...matches[i - 1].a, ...matches[i - 1].b];
+        const prev2 = i > 1 ? [...matches[i - 2].a, ...matches[i - 2].b] : [];
+        for (const p of all) if (prev.includes(p)) { b2b++; if (prev2.includes(p)) triple++; }
+      }
+    });
+    let partnerRep = 0, maxPartner = 0, oppSq = 0, maxOpp = 0, unmet = 0;
+    for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) {
+      if (!met[i][j]) unmet++;
+      partnerRep += Math.max(0, partner[i][j] - 1);
+      maxPartner = Math.max(maxPartner, partner[i][j]);
+      oppSq += opp[i][j] ** 2;
+      maxOpp = Math.max(maxOpp, opp[i][j]);
+    }
+    // längste Wartezeit (Spiele ohne Einsatz am Stück)
+    let maxWait = 0, waitSq = 0;
+    for (let p = 0; p < n; p++) {
+      const seq = [-1, ...appear[p], M];
+      for (let i = 1; i < seq.length; i++) {
+        const g = seq[i] - seq[i - 1] - 1;
+        maxWait = Math.max(maxWait, g); waitSq += g * g;
+      }
+    }
+    return { games, b2b, triple, unmet, partnerRep, maxPartner, oppSq, maxOpp, maxWait, waitSq };
+  }
+
+  // Bewertung eines Plans. Bei 8 Spielern würde "nie zweimal hintereinander" zwei geschlossene
+  // Vierergruppen erzwingen – darum zählt dort Durchmischung mehr als Pause.
+  function partyCost(s, n) {
+    const w = n >= 10 ? 400 : 45;
+    return s.triple * 3000 + s.b2b * w + s.unmet * 30 + s.partnerRep * 100 + s.maxPartner * 40 +
+           s.oppSq * 2 + s.maxOpp * 10 + s.maxWait * 15 + s.waitSq * 0.5;
+  }
+
+  function partyBuild(n, k, attempts = 1000, rnd = Math.random) {
+    if (!partyValid(n, k)) throw new Error('invalid');
+    let best = null, bestC = Infinity;
+    const pens = [1000, 200, 60, 20];
+    for (let t = 0; t < attempts; t++) {
+      const ms = partyTry(n, k, rnd, pens[t % pens.length]);
+      const c = partyCost(partyStats(n, ms), n);
+      if (c < bestC) { bestC = c; best = ms; }
+    }
+    return best;
+  }
+
+  /* Rangliste: Tore → Siege → Tordifferenz */
+  function partyTable(n, matches, results) {
+    const rows = Array.from({ length: n }, (_, i) => ({ p: i, goals: 0, against: 0, w: 0, d: 0, l: 0, played: 0, total: 0 }));
+    matches.forEach((mt, i) => {
+      for (const p of [...mt.a, ...mt.b]) rows[p].total++;
+      const r = results[i];
+      if (!r) return;
+      const add = (side, gf, ga) => side.forEach(p => {
+        const row = rows[p];
+        row.goals += gf; row.against += ga; row.played++;
+        if (gf > ga) row.w++; else if (gf < ga) row.l++; else row.d++;
+      });
+      add(mt.a, r.ga, r.gb); add(mt.b, r.gb, r.ga);
+    });
+    rows.sort((x, y) => y.goals - x.goals || y.w - x.w ||
+      (y.goals - y.against) - (x.goals - x.against));
+    let place = 0;
+    rows.forEach((r, i) => {
+      const prev = rows[i - 1];
+      if (!prev || prev.goals !== r.goals || prev.w !== r.w ||
+          (prev.goals - prev.against) !== (r.goals - r.against)) place = i + 1;
+      r.place = place;
+    });
+    return rows;
+  }
+
+  /* =========================================================
+     MODUS 2 · TURNIER (Double Elimination, feste Teams)
+     ========================================================= */
+  const BYE = -1;
+
+  function seeding(S) {
+    let arr = [1];
+    while (arr.length < S) {
+      const m = arr.length * 2 + 1;
+      arr = arr.flatMap(x => [x, m - x]);
+    }
+    return arr; // Setzpositionen 1..S
+  }
+
+  // Struktur für T Teams. Freilose = Setzplätze >= T.
+  function cupBuild(T) {
+    const n = Math.max(1, Math.ceil(Math.log2(T)));
+    const S = 2 ** n;
+    const so = seeding(S);
+    const M = {};      // id -> {id, br, round, idx, s1, s2}
+    const order = [];
+    const add = (id, br, round, idx, s1, s2, key) => { M[id] = { id, br, round, idx, s1, s2, key }; order.push(id); };
+
+    for (let r = 1; r <= n; r++) {
+      const cnt = S / 2 ** r;
+      for (let i = 0; i < cnt; i++) {
+        const s1 = r === 1 ? { t: 'seed', i: so[2 * i] - 1 } : { t: 'win', m: `W${r - 1}-${2 * i}` };
+        const s2 = r === 1 ? { t: 'seed', i: so[2 * i + 1] - 1 } : { t: 'win', m: `W${r - 1}-${2 * i + 1}` };
+        add(`W${r}-${i}`, 'W', r, i, s1, s2, 2 * r - 1);
+      }
+    }
+    const LR = n >= 2 ? 2 * (n - 1) : 0;
+    for (let q = 1; q <= LR; q++) {
+      let cnt;
+      if (q === 1) cnt = S / 4;
+      else if (q % 2 === 0) cnt = S / 2 ** (q / 2 + 1);
+      else cnt = S / 2 ** ((q - 1) / 2 + 2);
+      for (let i = 0; i < cnt; i++) {
+        let s1, s2;
+        if (q === 1) {
+          s1 = { t: 'lose', m: `W1-${2 * i}` }; s2 = { t: 'lose', m: `W1-${2 * i + 1}` };
+        } else if (q % 2 === 0) {
+          const j = q / 2;                       // Verlierer aus Gewinner-Runde j+1 kommen rein
+          const wi = (j % 2 === 1) ? cnt - 1 - i : i; // gespiegelt, um frühe Revanchen zu vermeiden
+          s1 = { t: 'win', m: `L${q - 1}-${i}` }; s2 = { t: 'lose', m: `W${j + 1}-${wi}` };
+        } else {
+          s1 = { t: 'win', m: `L${q - 1}-${2 * i}` }; s2 = { t: 'win', m: `L${q - 1}-${2 * i + 1}` };
+        }
+        add(`L${q}-${i}`, 'L', q, i, s1, s2, q + 1);
+      }
+    }
+    const lbChamp = n >= 2 ? { t: 'win', m: `L${LR}-0` } : { t: 'lose', m: `W1-0` };
+    add('GF', 'F', 1, 0, { t: 'win', m: `W${n}-0` }, lbChamp, 100);
+    add('GF2', 'F', 2, 0, { t: 'win', m: 'GF' }, { t: 'lose', m: 'GF' }, 101);
+    return { T, n, S, LR, M, order };
+  }
+
+  // Ergebnisse auswerten. seeds[i] = Team auf Setzplatz i. results[id] = {a,b,winner,...}
+  function cupResolve(br, seeds, results) {
+    const memo = {};
+    const part = (src) => {
+      if (src.t === 'seed') return src.i < br.T ? seeds[src.i] : BYE;
+      const o = outcome(src.m);
+      if (!o) return null;
+      return src.t === 'win' ? o.w : o.l;
+    };
+    const outcome = (id) => {
+      if (id in memo) return memo[id];
+      memo[id] = null;
+      const m = br.M[id];
+      let res = null;
+      if (id === 'GF2') {
+        const g = outcome('GF');
+        // Entscheidungsspiel nur, wenn der Verlierer-Bracket-Sieger das Finale gewinnt
+        if (!g || g.auto || g.w !== part(br.M.GF.s2)) { memo[id] = { none: true }; return memo[id]; }
+      }
+      const a = part(m.s1), b = part(m.s2);
+      if (a === null || b === null) { memo[id] = null; return null; }
+      if (a === BYE && b === BYE) res = { w: BYE, l: BYE, auto: true, a, b };
+      else if (a === BYE) res = { w: b, l: BYE, auto: true, a, b };
+      else if (b === BYE) res = { w: a, l: BYE, auto: true, a, b };
+      else {
+        const r = results[id];
+        if (r && ((r.a === a && r.b === b) || (r.a === b && r.b === a)) && (r.winner === a || r.winner === b)) {
+          res = { w: r.winner, l: r.winner === a ? b : a, a, b, played: true };
+        } else res = null;
+      }
+      memo[id] = res;
+      return res;
+    };
+    const info = {};
+    for (const id of br.order) {
+      const m = br.M[id];
+      const o = outcome(id);
+      if (o && o.none) { info[id] = { id, exists: false }; continue; }
+      info[id] = {
+        id, exists: true,
+        a: part(m.s1), b: part(m.s2),
+        outcome: o,
+        played: !!(o && o.played),
+        auto: !!(o && o.auto),
+        ready: !o && part(m.s1) !== null && part(m.s2) !== null
+      };
+    }
+    // Champion
+    let champ = null, second = null;
+    const gf = info.GF, gf2 = info.GF2;
+    if (gf.outcome && !gf.outcome.auto) {
+      if (!gf2.exists) { champ = gf.outcome.w; second = gf.outcome.l; }
+      else if (gf2.outcome) { champ = gf2.outcome.w; second = gf2.outcome.l; }
+    } else if (gf.outcome && gf.outcome.auto) { champ = gf.outcome.w; }
+    let third = null;
+    if (br.LR > 0) {
+      const lf = info[`L${br.LR}-0`];
+      if (lf && lf.outcome && lf.outcome.played) third = lf.outcome.l;
+    }
+    return { info, champ, second, third, part };
+  }
+
+  // Ungültig gewordene Ergebnisse (nach Korrektur) entfernen
+  function cupSanitize(br, seeds, results) {
+    const clean = { ...results };
+    let removed = [];
+    for (let loop = 0; loop < 50; loop++) {
+      const { info } = cupResolve(br, seeds, clean);
+      let changed = false;
+      for (const id of Object.keys(clean)) {
+        const it = info[id];
+        if (!it || !it.exists || !it.played) { removed.push(id); delete clean[id]; changed = true; }
+      }
+      if (!changed) break;
+    }
+    return { results: clean, removed };
+  }
+
+  function cupLosses(br, info, T) {
+    const losses = new Array(T).fill(0), wins = new Array(T).fill(0), games = new Array(T).fill(0);
+    for (const id of br.order) {
+      const it = info[id];
+      if (!it.exists || !it.played) continue;
+      losses[it.outcome.l]++; wins[it.outcome.w]++;
+      games[it.outcome.l]++; games[it.outcome.w]++;
+    }
+    return { losses, wins, games };
+  }
+
+  // Nächstes Spiel wählen: Runden-Reihenfolge, Pausen für Teams, die gerade gespielt haben
+  function cupPick(br, info, lastTeams, exclude = null) {
+    let best = null, bestS = Infinity;
+    for (const id of br.order) {
+      const it = info[id];
+      if (!it.exists || !it.ready || id === exclude) continue;
+      const m = br.M[id];
+      let s = m.key * 10 + (m.br === 'L' ? 1 : 0) + m.idx * 0.01;
+      if (lastTeams.includes(it.a) || lastTeams.includes(it.b)) s += 15;
+      if (s < bestS) { bestS = s; best = id; }
+    }
+    return best;
+  }
+
+  return { shuffle, partyValid, partyNearestValid, partyBuild, partyStats, partyTable,
+           BYE, cupBuild, cupResolve, cupSanitize, cupLosses, cupPick, seeding };
+})();
+if (typeof module !== 'undefined') module.exports = KL;
+
+</script>
+<script>
+/* ===== Kickerabend · App ===== */
+(() => {
+'use strict';
+const BUILD = '1';
+document.documentElement.lang = 'de';
+const KEY = 'kickerabend.v1';
+const MIN_PER_GAME = 6;          // grobe Schätzung inkl. Wechsel
+const $ = (s, el = document) => el.querySelector(s);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+/* ---------- Icons (Linien) ---------- */
+const I = {
+  plus: '<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>',
+  minus: '<svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg>',
+  arrow: '<svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
+  back: '<svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>',
+  home: '<svg viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/></svg>',
+  more: '<svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="19" cy="12" r="1.2"/></svg>',
+  dice: '<svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4"/><circle cx="9" cy="9" r=".9"/><circle cx="15" cy="15" r=".9"/><circle cx="15" cy="9" r=".9"/><circle cx="9" cy="15" r=".9"/></svg>',
+  shuffle: '<svg viewBox="0 0 24 24"><path d="M3 7h3.5c2 0 3.2 1 4.3 2.7l2.4 4.6c1.1 1.7 2.3 2.7 4.3 2.7H21M3 17h3.5c1.4 0 2.4-.5 3.2-1.4M13.3 8.4C14.1 7.5 15.1 7 16.5 7H21M18 4l3 3-3 3M18 14l3 3-3 3"/></svg>',
+  x: '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  info: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>',
+  crown: '<svg viewBox="0 0 24 24"><path d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5z"/></svg>',
+  trophy: '<svg viewBox="0 0 64 64"><path d="M20 10h24v14a12 12 0 0 1-24 0z"/><path d="M20 15h-7a7 7 0 0 0 7 9M44 15h7a7 7 0 0 1-7 9"/><path d="M32 36v10M24 54h16M26 46h12v8H26z"/></svg>',
+  swap: '<svg viewBox="0 0 24 24"><path d="M7 4L3 8l4 4M3 8h14M17 20l4-4-4-4M21 16H7"/></svg>'
+};
+const ART_PARTY = `<svg viewBox="0 0 170 84" aria-hidden="true"><g fill="none" stroke-width="2" stroke-linecap="round">
+  <path d="M33 20 C 80 20, 90 64, 137 64" stroke="#E4B76C"/><path d="M33 64 C 80 64, 90 20, 137 20" stroke="#5E6470"/>
+  <circle cx="20" cy="20" r="11" stroke="#E4B76C"/><circle cx="20" cy="64" r="11" stroke="#9097A3"/>
+  <circle cx="150" cy="20" r="11" stroke="#9097A3"/><circle cx="150" cy="64" r="11" stroke="#E4B76C"/>
+  <circle cx="85" cy="42" r="5.5" fill="#F1EFEA" stroke="none"/></g></svg>`;
+const ART_CUP = `<svg viewBox="0 0 170 84" aria-hidden="true"><g fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M6 10h34v20H6M6 54h34v20H6M40 20h40v44H40" stroke="#5E6470"/>
+  <path d="M6 30h34v-10h40v22h40" stroke="#E4B76C"/>
+  <circle cx="140" cy="42" r="13" stroke="#E4B76C"/><path d="M135 42l3.5 3.5L146 38" stroke="#E4B76C"/></g></svg>`;
+
+const TEAM_NAMES = ['Kurbelkönige', 'Stangenfieber', 'Torfabrik', 'Die Abstauber', 'Dynamo Doppelpass', 'Eintracht Eiskalt',
+  'Bandenzauber', 'Die Konterkönige', 'Real Kicker', 'Abseits gibt’s nicht', 'Kickpiraten', 'FC Wackelstange',
+  'Die Schnellschüsse', 'Ballverliebt', 'Tischfeuer', 'Die Puppenspieler', 'Rotation Rakete', 'Kurbelkartell',
+  'Sporting Spin', 'Die Zauberkurbler', 'Olympique Ohnegnade', 'Inter Kurbel', 'Banana Flanke', 'Die Torjäger'];
+
+/* ---------- Zustand ---------- */
+function blank() {
+  return { v: 1, view: 'home', roster: [], draft: null, party: null, cup: null, tab: { party: 'plan', cup: 'bracket' }, celebrated: {} };
+}
+function load() {
+  try {
+    const s = JSON.parse(localStorage.getItem(KEY));
+    if (s && s.v === 1) return Object.assign(blank(), s);
+  } catch (e) { /* leer */ }
+  return null;
+}
+let S = load() || blank();
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* Speicher voll oder gesperrt */ } }
+try { navigator.storage && navigator.storage.persist && navigator.storage.persist().catch(() => {}); } catch (e) {}
+
+// Ansicht passt nicht zum Zustand → Start
+if ((S.view === 'party' && !S.party) || (S.view === 'cup' && !S.cup) ||
+    (['names', 'partyCfg', 'teams'].includes(S.view) && !S.draft)) S.view = 'home';
+
+const ui = { lastView: null, nowKey: null, reroll: false, modal: null };
+
+/* ---------- Helfer ---------- */
+const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
+function duration(games) {
+  const m = games * MIN_PER_GAME;
+  if (m < 60) return `≈ ${m} Min`;
+  const h = Math.floor(m / 60), r = m % 60;
+  return `≈ ${h} Std${r ? ` ${r} Min` : ''}`;
+}
+function duoHTML(names) { return `${esc(names[0])} <span class="amp">&amp;</span> ${esc(names[1])}`; }
+function randomTeamNames(count, taken = []) {
+  const pool = KL.shuffle(TEAM_NAMES.filter(n => !taken.includes(n)));
+  const out = [];
+  for (let i = 0; i < count; i++) out.push(pool[i] || `Team ${taken.length + i + 1}`);
+  return out;
+}
+
+/* =========================================================
+   Rendering
+   ========================================================= */
+function shell({ title = '', sub = '', left = null, right = null, body = '', action = '' }) {
+  const lb = left ? `<button class="iconbtn" data-act="${left.act}" aria-label="${left.label}">${I[left.icon]}</button>` : '';
+  const rb = right ? `<button class="iconbtn" data-act="${right.act}" aria-label="${right.label}">${I[right.icon]}</button>` : '';
+  return `<header class="topbar">${lb}<h1>${esc(title)}${sub ? ` <span class="sub">· ${esc(sub)}</span>` : ''}</h1>${rb}</header>
+    <main class="main"><div class="content">${body}</div></main>
+    ${action ? `<div class="actionbar"><div class="inner">${action}</div></div>` : ''}`;
+}
+
+function render() {
+  const app = $('#app');
+  const prevMain = $('.main');
+  const sameView = ui.lastView === S.view;
+  const keep = sameView && prevMain ? {
+    top: prevMain.scrollTop,
+    lefts: [...document.querySelectorAll('.bk-scroll')].map(e => e.scrollLeft)
+  } : null;
+
+  let html;
+  switch (S.view) {
+    case 'names': html = viewNames(); break;
+    case 'partyCfg': html = viewPartyCfg(); break;
+    case 'teams': html = viewTeams(); break;
+    case 'party': html = viewParty(); break;
+    case 'cup': html = viewCup(); break;
+    default: html = viewHome();
+  }
+  app.innerHTML = html;
+  const main = $('.main');
+  if (!sameView) { main.firstElementChild.classList.add('view-enter'); main.scrollTop = 0; }
+  else if (keep) {
+    main.scrollTop = keep.top;
+    document.querySelectorAll('.bk-scroll').forEach((e, i) => { if (keep.lefts[i] != null) e.scrollLeft = keep.lefts[i]; });
+  }
+  const bar = $('.topbar');
+  const onScroll = () => bar.classList.toggle('scrolled', main.scrollTop > 4);
+  main.addEventListener('scroll', onScroll, { passive: true }); onScroll();
+  ui.lastView = S.view;
+  ui.reroll = false;
+}
+
+/* ---------- Start ---------- */
+function viewHome() {
+  let resume = '';
+  if (S.party) {
+    const P = S.party, done = Object.keys(P.results).length, M = P.matches.length;
+    resume = resumeCard('Punkte-Party läuft', done >= M ? 'Alle Spiele gespielt · Siegerehrung wartet' : `Spiel ${done + 1} von ${M} · ${P.players.length} Spieler`, done / M, 'party');
+  } else if (S.cup) {
+    const ctx = cupCtx();
+    const total = 2 * S.cup.teams.length - 1;
+    resume = resumeCard('Turnier läuft', ctx.champ !== null ? `Sieger: ${S.cup.teams[ctx.champ].name}` : `${plural(ctx.playedCount, 'Spiel', 'Spiele')} gespielt · ${S.cup.teams.length} Teams`, ctx.champ !== null ? 1 : ctx.playedCount / total, 'cup');
+  }
+  const body = `<div class="wrap home">
+    <div class="hero">
+      <div class="eyebrow">Kicker · 2 gegen 2</div>
+      <h2 class="h-xl">Kicker<span>abend.</span></h2>
+      <p class="lead">Modus wählen, Namen eintragen, losspielen. Wer gegen wen spielt, regelt die App.</p>
+    </div>
+    ${resume}
+    <div class="modes">
+      <button class="mode" data-act="start" data-mode="party">
+        <div class="art">${ART_PARTY}</div>
+        <h3>Punkte-Party</h3>
+        <p>Jedes Spiel neue, zufällige Duos. Jeder sammelt die Tore seines Duos. Wer am Ende die meisten hat, gewinnt.</p>
+        <div class="tags"><span class="tag">Einzelwertung</span><span class="tag">Jeder gleich oft</span></div>
+        <span class="go">${I.arrow}</span>
+      </button>
+      <button class="mode" data-act="start" data-mode="cup">
+        <div class="art">${ART_CUP}</div>
+        <h3>Turnier</h3>
+        <p>Feste Zweierteams. Wer verliert, spielt im Verlierer-Bracket weiter. Erst nach zwei Niederlagen ist man raus.</p>
+        <div class="tags"><span class="tag">Teamwertung</span><span class="tag">Double Elimination</span></div>
+        <span class="go">${I.arrow}</span>
+      </button>
+    </div>
+    <div class="foot">Alles wird automatisch auf diesem Gerät gespeichert · Build ${BUILD}</div>
+  </div>`;
+  return shell({ body });
+}
+function resumeCard(title, text, frac, mode) {
+  return `<button class="resume" data-act="resume" data-mode="${mode}">
+    <div class="t"><b>${esc(title)}</b><span>${esc(text)}</span><div class="bar"><i style="width:${Math.round(Math.min(1, frac) * 100)}%"></i></div></div>
+    <span class="btn btn-primary" style="min-height:48px;padding:0 20px">Weiter ${I.arrow}</span></button>`;
+}
+
+/* ---------- Schritt 1: Namen ---------- */
+function viewNames() {
+  const D = S.draft;
+  const n = D.names.length;
+  const fields = D.names.map((v, i) => nameField(i, v)).join('');
+  const body = `<div class="narrow setup">
+    <div><div class="eyebrow">Schritt 1 von 2</div><h2 class="h-lg">Wer spielt mit?</h2></div>
+    <div class="stepper">
+      <button data-act="count" data-d="-1" ${n <= 4 ? 'disabled' : ''} aria-label="Weniger">${I.minus}</button>
+      <div class="val"><b class="num" id="cnt">${n}</b><small>Spieler</small></div>
+      <button data-act="count" data-d="1" ${n >= 16 ? 'disabled' : ''} aria-label="Mehr">${I.plus}</button>
+    </div>
+    <div class="names" id="names">${fields}</div>
+    <div class="errmsg" id="nameErr"></div>
+  </div>`;
+  return shell({
+    title: D.mode === 'party' ? 'Punkte-Party' : 'Turnier', left: { act: 'go-home', icon: 'back', label: 'Zurück' }, body,
+    action: `<button class="btn btn-primary" data-act="names-next">Weiter ${I.arrow}</button>`
+  });
+}
+function nameField(i, v, isNew) {
+  return `<label class="field${isNew ? ' new' : ''}" id="f${i}"><span class="idx">${i + 1}</span>
+    <input id="name-${i}" data-name="${i}" value="${esc(v)}" placeholder="Spieler ${i + 1}" autocomplete="off" autocorrect="off" autocapitalize="words" spellcheck="false" enterkeyhint="next" maxlength="18"></label>`;
+}
+
+/* ---------- Schritt 2a: Spiele pro Person ---------- */
+function viewPartyCfg() {
+  const D = S.draft, n = D.names.length;
+  if (!KL.partyValid(n, D.k)) D.k = KL.partyNearestValid(n, D.k || 4);
+  const valid = [1, 2, 3, 4, 5, 6, 7, 8].filter(k => KL.partyValid(n, k));
+  const chips = [1, 2, 3, 4, 5, 6, 7, 8].map(k => {
+    const ok = KL.partyValid(n, k);
+    return `<button class="chip num ${k === D.k ? 'on' : ''} ${ok ? '' : 'off'}" data-act="pick-k" data-k="${k}" aria-label="${k} Spiele">${k}</button>`;
+  }).join('');
+  const M = n * D.k / 4;
+  let rule;
+  if (valid.length === 8) rule = `Bei ${n} Spielern geht jede Anzahl auf.`;
+  else rule = `Bei <b>${n} Spielern</b> geht nur ${valid.join(', ').replace(/, (\d+)$/, ' oder $1')}. Pro Partie stehen immer genau 4 Leute am Kicker, also muss Spieler × Spiele durch 4 teilbar sein (${n} × ${D.k} = ${n * D.k} → ${M} Partien). Sonst hätte am Ende jemand ein Spiel mehr oder weniger.`;
+  const warn = D.kWarn ? `<div class="note" style="border-color:rgba(238,123,110,.35)">${I.info}<div><b>${D.kWarn} Spiele gehen bei ${n} Spielern nicht.</b> Dann hätte nicht jeder gleich oft gespielt. Ich habe ${D.k} ausgewählt.</div></div>` : '';
+  const pauseN = n - 4;
+  const body = `<div class="narrow setup">
+    <div><div class="eyebrow">Schritt 2 von 2</div><h2 class="h-lg">Wie oft spielt jeder?</h2></div>
+    <p class="lead">Jede Partie ist 2 gegen 2. Die Duos werden jedes Mal neu ausgelost, und jeder bekommt die Tore seines Duos gutgeschrieben.</p>
+    <div class="chips">${chips}</div>
+    ${warn}
+    <div class="summary">
+      <div class="stat"><b class="num">${M}</b><span>Partien</span></div>
+      <div class="stat"><b class="num">${D.k}×</b><span>spielt jeder</span></div>
+      <div class="stat"><b class="num">${duration(M).replace('≈ ', '')}</b><span>ungefähr (6 Min/Spiel)</span></div>
+    </div>
+    <div class="note">${I.info}<div>${rule}${pauseN > 0 ? ` Während einer Partie haben ${plural(pauseN, 'Person', 'Leute')} Pause.` : ' Bei 4 Leuten spielt jeder jede Partie, nur die Duos wechseln.'}</div></div>
+  </div>`;
+  return shell({
+    title: 'Punkte-Party', left: { act: 'back-names', icon: 'back', label: 'Zurück' }, body,
+    action: `<button class="btn btn-primary" data-act="party-create">${I.shuffle} Spielplan auslosen</button>`
+  });
+}
+
+/* ---------- Schritt 2b: Teams ---------- */
+function viewTeams() {
+  const D = S.draft, n = D.names.length;
+  const odd = n % 2 === 1;
+  const used = new Set(D.teams.flatMap(t => t.m));
+  const free = D.names.map((_, i) => i).filter(i => !used.has(i));
+  const jokerIdx = D.teamMode === 'random' ? D.joker : (odd && free.length === 1 ? free[0] : null);
+  const teamCards = D.teams.map((t, i) => `<div class="team" style="animation-delay:${i * 40}ms">
+      <div class="row"><input id="team-${i}" data-team="${i}" value="${esc(t.name)}" placeholder="Team ${i + 1}" maxlength="24" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="done">
+        <button class="smallbtn" data-act="team-rename" data-i="${i}" aria-label="Neuer Name">${I.dice}</button>
+        ${D.teamMode === 'manual' ? `<button class="smallbtn" data-act="team-split" data-i="${i}" aria-label="Team auflösen">${I.x}</button>` : ''}</div>
+      <div class="members"><b>${esc(D.names[t.m[0]])}</b> &amp; <b>${esc(D.names[t.m[1]])}</b></div></div>`).join('');
+  const jokerCard = jokerIdx != null ? `<div class="joker"><span class="jbadge">JOKER</span><div class="t"><b>${esc(D.names[jokerIdx])}</b>Springt jedes Spiel bei einem anderen Team ein. Wer dafür aussetzt, rotiert fair durch.</div></div>` : '';
+  let manual = '';
+  if (D.teamMode === 'manual') {
+    const need = free.length - (odd ? 1 : 0);
+    manual = `<div class="note">${I.info}<div>${need > 0 ? `<b>Tippe zwei Namen an</b>, um ein Team zu bilden.${odd ? ' Wer am Ende übrig bleibt, wird Joker.' : ''}` : '<b>Alle sind eingeteilt.</b> Mit × kannst du ein Team wieder auflösen.'}</div></div>
+      ${need > 0 ? `<div class="pool">${free.map(i => `<button class="pchip ${D.sel === i ? 'sel' : ''}" data-act="pool" data-i="${i}">${esc(D.names[i])}</button>`).join('')}</div>` : ''}`;
+  }
+  const T = Math.floor(n / 2);
+  const ready = D.teams.length === T && D.teams.length >= 2;
+  const body = `<div class="narrow setup">
+    <div><div class="eyebrow">Schritt 2 von 2</div><h2 class="h-lg">Feste Teams</h2></div>
+    <div class="panel-head">
+      <div class="segctl"><button class="seg ${D.teamMode === 'random' ? 'on' : ''}" data-act="team-mode" data-m="random">Zufällig</button><button class="seg ${D.teamMode === 'manual' ? 'on' : ''}" data-act="team-mode" data-m="manual">Selbst bilden</button></div>
+      ${D.teamMode === 'random' ? `<button class="btn btn-ghost" data-act="team-shuffle">${I.shuffle} Neu mischen</button>` : ''}
+    </div>
+    ${manual}
+    ${D.teams.length ? `<div class="teams">${teamCards}</div>` : ''}
+    ${jokerCard}
+    <div class="note">${I.info}<div><b>So läuft's:</b> ${T} Teams, Gewinner- und Verlierer-Bracket. Wer ein Spiel verliert, spielt im Verlierer-Bracket weiter, erst nach der zweiten Niederlage ist man raus. Das sind ${2 * T - 2} bis ${2 * T - 1} Spiele, ${duration(2 * T - 2)}.${(2 ** Math.ceil(Math.log2(T))) - T > 0 ? ` Weil ${T} keine Zweierpotenz ist, bekommen ${(2 ** Math.ceil(Math.log2(T))) - T} ausgeloste Teams in Runde 1 ein Freilos.` : ''}</div></div>
+  </div>`;
+  return shell({
+    title: 'Turnier', left: { act: 'back-names', icon: 'back', label: 'Zurück' }, body,
+    action: `<button class="btn btn-primary" data-act="cup-create" ${ready ? '' : 'disabled'}>Turnier starten ${I.arrow}</button>`
+  });
+}
+function randomTeams() {
+  const D = S.draft, n = D.names.length;
+  const idx = KL.shuffle(D.names.map((_, i) => i));
+  D.joker = n % 2 ? idx.pop() : null;
+  const names = randomTeamNames(idx.length / 2);
+  D.teams = [];
+  for (let i = 0; i < idx.length; i += 2) D.teams.push({ m: [idx[i], idx[i + 1]], name: names[i / 2] });
+}
+
+/* ---------- Punkte-Party live ---------- */
+function partyState() {
+  const P = S.party, M = P.matches.length;
+  const open = [];
+  for (let i = 0; i < M; i++) if (!P.results[i]) open.push(i);
+  return { P, M, cur: open.length ? open[0] : -1, nxt: open.length > 1 ? open[1] : -1, done: M - open.length };
+}
+function viewParty() {
+  const { P, M, cur, nxt, done } = partyState();
+  const nm = (i) => P.players[i];
+  let left;
+  if (cur >= 0) {
+    const mt = P.matches[cur];
+    const playing = new Set([...mt.a, ...mt.b]);
+    const pause = P.players.map((p, i) => i).filter(i => !playing.has(i)).map(nm);
+    const key = 'p' + cur;
+    const swap = ui.nowKey !== key; ui.nowKey = key;
+    left = `<section class="now ${swap ? 'swap' : ''}">
+      <div class="top"><span class="live-dot"><i></i>Jetzt spielt</span><span class="count">Spiel ${cur + 1} / ${M}</span></div>
+      <div class="versus">
+        <div class="side"><div class="who">${duoHTML(mt.a.map(nm))}</div></div>
+        <div class="vs">VS</div>
+        <div class="side r"><div class="who">${duoHTML(mt.b.map(nm))}</div></div>
+      </div>
+      <div class="cta"><button class="btn btn-primary btn-block" data-act="party-result" data-i="${cur}">Ergebnis eintragen</button></div>
+      ${pause.length ? `<div class="pause">Pause: <b>${pause.map(esc).join(', ')}</b></div>` : ''}
+    </section>`;
+    if (nxt >= 0) {
+      const n2 = P.matches[nxt];
+      const both = [...n2.a, ...n2.b].filter(p => playing.has(p)).length;
+      left += `<section class="next"><div class="eyebrow">Als Nächstes · Spiel ${nxt + 1}</div>
+        <div class="row"><span>${duoHTML(n2.a.map(nm))}</span><span class="v">VS</span><span>${duoHTML(n2.b.map(nm))}</span></div>
+        <div class="muted" style="font-size:14px">${both ? `${plural(both, 'Person spielt', 'Leute spielen')} direkt weiter, die anderen machen sich schon bereit.` : 'Macht euch schon mal bereit.'}</div></section>`;
+    } else left += `<section class="next"><div class="eyebrow">Letzte Partie</div><div class="muted">Danach steht die Siegerin oder der Sieger fest.</div></section>`;
+  } else {
+    ui.nowKey = 'pdone';
+    const top = KL.partyTable(P.players.length, P.matches, P.results)[0];
+    left = `<section class="now"><div class="top"><span class="live-dot">Fertig</span><span class="count">${M} / ${M}</span></div>
+      <h2 class="h-lg">Alle Spiele gespielt.</h2>
+      <p class="lead" style="margin-top:8px">Vorne: <b class="brass">${esc(nm(top.p))}</b> mit ${plural(top.goals, 'Tor', 'Toren')}.</p>
+      <div class="cta"><button class="btn btn-primary btn-block" data-act="celebrate">Siegerehrung</button></div></section>`;
+  }
+
+  const tab = S.tab.party;
+  let panel;
+  if (tab === 'plan') {
+    const st = P.stats;
+    const facts = [`Jeder spielt genau ${P.k}×`,
+      st.b2b === 0 ? 'niemand zweimal hintereinander' : (st.triple === 0 ? 'niemand dreimal hintereinander' : 'Pausen so fair wie möglich'),
+      st.partnerRep === 0 ? 'kein Duo doppelt' : plural(st.partnerRep, 'Duo-Wiederholung', 'Duo-Wiederholungen')];
+    panel = `<div class="panel-head"><div class="muted" style="font-size:14px">${facts.join(' · ')}</div>
+        ${done === 0 ? `<button class="btn btn-ghost" data-act="party-reroll">${I.shuffle} Neu auslosen</button>` : ''}</div>
+      <div class="plan ${ui.reroll ? 'reroll' : ''}">${P.matches.map((mt, i) => {
+        const r = P.results[i];
+        const wa = r && r.ga > r.gb, wb = r && r.gb > r.ga;
+        return `<button class="pm ${i === cur ? 'cur' : ''} ${r ? 'done' : ''}" data-act="party-result" data-i="${i}" style="${ui.reroll ? `animation-delay:${i * 30}ms` : ''}">
+          <span class="no">${i + 1}</span>
+          <span class="duo"><span class="${wa ? 'w' : ''}">${duoHTML(mt.a.map(nm))}</span><span class="v">VS</span><span class="${wb ? 'w' : ''}">${duoHTML(mt.b.map(nm))}</span></span>
+          <span class="res ${r ? 'num' : 'todo'}">${r ? `${r.ga}:${r.gb}` : (i === cur ? 'JETZT' : '')}</span></button>`;
+      }).join('')}</div>`;
+  } else {
+    const rows = KL.partyTable(P.players.length, P.matches, P.results);
+    panel = `<div class="th"><span>#</span><span>Spieler</span><span>S · U · N</span><span>Tore</span></div>
+      <div class="table">${rows.map((r, i) => `<div class="tr ${r.place === 1 && done ? 'top1' : ''}" style="animation-delay:${i * 25}ms">
+        <span class="pl">${r.place}</span><span class="nm">${esc(nm(r.p))}<small>${r.played} / ${r.total} gespielt</small></span>
+        <span class="wdl">${r.w} · ${r.d} · ${r.l}</span><span class="gl">${r.goals}</span></div>`).join('')}</div>
+      <div class="muted" style="font-size:13px;padding:4px 4px 0">Gewertet wird: Tore, dann Siege, dann Tordifferenz.</div>`;
+  }
+  const body = `<div class="wrap live"><div class="left">${left}</div>
+    <div class="right"><div class="tabs"><button class="tab ${tab === 'plan' ? 'on' : ''}" data-act="tab" data-t="plan">Spielplan</button><button class="tab ${tab === 'table' ? 'on' : ''}" data-act="tab" data-t="table">Rangliste</button></div>${panel}</div></div>`;
+  return shell({ title: 'Punkte-Party', sub: `${done}/${M}`, left: { act: 'go-home', icon: 'home', label: 'Start' }, right: { act: 'menu', icon: 'more', label: 'Menü' }, body });
+}
+
+/* ---------- Turnier: Kontext ---------- */
+const brCache = {};
+function cupCtx() {
+  const C = S.cup, T = C.teams.length;
+  const br = brCache[T] || (brCache[T] = KL.cupBuild(T));
+  const res = KL.cupResolve(br, C.seeds, C.results);
+  const { info } = res;
+  // strukturelle Freilose
+  const sb = {};
+  const structBye = (src) => {
+    if (src.t === 'seed') return src.i >= T;
+    if (src.m === 'GF' || src.m === 'GF2') return false;
+    const m = br.M[src.m];
+    const b1 = structBye(m.s1), b2 = structBye(m.s2);
+    return src.t === 'win' ? (b1 && b2) : (b1 || b2);
+  };
+  const isAuto = (id) => {
+    if (id in sb) return sb[id];
+    const m = br.M[id];
+    return (sb[id] = id !== 'GF' && id !== 'GF2' && (structBye(m.s1) || structBye(m.s2)));
+  };
+  // Labels G1.., V1..
+  const label = {}; let g = 0, v = 0;
+  for (const id of br.order) {
+    if (isAuto(id)) continue;
+    const m = br.M[id];
+    if (m.br === 'W') label[id] = 'G' + (++g);
+    else if (m.br === 'L') label[id] = 'V' + (++v);
+    else label[id] = id === 'GF' ? 'Finale' : 'Entscheidung';
+  }
+  const tname = (t) => C.teams[t].name;
+  const placeholder = (src) => {
+    if (src.t === 'seed') return src.i < T ? tname(C.seeds[src.i]) : 'Freilos';
+    const p = res.part(src);
+    if (p !== null && p !== KL.BYE) return tname(p);
+    if (isAuto(src.m) && src.t === 'win') {
+      const m = br.M[src.m];
+      return placeholder(structBye(m.s1) ? m.s2 : m.s1);
+    }
+    return (src.t === 'win' ? 'Sieger ' : 'Verlierer ') + (label[src.m] || '');
+  };
+  const lbRoundNo = {}; let lbn = 0;
+  for (let q = 1; q <= br.LR; q++) if (br.order.some(id => br.M[id].br === 'L' && br.M[id].round === q && !isAuto(id))) lbRoundNo[q] = ++lbn;
+  const stage = (id) => {
+    const m = br.M[id];
+    if (m.br === 'W') return m.round === br.n ? (br.n === 1 ? 'Erstes Duell' : 'Gewinner-Finale') : `Gewinner · Runde ${m.round}`;
+    if (m.br === 'L') return m.round === br.LR ? 'Verlierer-Finale' : `Verlierer · Runde ${lbRoundNo[m.round]}`;
+    return id === 'GF' ? 'Großes Finale' : 'Entscheidungsspiel';
+  };
+  // gültige Historie
+  const hist = C.history.filter(id => info[id] && info[id].played);
+  const lastId = hist[hist.length - 1];
+  const lastTeams = lastId ? [info[lastId].a, info[lastId].b] : [];
+  const cur = res.champ === null ? KL.cupPick(br, info, lastTeams) : null;
+  const { losses, wins, games } = KL.cupLosses(br, info, T);
+  const playedCount = br.order.filter(id => info[id].exists && info[id].played).length;
+  return { C, T, br, info, res, champ: res.champ, isAuto, label, placeholder, stage, cur, losses, wins, games, playedCount, hist, structBye, tname };
+}
+
+// Joker: Wer setzt in diesem Spiel aus?
+function jokerOptions(ctx, id) {
+  const C = ctx.C;
+  if (C.joker == null) return null;
+  const it = ctx.info[id];
+  const four = [...C.teams[it.a].m, ...C.teams[it.b].m];
+  const sit = {}, teamJ = {};
+  let lastTeam = null;
+  for (const hid of ctx.hist) {
+    const r = C.results[hid];
+    if (r && r.sub != null) {
+      sit[r.sub] = (sit[r.sub] || 0) + 1;
+      const tm = C.teams.findIndex(t => t.m.includes(r.sub));
+      teamJ[tm] = (teamJ[tm] || 0) + 1; lastTeam = tm;
+    }
+  }
+  const hash = (p) => ((p + 1) * 2654435761 + id.length * 97 + id.charCodeAt(id.length - 1) * 31) % 1000 / 1000;
+  const scored = four.map(p => {
+    const tm = C.teams.findIndex(t => t.m.includes(p));
+    return { p, s: (sit[p] || 0) * 10 + (teamJ[tm] || 0) * 3 + (tm === lastTeam ? 2 : 0) + hash(p) };
+  }).sort((a, b) => a.s - b.s).map(x => x.p);
+  return [...scored, null]; // null = Joker pausiert
+}
+function jokerSub(ctx, id) {
+  const opts = jokerOptions(ctx, id);
+  if (!opts) return undefined;
+  const k = (ctx.C.jokerPick[id] || 0) % opts.length;
+  return opts[k];
+}
+
+function cupNextPreview(ctx) {
+  const { br, info, cur } = ctx;
+  if (!cur) return null;
+  const it = info[cur];
+  const id2 = KL.cupPick(br, info, [it.a, it.b], cur);
+  if (id2) return { id: id2, a: ctx.tname(info[id2].a), b: ctx.tname(info[id2].b) };
+  const dep = (src) => {
+    const p = ctx.res.part(src);
+    if (p !== null) return p === KL.BYE ? null : ctx.tname(p);
+    if (src.t === 'seed') return null;
+    if (src.m === cur) return src.t === 'win' ? 'Sieger von jetzt' : 'Verlierer von jetzt';
+    if (ctx.isAuto(src.m) && src.t === 'win') { const m = br.M[src.m]; return dep(ctx.structBye(m.s1) ? m.s2 : m.s1); }
+    return null;
+  };
+  const ids = br.order.slice().sort((x, y) => br.M[x].key - br.M[y].key);
+  for (const id of ids) {
+    if (id === cur || id === 'GF2' || ctx.isAuto(id)) continue;
+    const x = info[id];
+    if (!x.exists || x.outcome) continue;
+    const a = dep(br.M[id].s1), b = dep(br.M[id].s2);
+    if (a && b) return { id, a, b, ph: true };
+  }
+  if (cur === 'GF') return { gf2: true, lb: ctx.tname(info.GF.b) };
+  return null;
+}
+
+/* ---------- Turnier live ---------- */
+function viewCup() {
+  const ctx = cupCtx();
+  const { C, info, cur } = ctx;
+  const members = (t) => C.teams[t].m.map(i => C.players[i]);
+  let left;
+  if (ctx.champ !== null) {
+    ui.nowKey = 'cdone';
+    left = `<section class="now"><div class="top"><span class="live-dot">Fertig</span><span class="count">${ctx.playedCount} Spiele</span></div>
+      <div class="eyebrow">Turniersieger</div>
+      <h2 class="h-lg brass" style="margin-top:8px">${esc(ctx.tname(ctx.champ))}</h2>
+      <p class="lead" style="margin-top:6px">${duoHTML(members(ctx.champ))}</p>
+      <div class="cta"><button class="btn btn-primary btn-block" data-act="celebrate">Siegerehrung</button></div></section>`;
+  } else if (cur) {
+    const it = info[cur];
+    const key = 'c' + cur; const swap = ui.nowKey !== key; ui.nowKey = key;
+    let jline = '';
+    if (C.joker != null) {
+      const sub = jokerSub(ctx, cur);
+      const jn = esc(C.players[C.joker]);
+      jline = `<div class="jline"><span class="jbadge">JOKER</span>${sub == null ? `<span><b>${jn}</b> setzt dieses Spiel aus</span>` : `<span><b>${jn}</b> spielt für <b>${esc(C.players[sub])}</b></span>`}
+        <button data-act="joker-swap" data-id="${cur}">Tauschen</button></div>`;
+    }
+    const mem = (t) => {
+      const sub = C.joker != null ? jokerSub(ctx, cur) : null;
+      return C.teams[t].m.map(i => i === sub ? `<span class="jk">${esc(C.players[C.joker])}</span>` : esc(C.players[i])).join(' &amp; ');
+    };
+    left = `<section class="now ${swap ? 'swap' : ''}">
+      <div class="top"><span class="live-dot"><i></i>Jetzt spielt</span><span class="count">${esc(ctx.stage(cur))}</span></div>
+      <div class="versus">
+        <div class="side"><div class="who">${esc(ctx.tname(it.a))}</div><div class="sm">${mem(it.a)}</div></div>
+        <div class="vs">VS</div>
+        <div class="side r"><div class="who">${esc(ctx.tname(it.b))}</div><div class="sm">${mem(it.b)}</div></div>
+      </div>
+      ${jline}
+      <div class="cta"><button class="btn btn-primary btn-block" data-act="cup-result" data-id="${cur}">Sieger eintragen</button></div>
+    </section>`;
+    const nx = cupNextPreview(ctx);
+    if (nx && nx.gf2) left += `<section class="next"><div class="eyebrow">Danach</div><div class="muted">Gewinnt <b style="color:var(--text)">${esc(nx.lb)}</b>, haben beide Teams eine Niederlage. Dann entscheidet ein letztes Spiel.</div></section>`;
+    else if (nx) left += `<section class="next"><div class="eyebrow">Als Nächstes · ${esc(ctx.stage(nx.id))}</div>
+        <div class="row"><span class="${nx.ph && nx.a.endsWith('von jetzt') ? 'ph' : ''}">${esc(nx.a)}</span><span class="v">VS</span><span class="${nx.ph && nx.b.endsWith('von jetzt') ? 'ph' : ''}">${esc(nx.b)}</span></div></section>`;
+    else left += `<section class="next"><div class="eyebrow">Letztes Spiel</div><div class="muted">Danach steht der Turniersieger fest.</div></section>`;
+  } else {
+    left = `<section class="now"><div class="muted">Kein Spiel bereit.</div></section>`;
+  }
+
+  const tab = S.tab.cup;
+  const panel = tab === 'bracket' ? bracketHTML(ctx) : teamsListHTML(ctx);
+  const body = `<div class="wrap live"><div class="left">${left}</div>
+    <div class="right"><div class="tabs"><button class="tab ${tab === 'bracket' ? 'on' : ''}" data-act="tab" data-t="bracket">Bracket</button><button class="tab ${tab === 'teams' ? 'on' : ''}" data-act="tab" data-t="teams">Teams</button></div>${panel}</div></div>`;
+  return shell({ title: 'Turnier', sub: `${ctx.playedCount} gespielt`, left: { act: 'go-home', icon: 'home', label: 'Start' }, right: { act: 'menu', icon: 'more', label: 'Menü' }, body });
+}
+
+function bracketCard(ctx, id) {
+  const { br, info, C } = ctx;
+  const it = info[id], m = br.M[id];
+  const r = C.results[id];
+  const row = (src, p) => {
+    if (p === null || p === undefined) return `<div class="t ph"><span>${esc(ctx.placeholder(src))}</span></div>`;
+    const cls = it.played ? (it.outcome.w === p ? 'win' : 'lose') : '';
+    const g = r && it.played && r.ga != null ? (p === r.a ? r.ga : r.gb) : '';
+    return `<div class="t ${cls}"><span>${esc(ctx.tname(p))}</span><span class="g">${g}</span></div>`;
+  };
+  const clickable = it.played || it.ready;
+  return `<${clickable ? 'button' : 'div'} class="bm ${id === ctx.cur ? 'cur' : ''}" ${clickable ? `data-act="cup-result" data-id="${id}"` : ''}>
+    <div class="lab"><span>${esc(ctx.label[id])}</span><span>${id === ctx.cur ? '<span class="brass">Jetzt</span>' : (it.played ? '' : '')}</span></div>
+    ${row(m.s1, it.a)}${row(m.s2, it.b)}</${clickable ? 'button' : 'div'}>`;
+}
+function bracketHTML(ctx) {
+  const { br, C, T } = ctx;
+  const col = (title, ids, extra = '') => `<div class="bk-col"><h4>${esc(title)}</h4><div class="bk-cards">${extra}${ids.map(id => bracketCard(ctx, id)).join('')}</div></div>`;
+  // Gewinner-Bracket
+  let wb = '';
+  for (let r = 1; r <= br.n; r++) {
+    const ids = br.order.filter(id => br.M[id].br === 'W' && br.M[id].round === r && !ctx.isAuto(id));
+    let extra = '';
+    if (r === 1) {
+      // Teams mit Freilos: Gegner-Setzplatz ist leer (>= T)
+      const byeTeams = [];
+      const so = KL.seeding(br.S);
+      for (let i = 0; i < T; i++) {
+        const pos = so.indexOf(i + 1), mate = so[pos % 2 ? pos - 1 : pos + 1] - 1;
+        if (mate >= T) byeTeams.push(C.seeds[i]);
+      }
+      extra = byeTeams.map(t => `<div class="bm byes"><div class="lab"><span>Freilos</span></div><div class="t"><span>${esc(ctx.tname(t))}</span></div></div>`).join('');
+    }
+    if (ids.length || extra) wb += col(br.n === 1 ? 'Erstes Duell' : (r === br.n ? 'Finale' : `Runde ${r}`), ids, extra);
+  }
+  let lb = '', shown = 0;
+  for (let q = 1; q <= br.LR; q++) {
+    const ids = br.order.filter(id => br.M[id].br === 'L' && br.M[id].round === q && !ctx.isAuto(id));
+    if (ids.length) lb += col(q === br.LR ? 'Finale' : `Runde ${++shown}`, ids);
+  }
+  const finals = ['GF'].concat(ctx.info.GF2.exists ? ['GF2'] : []);
+  const fin = col('Großes Finale', finals);
+  return `<div class="bk-sec"><div class="eyebrow">Gewinner-Bracket</div><div class="bk-scroll"><div class="bk">${wb}</div></div></div>
+    ${lb ? `<div class="bk-sec"><div class="eyebrow">Verlierer-Bracket · 1 Niederlage</div><div class="bk-scroll"><div class="bk">${lb}</div></div></div>` : ''}
+    <div class="bk-sec"><div class="eyebrow">Finale</div><div class="bk-scroll"><div class="bk">${fin}</div></div>
+    <div class="muted" style="font-size:13px">Gewinnt im Finale das Team aus dem Verlierer-Bracket, haben beide eine Niederlage, dann gibt's ein Entscheidungsspiel. Tippe ein Spiel an, um ein Ergebnis zu ändern.</div></div>`;
+}
+function teamGoals(ctx) {
+  const goals = new Array(ctx.T).fill(0); let any = false;
+  for (const id of ctx.hist) {
+    const r = ctx.C.results[id];
+    if (r && r.ga != null) { any = true; goals[r.a] += r.ga; goals[r.b] += r.gb; }
+  }
+  return { goals, any };
+}
+function teamsListHTML(ctx) {
+  const { C, T, losses, wins } = ctx;
+  const { goals, any } = teamGoals(ctx);
+  const order = [...Array(T).keys()].sort((a, b) => (a === ctx.champ ? -1 : b === ctx.champ ? 1 : 0) || losses[a] - losses[b] || wins[b] - wins[a]);
+  const rows = order.map((t, i) => {
+    const l = Math.min(2, losses[t]);
+    const out = l >= 2;
+    const pill = t === ctx.champ ? '<span class="pill w">Champion</span>' : out ? '<span class="pill out">Raus</span>' : l === 1 ? '<span class="pill l">Noch 1 Leben</span>' : '<span class="pill w">Ungeschlagen</span>';
+    return `<div class="tl ${out ? 'out' : ''}" style="animation:pop .4s ${i * 30}ms both var(--ease)">
+      <div class="nm">${esc(C.teams[t].name)}<small>${C.teams[t].m.map(p => esc(C.players[p])).join(' &amp; ')} · ${wins[t]} S · ${losses[t]} N${any ? ` · ${goals[t]} Tore` : ''}</small></div>
+      <div class="st"><span class="lives"><i class="${l >= 2 ? 'gone' : ''}"></i><i class="${l >= 1 ? 'gone' : ''}"></i></span>${pill}</div></div>`;
+  }).join('');
+  let joker = '';
+  if (C.joker != null) {
+    const n = ctx.hist.filter(id => C.results[id] && C.results[id].sub != null).length;
+    joker = `<div class="joker"><span class="jbadge">JOKER</span><div class="t"><b>${esc(C.players[C.joker])}</b>${plural(n, 'Einsatz', 'Einsätze')} bisher</div></div>`;
+  }
+  return `<div class="tlist">${rows}</div>${joker}<div class="muted" style="font-size:13px">Die Punkte zeigen die Leben: Jedes Team hat zwei.</div>`;
+}
+
+/* =========================================================
+   Sheets & Dialoge
+   ========================================================= */
+function openSheet(html, onClose) {
+  closeSheet(true);
+  const scrim = document.createElement('div');
+  scrim.className = 'scrim';
+  scrim.innerHTML = `<div class="sheet" role="dialog" aria-modal="true">${html}</div>`;
+  scrim.addEventListener('click', (e) => { if (e.target === scrim) closeSheet(); });
+  document.body.appendChild(scrim);
+  ui.modal = { el: scrim, onClose };
+  return scrim;
+}
+function closeSheet(instant) {
+  const m = ui.modal;
+  if (!m) return;
+  ui.modal = null;
+  if (m.onClose) m.onClose();
+  if (instant) { m.el.remove(); return; }
+  m.el.classList.add('closing'); m.el.firstElementChild.classList.add('closing');
+  setTimeout(() => m.el.remove(), 220);
+}
+function ask({ title, text, ok = 'OK', danger = false }) {
+  return new Promise(resolve => {
+    let done = false;
+    const finish = (v) => { if (done) return; done = true; resolve(v); };
+    const el = openSheet(`<div class="head"><h3 class="h-md">${esc(title)}</h3></div>
+      <p class="lead" style="margin:0">${text}</p>
+      <div class="btns"><button class="btn ${danger ? 'btn-danger' : 'btn-primary'}" data-ask="1">${esc(ok)}</button><button class="btn btn-ghost" data-ask="0">Abbrechen</button></div>`, () => finish(false));
+    el.querySelectorAll('[data-ask]').forEach(b => b.addEventListener('click', () => { finish(b.dataset.ask === '1'); closeSheet(); }));
+  });
+}
+
+/* ---------- Ergebnis Punkte-Party ---------- */
+function partyResultSheet(i) {
+  const P = S.party, mt = P.matches[i];
+  const r = P.results[i];
+  const st = { ga: r ? r.ga : 0, gb: r ? r.gb : 0, saving: false };
+  const nm = (p) => P.players[p];
+  const el = openSheet(`<div class="head"><div><div class="eyebrow">Spiel ${i + 1}</div><h3 class="h-md" style="margin-top:6px">${r ? 'Ergebnis ändern' : 'Wie ist es ausgegangen?'}</h3></div>
+      <button class="iconbtn" data-x aria-label="Schließen">${I.x}</button></div>
+    <div class="score">
+      ${['a', 'b'].map(s => `<div class="sc" id="sc-${s}"><div class="who"><span>${duoHTML(mt[s].map(nm))}</span></div>
+        <div class="big num" id="big-${s}">${st['g' + s]}</div>
+        <div class="pm2"><button data-d="-1" data-s="${s}" aria-label="Tor weniger">${I.minus}</button><button class="plus" data-d="1" data-s="${s}" aria-label="Tor mehr">${I.plus}</button></div></div>`).join('')}
+    </div>
+    <div class="btns"><button class="btn btn-primary" data-save>Speichern</button>
+      ${r ? '<button class="btn btn-quiet" data-del>Ergebnis löschen</button>' : ''}</div>`);
+  const upd = (s, bump) => {
+    const b = $('#big-' + s, el); b.textContent = st['g' + s];
+    if (bump) { b.classList.remove('bump'); void b.offsetWidth; b.classList.add('bump'); }
+    $('#sc-a', el).classList.toggle('ahead', st.ga > st.gb);
+    $('#sc-b', el).classList.toggle('ahead', st.gb > st.ga);
+  };
+  upd('a'); upd('b');
+  el.querySelectorAll('.pm2 button').forEach(b => b.addEventListener('click', () => {
+    const k = 'g' + b.dataset.s;
+    st[k] = Math.max(0, Math.min(99, st[k] + Number(b.dataset.d)));
+    upd(b.dataset.s, true);
+  }));
+  $('[data-x]', el).addEventListener('click', () => closeSheet());
+  $('[data-save]', el).addEventListener('click', () => {
+    if (st.saving) return; st.saving = true;
+    const wasDone = partyState().cur === -1;
+    P.results[i] = { ga: st.ga, gb: st.gb };
+    save(); closeSheet(); render();
+    if (!wasDone && partyState().cur === -1 && !S.celebrated.party) { S.celebrated.party = true; save(); setTimeout(celebrate, 450); }
+  });
+  const del = $('[data-del]', el);
+  if (del) del.addEventListener('click', () => {
+    if (st.saving) return; st.saving = true;
+    delete P.results[i]; S.celebrated.party = false; save(); closeSheet(); render();
+  });
+}
+
+/* ---------- Ergebnis Turnier ---------- */
+function cupResultSheet(id) {
+  const ctx = cupCtx();
+  const { C, info } = ctx;
+  const it = info[id];
+  if (!it || !it.exists || (!it.ready && !it.played)) return;
+  const r = C.results[id];
+  const A = it.a, B = it.b;
+  const st = {
+    winner: r ? r.winner : null,
+    ga: r && r.ga != null ? (r.a === A ? r.ga : r.gb) : 0,
+    gb: r && r.ga != null ? (r.a === A ? r.gb : r.ga) : 0,
+    goals: !!(r && r.ga != null), saving: false
+  };
+  const mem = (t) => C.teams[t].m.map(i => esc(C.players[i])).join(' &amp; ');
+  const el = openSheet(`<div class="head"><div><div class="eyebrow">${esc(ctx.stage(id))}</div><h3 class="h-md" style="margin-top:6px">${r ? 'Ergebnis ändern' : 'Wer hat gewonnen?'}</h3></div>
+      <button class="iconbtn" data-x aria-label="Schließen">${I.x}</button></div>
+    <div class="pick">
+      ${[A, B].map((t, k) => `<button class="pk" data-pick="${t}" id="pk-${k}"><span class="crown">${I.crown}</span><b>${esc(ctx.tname(t))}</b><small>${mem(t)}</small></button>`).join('')}
+    </div>
+    <details class="opt" ${st.goals ? 'open' : ''}><summary>${I.plus.replace('<svg', '<svg style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2"')} Tore eintragen (optional, nur Statistik)</summary>
+      <div class="mini">${['a', 'b'].map(s => `<div class="ms"><button data-d="-1" data-s="${s}" aria-label="Tor weniger">${I.minus}</button><b class="num" id="g-${s}">${st['g' + s]}</b><button data-d="1" data-s="${s}" aria-label="Tor mehr">${I.plus}</button></div>`).join('')}</div>
+    </details>
+    <div class="btns"><button class="btn btn-primary" data-save ${st.winner == null ? 'disabled' : ''}>Speichern</button>
+      ${r ? '<button class="btn btn-quiet" data-del>Ergebnis löschen</button>' : ''}</div>`);
+  const sync = () => {
+    [A, B].forEach((t, j) => {
+      const on = st.winner === t;
+      $('#pk-' + j, el).classList.toggle('on', on);
+      $('#pk-' + j + ' small', el).innerHTML = on ? 'Gewinner' : mem(t);
+    });
+    $('#g-a', el).textContent = st.ga; $('#g-b', el).textContent = st.gb;
+    $('[data-save]', el).disabled = st.winner == null;
+  };
+  sync();
+  el.querySelectorAll('[data-pick]').forEach(b => b.addEventListener('click', () => { st.winner = Number(b.dataset.pick); sync(); }));
+  el.querySelectorAll('.ms button').forEach(b => b.addEventListener('click', () => {
+    const k = 'g' + b.dataset.s;
+    st[k] = Math.max(0, Math.min(99, st[k] + Number(b.dataset.d)));
+    st.goals = true;
+    if (st.ga !== st.gb) st.winner = st.ga > st.gb ? A : B;
+    sync();
+  }));
+  $('[data-x]', el).addEventListener('click', () => closeSheet());
+
+  const apply = async (newRes) => {
+    const next = { ...C.results };
+    if (newRes) next[id] = newRes; else delete next[id];
+    const san = KL.cupSanitize(ctx.br, C.seeds, next);
+    const lost = san.removed.filter(x => x !== id).length;
+    if (lost > 0) {
+      closeSheet(true);
+      const okk = await ask({ title: 'Turnierverlauf ändert sich', text: `Dadurch passen ${plural(lost, 'spätere Partie', 'spätere Partien')} nicht mehr. Deren Ergebnisse werden gelöscht und neu ausgespielt.`, ok: 'Trotzdem ändern', danger: true });
+      if (!okk) { render(); return; }
+    } else closeSheet();
+    const wasChamp = ctx.champ !== null;
+    C.results = san.results;
+    if (newRes && !C.history.includes(id)) C.history.push(id);
+    C.history = C.history.filter(x => C.results[x]);
+    if (!newRes) delete C.jokerPick[id];
+    const after = cupCtx();
+    if (after.champ === null) S.celebrated.cup = false;
+    save(); render();
+    if (!wasChamp && after.champ !== null && !S.celebrated.cup) { S.celebrated.cup = true; save(); setTimeout(celebrate, 450); }
+  };
+  $('[data-save]', el).addEventListener('click', () => {
+    if (st.saving || st.winner == null) return; st.saving = true;
+    const sub = r ? r.sub : (C.joker != null ? jokerSub(ctx, id) : undefined);
+    apply({ a: A, b: B, winner: st.winner, ga: st.goals ? st.ga : null, gb: st.goals ? st.gb : null, sub: sub === undefined ? null : sub });
+  });
+  const del = $('[data-del]', el);
+  if (del) del.addEventListener('click', () => { if (st.saving) return; st.saving = true; apply(null); });
+}
+
+/* ---------- Menü ---------- */
+function menuSheet() {
+  const canReroll = S.view === 'party' && partyState().done === 0;
+  const el = openSheet(`<div class="head"><h3 class="h-md">Menü</h3><button class="iconbtn" data-x aria-label="Schließen">${I.x}</button></div>
+    <div class="menu">
+      <button class="btn btn-ghost" data-m="home">${I.home} Zur Startseite</button>
+      ${canReroll ? `<button class="btn btn-ghost" data-m="reroll">${I.shuffle} Spielplan neu auslosen</button>` : ''}
+      <button class="btn btn-danger" data-m="reset">${I.x} Neuer Abend</button>
+    </div>
+    <div class="muted" style="font-size:13px">„Neuer Abend“ löscht das laufende Turnier. Die Namen bleiben zum schnellen Neustart gespeichert.</div>`);
+  $('[data-x]', el).addEventListener('click', () => closeSheet());
+  el.querySelectorAll('[data-m]').forEach(b => b.addEventListener('click', async () => {
+    const m = b.dataset.m;
+    closeSheet(true);
+    if (m === 'home') { S.view = 'home'; save(); render(); }
+    if (m === 'reroll') rerollParty();
+    if (m === 'reset') {
+      if (await ask({ title: 'Neuer Abend?', text: 'Das laufende Turnier und alle Ergebnisse werden gelöscht.', ok: 'Alles löschen', danger: true })) resetAll();
+    }
+  }));
+}
+function resetAll() { S.party = null; S.cup = null; S.draft = null; S.celebrated = {}; S.view = 'home'; save(); render(); }
+
+/* =========================================================
+   Siegerehrung
+   ========================================================= */
+function celebrate() {
+  document.querySelectorAll('.win-ov').forEach(e => e.remove());
+  let html = '';
+  if (S.view === 'party' && S.party) {
+    const P = S.party;
+    const rows = KL.partyTable(P.players.length, P.matches, P.results);
+    const nm = (r) => esc(P.players[r.p]);
+    const first = rows.filter(r => r.place === 1);
+    const pod = (r, cls, place) => r ? `<div class="pod ${cls}"><div class="nm">${nm(r)}</div><div class="pts">${plural(r.goals, 'Tor', 'Tore')}</div><div class="blk">${place}</div></div>` : '<div></div>';
+    const mostWins = rows.slice().sort((a, b) => b.w - a.w)[0];
+    let best = null;
+    P.matches.forEach((mt, i) => { const r = P.results[i]; if (r && (!best || r.ga + r.gb > best.t)) best = { i, t: r.ga + r.gb, r }; });
+    const total = Object.values(P.results).reduce((s, r) => s + r.ga + r.gb, 0);
+    html = `<div class="trophy">${I.trophy}</div>
+      <div><div class="eyebrow">Punkte-Party · Sieg${first.length > 1 ? ' geteilt' : ''}</div></div>
+      <div class="champ">${first.map(nm).join(' &amp; ')}</div>
+      <div class="champ-sub">${plural(first[0].goals, 'Tor', 'Tore')} gesammelt · ${first[0].w} Siege</div>
+      <div class="podium">${pod(rows[1], 'p2', rows[1] ? rows[1].place : '')}${pod(rows[0], 'p1', rows[0].place)}${pod(rows[2], 'p3', rows[2] ? rows[2].place : '')}</div>
+      <div class="facts">
+        <div class="fact"><span>Meiste Siege</span><b>${nm(mostWins)} · ${mostWins.w}</b></div>
+        ${best ? `<div class="fact"><span>Torreichstes Spiel</span><b>Spiel ${best.i + 1} · ${best.r.ga}:${best.r.gb}</b></div>` : ''}
+        <div class="fact"><span>Tore an diesem Abend</span><b class="num">${total}</b></div>
+      </div>`;
+  } else if (S.view === 'cup' && S.cup) {
+    const ctx = cupCtx();
+    if (ctx.champ === null) return;
+    const C = ctx.C;
+    const mem = (t) => C.teams[t].m.map(i => esc(C.players[i])).join(' &amp; ');
+    const pod = (t, cls, place) => t != null ? `<div class="pod ${cls}"><div class="nm">${esc(ctx.tname(t))}</div><div class="pts">${mem(t)}</div><div class="blk">${place}</div></div>` : '<div></div>';
+    const { goals, any } = teamGoals(ctx);
+    let top = null; if (any) top = [...Array(ctx.T).keys()].sort((a, b) => goals[b] - goals[a])[0];
+    const jn = C.joker != null ? ctx.hist.filter(id => C.results[id] && C.results[id].sub != null).length : 0;
+    html = `<div class="trophy">${I.trophy}</div>
+      <div class="eyebrow">Turniersieger</div>
+      <div class="champ">${esc(ctx.tname(ctx.champ))}</div>
+      <div class="champ-sub">${mem(ctx.champ)} · ${plural(ctx.wins[ctx.champ], 'Sieg', 'Siege')}, ${plural(ctx.losses[ctx.champ], 'Niederlage', 'Niederlagen')}</div>
+      <div class="podium">${pod(ctx.res.second, 'p2', 2)}${pod(ctx.champ, 'p1', 1)}${pod(ctx.res.third, 'p3', 3)}</div>
+      <div class="facts">
+        <div class="fact"><span>Gespielte Partien</span><b class="num">${ctx.playedCount}</b></div>
+        ${any ? `<div class="fact"><span>Meiste Tore</span><b>${esc(ctx.tname(top))} · ${goals[top]}</b></div>` : ''}
+        ${C.joker != null ? `<div class="fact"><span>Joker ${esc(C.players[C.joker])}</span><b>${plural(jn, 'Einsatz', 'Einsätze')}</b></div>` : ''}
+      </div>`;
+  } else return;
+  const ov = document.createElement('div');
+  ov.className = 'win-ov';
+  ov.innerHTML = `<div class="win-box">${html}<div class="btns"><button class="btn btn-ghost" data-close>Schließen</button><button class="btn btn-primary" data-new>Neuer Abend</button></div></div>`;
+  document.body.appendChild(ov);
+  $('[data-close]', ov).addEventListener('click', () => ov.remove());
+  $('[data-new]', ov).addEventListener('click', async () => {
+    if (await ask({ title: 'Neuer Abend?', text: 'Das Turnier und alle Ergebnisse werden gelöscht. Die Namen bleiben gespeichert.', ok: 'Neu starten', danger: true })) { ov.remove(); resetAll(); }
+  });
+  confetti();
+}
+
+function confetti() {
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const c = $('#confetti');
+  c.hidden = false;
+  const W = innerWidth, H = innerHeight, dpr = Math.min(2, devicePixelRatio || 1);
+  c.width = W * dpr; c.height = H * dpr;
+  const g = c.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const cols = ['#E4B76C', '#F3CF8E', '#C9974B', '#F1EFEA', '#8F95A0'];
+  const ps = [];
+  const burst = (x, y, n, dir) => { for (let i = 0; i < n; i++) ps.push({
+    x, y, vx: dir * (4 + Math.random() * 10) + (dir === 0 ? (Math.random() - .5) * 16 : 0), vy: -(8 + Math.random() * 13),
+    gr: .28 + Math.random() * .12, w: 5 + Math.random() * 6, h: 8 + Math.random() * 9, a: Math.random() * 6, va: (Math.random() - .5) * .35,
+    c: cols[(Math.random() * cols.length) | 0] }); };
+  burst(W / 2, H * .38, 120, 0); burst(0, H * .75, 70, 1); burst(W, H * .75, 70, -1);
+  const t0 = performance.now();
+  const frame = (t) => {
+    g.clearRect(0, 0, W, H);
+    let alive = false;
+    for (const p of ps) {
+      p.vx *= .985; p.vy = p.vy * .985 + p.gr; p.x += p.vx; p.y += p.vy; p.a += p.va;
+      if (p.y < H + 30) alive = true;
+      g.save(); g.translate(p.x, p.y); g.rotate(p.a); g.scale(1, Math.cos(p.a * 1.7));
+      g.fillStyle = p.c; g.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); g.restore();
+    }
+    if (alive && t - t0 < 7000) requestAnimationFrame(frame);
+    else { g.clearRect(0, 0, W, H); c.hidden = true; }
+  };
+  requestAnimationFrame(frame);
+}
+
+/* =========================================================
+   Aktionen
+   ========================================================= */
+function startMode(mode) {
+  const names = S.roster.length >= 4 ? S.roster.slice(0, 16) : new Array(8).fill('');
+  S.draft = { mode, names, k: 4, kWarn: null, teamMode: 'random', teams: [], joker: null, sel: null };
+  S.view = 'names'; save(); render();
+}
+function rerollParty() {
+  const P = S.party;
+  P.matches = KL.partyBuild(P.players.length, P.k);
+  P.stats = KL.partyStats(P.players.length, P.matches);
+  ui.reroll = true; ui.nowKey = null;
+  save(); render();
+}
+function readNames() {
+  const D = S.draft;
+  const final = D.names.map((v, i) => (v || '').trim() || `Spieler ${i + 1}`);
+  const seen = {}, dup = new Set();
+  final.forEach((v, i) => { const k = v.toLocaleLowerCase('de'); if (k in seen) { dup.add(i); dup.add(seen[k]); } else seen[k] = i; });
+  return { final, dup };
+}
+
+document.addEventListener('click', async (e) => {
+  const b = e.target.closest('[data-act]');
+  if (!b || b.closest('.sheet')) return;
+  const act = b.dataset.act;
+  const D = S.draft;
+  switch (act) {
+    case 'start': {
+      if ((S.party || S.cup) && !(await ask({ title: 'Neues Turnier starten?', text: 'Das laufende Turnier wird dabei beendet und gelöscht.', ok: 'Neu starten', danger: true }))) return;
+      S.party = null; S.cup = null; S.celebrated = {};
+      startMode(b.dataset.mode); break;
+    }
+    case 'resume': S.view = b.dataset.mode; save(); render(); break;
+    case 'go-home': S.view = 'home'; save(); render(); break;
+    case 'back-names': S.view = 'names'; save(); render(); break;
+    case 'count': {
+      const d = Number(b.dataset.d);
+      const n = D.names.length + d;
+      if (n < 4 || n > 16) return;
+      if (d > 0) {
+        D.names.push(S.roster[n - 1] && !D.names.includes(S.roster[n - 1]) ? S.roster[n - 1] : '');
+        $('#names').insertAdjacentHTML('beforeend', nameField(n - 1, D.names[n - 1], true));
+      } else { D.names.pop(); const f = $('#f' + n); if (f) f.remove(); }
+      $('#cnt').textContent = n;
+      const [mb, pb] = document.querySelectorAll('.stepper button');
+      mb.disabled = n <= 4; pb.disabled = n >= 16;
+      D.teams = []; D.sel = null;
+      save(); break;
+    }
+    case 'names-next': {
+      const { final, dup } = readNames();
+      document.querySelectorAll('.field').forEach((f, i) => f.classList.toggle('err', dup.has(i)));
+      if (dup.size) { $('#nameErr').textContent = 'Zwei Spieler heißen gleich. Bitte die Namen unterscheidbar machen, z. B. „Tim K.“ und „Tim S.“.'; return; }
+      const changed = JSON.stringify(final) !== JSON.stringify(D.final || []);
+      D.names = final; D.final = final; S.roster = final.slice();
+      if (D.mode === 'party') { D.kWarn = null; S.view = 'partyCfg'; }
+      else { if (changed || !D.teams.length) { D.teamMode = D.teamMode || 'random'; if (D.teamMode === 'random') randomTeams(); else { D.teams = []; D.sel = null; } } S.view = 'teams'; }
+      save(); render(); break;
+    }
+    case 'pick-k': {
+      const k = Number(b.dataset.k), n = D.names.length;
+      if (KL.partyValid(n, k)) { D.k = k; D.kWarn = null; }
+      else { D.kWarn = k; D.k = KL.partyNearestValid(n, k); }
+      save(); render(); break;
+    }
+    case 'party-create': {
+      const n = D.names.length;
+      b.disabled = true;
+      const matches = KL.partyBuild(n, D.k);
+      S.party = { players: D.names.slice(), k: D.k, matches, stats: KL.partyStats(n, matches), results: {} };
+      S.cup = null; S.celebrated = {}; S.tab.party = 'plan'; S.view = 'party';
+      ui.reroll = true; ui.nowKey = null;
+      save(); render(); break;
+    }
+    case 'party-reroll': {
+      if (partyState().done) return;
+      rerollParty(); break;
+    }
+    case 'party-result': partyResultSheet(Number(b.dataset.i)); break;
+    case 'tab': {
+      if (S.view === 'party') S.tab.party = b.dataset.t; else S.tab.cup = b.dataset.t;
+      save(); render(); break;
+    }
+    case 'menu': menuSheet(); break;
+    case 'celebrate': celebrate(); break;
+    case 'team-mode': {
+      const m = b.dataset.m;
+      if (m === D.teamMode) return;
+      D.teamMode = m; D.sel = null;
+      if (m === 'random') randomTeams(); else { D.teams = []; D.joker = null; }
+      save(); render(); break;
+    }
+    case 'team-shuffle': randomTeams(); save(); render(); break;
+    case 'team-rename': {
+      const i = Number(b.dataset.i);
+      D.teams[i].name = randomTeamNames(1, D.teams.map(t => t.name))[0];
+      const inp = $('#team-' + i); if (inp) { inp.value = D.teams[i].name; inp.parentElement.parentElement.animate?.([{ transform: 'scale(.98)' }, { transform: 'none' }], { duration: 250, easing: 'ease-out' }); }
+      save(); break;
+    }
+    case 'team-split': D.teams.splice(Number(b.dataset.i), 1); save(); render(); break;
+    case 'pool': {
+      const i = Number(b.dataset.i);
+      if (D.sel == null) D.sel = i;
+      else if (D.sel === i) D.sel = null;
+      else {
+        D.teams.push({ m: [D.sel, i], name: randomTeamNames(1, D.teams.map(t => t.name))[0] });
+        D.sel = null;
+      }
+      save(); render(); break;
+    }
+    case 'cup-create': {
+      const n = D.names.length, T = Math.floor(n / 2);
+      if (D.teams.length !== T || T < 2) return;
+      const used = new Set(D.teams.flatMap(t => t.m));
+      const left = D.names.map((_, i) => i).filter(i => !used.has(i));
+      const teams = D.teams.map((t, i) => ({ name: (t.name || '').trim() || `Team ${i + 1}`, m: t.m.slice() }));
+      S.cup = { players: D.names.slice(), teams, joker: left.length === 1 ? left[0] : null, seeds: KL.shuffle([...Array(T).keys()]), results: {}, history: [], jokerPick: {} };
+      S.party = null; S.celebrated = {}; S.tab.cup = 'bracket'; S.view = 'cup'; ui.nowKey = null;
+      save(); render(); break;
+    }
+    case 'cup-result': cupResultSheet(b.dataset.id); break;
+    case 'joker-swap': {
+      const id = b.dataset.id;
+      S.cup.jokerPick[id] = (S.cup.jokerPick[id] || 0) + 1;
+      save(); render(); break;
+    }
+  }
+});
+
+document.addEventListener('input', (e) => {
+  const t = e.target;
+  if (t.dataset.name != null && S.draft) {
+    S.draft.names[Number(t.dataset.name)] = t.value;
+    t.closest('.field').classList.remove('err');
+    const err = $('#nameErr'); if (err) err.textContent = '';
+    saveSoon();
+  } else if (t.dataset.team != null && S.draft) {
+    S.draft.teams[Number(t.dataset.team)].name = t.value;
+    saveSoon();
+  }
+});
+document.addEventListener('keydown', (e) => {
+  const t = e.target;
+  if (e.key !== 'Enter' || t.tagName !== 'INPUT') return;
+  e.preventDefault();
+  if (t.dataset.name != null) {
+    const nx = $('#name-' + (Number(t.dataset.name) + 1));
+    if (nx) nx.focus(); else t.blur();
+  } else t.blur();
+});
+let saveTimer = null;
+function saveSoon() { clearTimeout(saveTimer); saveTimer = setTimeout(save, 300); }
+addEventListener('pagehide', save);
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') save(); });
+
+/* ---------- Offline & Updates ---------- */
+function toast(text, btn, onTap) {
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.innerHTML = `<span>${esc(text)}</span>${btn ? `<button>${esc(btn)}</button>` : ''}`;
+  if (btn) t.querySelector('button').addEventListener('click', () => { t.remove(); onTap(); });
+  document.body.appendChild(t);
+  return t;
+}
+if ('serviceWorker' in navigator && location.protocol === 'https:' && window.top === window && !document.documentElement.dataset.single) {
+  navigator.serviceWorker.register('./sw.js').then(reg => {
+    const offer = (w) => toast('Neue Version verfügbar', 'Aktualisieren', () => { w.postMessage('skipWaiting'); });
+    if (reg.waiting && navigator.serviceWorker.controller) offer(reg.waiting);
+    reg.addEventListener('updatefound', () => {
+      const w = reg.installing;
+      w && w.addEventListener('statechange', () => { if (w.state === 'installed' && navigator.serviceWorker.controller) offer(w); });
+    });
+    let reloaded = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => { if (!reloaded) { reloaded = true; save(); location.reload(); } });
+    setTimeout(() => reg.update().catch(() => {}), 3000);
+  }).catch(() => {});
+}
+
+render();
+window.__kicker = { get state() { return S; }, render, celebrate };
+})();
+
+</script>
+</body>
+</html>
