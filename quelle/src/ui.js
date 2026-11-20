@@ -17,6 +17,49 @@ function haptic() {
   } catch (e) {}
 }
 
+/* ----- Töne: leise, synthetisch erzeugt (keine Dateien). Der Stummschalter wird beachtet (audioSession „ambient“).
+   iOS erlaubt Ton erst nach der ersten Berührung – vorher bleibt es still. Schalter in den Einstellungen. ----- */
+const Sound = (() => {
+  const KEY = 'momentum.sound';
+  let ctx = null, master = null;
+  const on = () => { try { return localStorage.getItem(KEY) !== '0'; } catch (e) { return true; } };
+  const set = v => { try { localStorage.setItem(KEY, v ? '1' : '0'); } catch (e) {} };
+  function unlock() {
+    if (ctx || !on()) return;
+    const C = window.AudioContext || window.webkitAudioContext;
+    if (!C) return;
+    try { if (navigator.audioSession) navigator.audioSession.type = 'ambient'; } catch (e) {}
+    try { ctx = new C(); master = ctx.createGain(); master.gain.value = 1; master.connect(ctx.destination); } catch (e) { ctx = null; return; }
+    if (ctx.state === 'suspended' && ctx.resume) ctx.resume().catch(() => {});
+  }
+  function tone(f, at, dur, vol, type, f2) {
+    const t = ctx.currentTime + at, o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = type || 'sine';
+    o.frequency.setValueAtTime(f, t);
+    if (f2) o.frequency.exponentialRampToValueAtTime(f2, t + dur);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(Math.min(0.15, vol), t + 0.008);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(master);
+    o.start(t); o.stop(t + dur + 0.02);
+  }
+  const P = {
+    tap() { tone(1650, 0, .045, .035, 'sine', 1300); },
+    open() { tone(520, 0, .12, .04, 'sine', 780); },
+    swipe() { tone(300, 0, .22, .03, 'triangle', 900); },
+    save() { tone(880, 0, .09, .06); tone(1320, .07, .16, .05); },
+    check(prio) { const b = [660, 784, 988][prio == null ? 1 : prio]; tone(b, 0, .1, .08); tone(b * 1.5, .06, .22, .07); if (prio === 2) tone(b * 2, .13, .3, .05); },
+    goal() { [523, 659, 784, 1047].forEach((f, i) => tone(f, i * .06, .5 - i * .05, .07)); tone(2093, .26, .5, .03); },
+    over() { tone(220, 0, .3, .07, 'triangle', 180); tone(233, .02, .32, .05, 'sine', 190); },
+    intro() { tone(392, 0, .5, .05, 'sine', 784); tone(1175, .42, .5, .05); tone(1568, .5, .6, .035); }
+  };
+  function play(name, arg) {
+    if (!on() || !ctx || ctx.state !== 'running' || !P[name]) return;
+    try { P[name](arg); } catch (e) {}
+  }
+  return { on, set: v => { set(v); if (v) unlock(); }, play, unlock, ready: () => !!ctx };
+})();
+
 /* ----- Toast ----- */
 let toastTimer = 0;
 function hideToast() { clearTimeout(toastTimer); $('#toast').classList.remove('show'); }

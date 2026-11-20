@@ -25,7 +25,7 @@
       <div id="today"></div>
     </div></div></section>
     <section class="view" id="v-tasks" data-v="tasks" aria-label="Aufgaben"><div class="vbg"></div><div class="scroll"><div class="inner">
-      <header class="hero"><div><h1>Aufgaben</h1><p id="tasks-sub"></p></div></header>
+      <header class="hero"><div><h1>Aufgaben</h1><p id="tasks-sub"></p></div><button class="icon-btn" data-act="calPaste" aria-label="Termine aus dem Kalender einfügen"><span class="ic" data-ic="cal"></span></button></header>
       <div class="beam"><i class="b-track"></i><i class="b-done"></i><i class="b-over"></i><i class="b-c"><i class="b-light"></i><i class="b-dot"></i></i><span class="b-cap"></span></div>
       <div id="tasks"></div>
     </div></div></section>
@@ -191,6 +191,46 @@
       <div class="grow e-detail multi" id="note-grow"><textarea id="note-text" rows="3" placeholder="Was gehört dazu?" autocapitalize="sentences" aria-label="Notiz"></textarea></div>
       <div class="e-actions"><button class="btn btn-primary" data-act="noteSave">Speichern</button></div>
     </div>
+  </section></div>
+</div>
+
+<!-- Folge-Aufgaben -->
+<div class="layer" id="L-rules" hidden>
+  <div class="backdrop"></div>
+  <div class="sheet-pos"><section class="sheet tall" role="dialog" aria-modal="true" aria-label="Folge-Aufgaben">
+    <div class="grab" data-drag></div>
+    <div class="sheet-head" data-drag><h2>Folge-Aufgaben</h2><button class="icon-btn" data-act="closeTop" aria-label="Schließen"><span class="ic" data-ic="close"></span></button></div>
+    <div class="sheet-body">
+      <p class="e-note r-intro">Steht das Stichwort in einer Aufgabe, kommt zum Ende ihrer geplanten Zeit (oder sobald du sie abhakst) die Folge-Aufgabe auf „Heute“. Ton und Hinweis gibt es nur bei offener App.</p>
+      <div class="glass list" id="rules-list"></div>
+      <div class="r-add">
+        <div class="field"><input id="rule-word" type="text" maxlength="40" placeholder="Stichwort, z. B. Drucken" enterkeyhint="next" autocapitalize="sentences" autocomplete="off" aria-label="Stichwort"></div>
+        <div class="field"><input id="rule-then" type="text" maxlength="280" placeholder="Danach, z. B. Stundenliste eintragen" enterkeyhint="done" autocapitalize="sentences" autocomplete="off" aria-label="Folge-Aufgabe"></div>
+        <button class="btn btn-primary" data-act="ruleAdd" id="rule-add">Regel anlegen</button>
+      </div>
+    </div>
+  </section></div>
+</div>
+
+<!-- Kalender & Wecker über Kurzbefehle -->
+<div class="layer" id="L-help" hidden>
+  <div class="backdrop"></div>
+  <div class="sheet-pos"><section class="sheet tall" role="dialog" aria-modal="true" aria-label="Kalender und Wecker">
+    <div class="grab" data-drag></div>
+    <div class="sheet-head" data-drag><h2>Kalender & Wecker</h2><button class="icon-btn" data-act="closeTop" aria-label="Schließen"><span class="ic" data-ic="close"></span></button></div>
+    <div class="sheet-body help">
+      <p>Eine Web-App darf den Kalender nicht selbst lesen und keinen Wecker stellen. Drei Kurzbefehle übernehmen das. Einmal einrichten in der App „Kurzbefehle“, Namen genau so schreiben.</p>
+      <h3>1 · Momentum Termin</h3>
+      <ol><li>„Wörterbuch abrufen“ von <b>Kurzbefehl-Eingabe</b></li><li>„Kalenderereignis hinzufügen“: Titel = Wert <b>titel</b>, Start = <b>start</b>, Ende = <b>ende</b>, Notizen = <b>notiz</b></li></ol>
+      <p class="hint">In Momentum: Aufgabe mit Uhrzeit öffnen → „In Kalender“.</p>
+      <h3>2 · Momentum Wecker</h3>
+      <ol><li>„Wörterbuch abrufen“ von <b>Kurzbefehl-Eingabe</b></li><li>„Wecker erstellen“: Zeit = Wert <b>zeit</b>, Name = <b>titel</b></li></ol>
+      <p class="hint">In Momentum: Aufgabe mit Uhrzeit öffnen → „Wecker“.</p>
+      <h3>3 · Momentum Woche</h3>
+      <ol><li>„Kalenderereignisse suchen“: Startdatum liegt in den nächsten 7 Tagen</li><li>„Wiederholen mit jedem Objekt“, darin „Text“: <b>Startdatum</b> (Format eigenes: <code>yyyy-MM-dd HH:mm</code>) <code> | </code> Dauer in Minuten („Zeit zwischen Daten“) <code> | </code> <b>Titel</b></li><li>„Text kombinieren“ mit Zeilenumbruch</li><li>„In Zwischenablage kopieren“</li></ol>
+      <p class="hint">Danach in Momentum auf „Aufgaben“ das Kalender-Symbol oben rechts tippen. Schon übernommene Termine kommen nicht doppelt.</p>
+    </div>
+    <div class="sheet-foot"><button class="btn btn-primary" data-act="calPaste">Aus Kalender einfügen</button></div>
   </section></div>
 </div>
 

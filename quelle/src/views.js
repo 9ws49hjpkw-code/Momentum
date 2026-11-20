@@ -482,7 +482,7 @@ function syncEntry() {
 }
 function openEntry(o) {
   const day = today();
-  Object.assign(E, { mode: o.mode, type: 'task', when: null, date: null, prio: 1, topicId: null, id: o.id || null, time: null, dur: null });
+  Object.assign(E, { mode: o.mode, type: 'task', when: null, date: null, prio: 1, topicId: null, id: o.id || null, time: null, dur: null, moveOk: false });
   let text = '', note = '';
   const sec = $('#e-secondary');
   sec.replaceChildren();
@@ -496,6 +496,7 @@ function openEntry(o) {
     else if (t.due === addDays(day, 1)) E.when = 'tomorrow';
     else { E.when = 'date'; E.date = t.due; }
     if (t.done) sec.appendChild(btn('.btn.btn-ghost.sm', 'eReopen', {}, 'Wieder öffnen'));
+    else if (validTime(t.time)) add(sec, [btn('.btn.btn-ghost.sm', 'toCal', {}, ic('cal'), 'Kalender'), btn('.btn.btn-ghost.sm', 'toAlarm', {}, ic('alarm'), 'Wecker')]);
     sec.appendChild(btn('.btn.btn-danger.sm', 'eDelete', {}, 'Löschen'));
   } else {
     const i = S.ideas.get(o.id);
@@ -557,6 +558,21 @@ function saveEntry() {
     const sp = splitBrackets(text);
     if (sp.details.length) { title = sp.text; note = sp.details.concat(note ? [note] : []).join('\n'); }
     const extra = { note, time: E.time, dur: E.dur };
+    if (E.mode === 'task') {
+      /* Überfälliges verschieben ist unbequem: Rückfrage, und es zählt sichtbar mit */
+      const old = S.tasks.get(E.id), day = today();
+      const moving = !!old && !old.done && old.due < day && w.due !== old.due;
+      if (moving && !E.moveOk) {
+        const n = diffDays(day, old.due);
+        dialog({
+          title: 'Wirklich verschieben?',
+          text: (old.moved ? 'Schon ' + old.moved + '× verschoben. ' : '') + 'Seit ' + plural(n, 'Tag', 'Tagen') + ' überfällig. Erledigen bringt dich weiter als Verschieben.',
+          ok: 'Trotzdem verschieben', danger: true, cancel: 'Zurück'
+        }).then(r => { if (r) { E.moveOk = true; saveEntry(); } });
+        return;
+      }
+      if (moving) extra.moved = (old.moved || 0) + 1;
+    }
     if (E.mode === 'task') updateTask(E.id, Object.assign({ text: title, due: w.due, now: w.now, prio: E.prio, topicId }, extra));
     else {
       ui.fresh = addTask(Object.assign({ text: title, due: w.due, now: w.now, prio: E.prio, topicId }, extra)).id;
@@ -566,6 +582,7 @@ function saveEntry() {
   } else if (E.mode === 'idea') updateIdea(E.id, { text, topicId });
   else { ui.fresh = addIdea({ text, topicId }).id; msg = 'Idee geparkt'; }
   haptic();
+  Sound.play('save');
   closeLayer('L-entry');
   renderAll();
   ui.fresh = null;
@@ -594,6 +611,7 @@ function saveNote() {
     saveGoals(N.day, goals);
   }
   haptic();
+  Sound.play('save');
   closeLayer('L-note');
   renderToday();
   toast('Notiz gespeichert');
@@ -675,6 +693,13 @@ function renderSettings() {
       h('div.glass.list', null,
         h('button.li', { type: 'button', data: { act: 'exportData' } }, ic('exportI'), h('span.li-t', null, h('b', null, 'Daten exportieren'), h('span', null, last))),
         h('label.li', { for: 'import-file' }, ic('importI'), h('span.li-t', null, h('b', null, 'Daten importieren'), h('span', null, 'Ersetzt alles, was jetzt in der App ist'))))),
+    h('div.sec', null,
+      h('h3.sec-h', null, 'Erinnern'),
+      h('div.glass.list', null,
+        h('button.li', { type: 'button', data: { act: 'soundToggle' } }, ic('sound'), h('span.li-t', null, h('b', null, 'Töne'), h('span', null, Sound.on() ? 'An · leise, Stummschalter wird beachtet' : 'Aus')), h('span.sw', { class: Sound.on() ? 'on' : '' }, h('i'))),
+        h('button.li', { type: 'button', data: { act: 'badgeAsk' } }, ic('alarm'), h('span.li-t', null, h('b', null, 'Roter Zähler am App-Icon'), h('span', null, badgeText()))),
+        h('button.li', { type: 'button', data: { act: 'rulesOpen' } }, ic('note'), h('span.li-t', null, h('b', null, 'Folge-Aufgaben'), h('span', null, rules().length ? plural(rules().length, 'Regel', 'Regeln') + ' aktiv' : 'Stichwort → Aufgabe danach')), ic('chevR', 'chev')),
+        h('button.li', { type: 'button', data: { act: 'shortcutsHelp' } }, ic('cal'), h('span.li-t', null, h('b', null, 'Kalender & Wecker'), h('span', null, 'Über Kurzbefehle, einmal einrichten')), ic('chevR', 'chev')))),
     h('div.about', null, h('b', null, 'Momentum ' + VERSION), 'Alles bleibt auf diesem iPhone. Kein Konto, keine Cloud. Ein Export ab und zu ist dein Backup.'));
 }
 function renderHues() {
@@ -830,6 +855,120 @@ function updateBadge(n) {
   } catch (e) {}
 }
 
+function badgeText() {
+  if (!('setAppBadge' in navigator)) return 'Geht erst in der installierten App (ab iOS 16.4)';
+  const p = 'Notification' in window ? Notification.permission : 'granted';
+  if (p === 'granted') return 'An · zeigt, wie viel überfällig ist';
+  if (p === 'denied') return 'Nicht erlaubt · in den iPhone-Einstellungen unter Momentum erlauben';
+  return 'Tippen, um es zu erlauben (es kommen keine Mitteilungen)';
+}
+async function badgeAsk() {
+  if (!('setAppBadge' in navigator)) { toast('Das geht nur in der installierten App.'); return; }
+  try { if ('Notification' in window && Notification.permission === 'default') await Notification.requestPermission(); } catch (e) {}
+  badgeN = -1;
+  renderAlarm();
+  renderSettings();
+}
+
+/* ----- Folge-Aufgaben: Regeln verwalten und auslösen ----- */
+function renderRules() {
+  const list = rules();
+  fill($('#rules-list'), list.length
+    ? list.map(r => h('div.li.rule', null, h('span.li-t', null, h('b', null, r.word), h('span', null, '→ ' + r.then)),
+      h('button.slot-x', { type: 'button', 'aria-label': 'Regel löschen', data: { act: 'ruleDel', id: r.id } }, ic('close'))))
+    : h('div.li', null, h('span.li-t', null, h('span', null, 'Noch keine Regel. Zum Beispiel: Drucken → Stundenliste eintragen.'))));
+}
+function openRules() {
+  renderRules();
+  $('#rule-word').value = ''; $('#rule-then').value = '';
+  const L = openLayer('L-rules');
+  $('.sheet-body', L).scrollTop = 0;
+  L._onClose = () => renderSettings();
+}
+function addRule() {
+  const word = $('#rule-word').value.replace(/\s+/g, ' ').trim(), then = $('#rule-then').value.replace(/\s+/g, ' ').trim();
+  if (!word) { nudge($('#rule-word').parentElement); return; }
+  if (!then) { nudge($('#rule-then').parentElement); return; }
+  const list = rules();
+  if (list.some(r => r.word.toLowerCase() === word.toLowerCase())) { nudge($('#rule-word').parentElement); toast('Das Stichwort gibt es schon.'); return; }
+  list.push({ id: uid(), word, then, since: Date.now() });
+  setMeta('rules', list);
+  $('#rule-word').value = ''; $('#rule-then').value = '';
+  const a = document.activeElement; if (a && a.blur) a.blur();
+  haptic(); Sound.play('save');
+  renderRules();
+  toast('Regel angelegt');
+}
+function delRule(id) {
+  const list = rules(), r = list.find(x => x.id === id);
+  if (!r) return;
+  setMeta('rules', list.filter(x => x.id !== id));
+  renderRules();
+  toast('Regel gelöscht', { action: 'Rückgängig', onAction: () => { const l = rules(); l.push(r); setMeta('rules', l); renderRules(); } });
+}
+/* Fällige Folge-Aufgaben anlegen (einmalig je Aufgabe) und melden */
+function followUp() {
+  const made = runRules();
+  if (!made.length) return;
+  for (const t of made) ui.fresh = t.id;
+  if (!layers.length && !animating) renderAll(); else renderAlarm();
+  ui.fresh = null;
+  haptics(2, 90);
+  Sound.play('save');
+  toast(made.length === 1 ? 'Jetzt dran: ' + made[0].text : plural(made.length, 'Folge-Aufgabe', 'Folge-Aufgaben') + ' auf „Heute“', { ms: 5000 });
+}
+
+/* ----- Kalender & Wecker über Kurzbefehle ----- */
+function runShortcut(name, data) {
+  const url = 'shortcuts://run-shortcut?name=' + encodeURIComponent(name) + '&input=text&text=' + encodeURIComponent(JSON.stringify(data));
+  try { location.href = url; } catch (e) {}
+}
+function taskToCal(t) {
+  const a = toMin(t.time), e = a + (t.dur || 30);
+  const endDay = addDays(t.due, Math.floor(e / 1440));
+  runShortcut('Momentum Termin', { titel: taskTitle(t), start: t.due + ' ' + t.time, ende: endDay + ' ' + fromMin(e), notiz: taskDetails(t).join('\n') });
+}
+function taskToAlarm(t) { runShortcut('Momentum Wecker', { titel: taskTitle(t), zeit: t.time, datum: t.due }); }
+/* Zeilen aus dem Kurzbefehl „Momentum Woche“: „2026-11-20 14:00 | 60 | Titel“ (auch ganztägig „2026-11-20 | | Titel“) */
+function parseCal(text) {
+  const out = [];
+  for (const raw of String(text || '').split(/\r?\n/)) {
+    const parts = raw.split(/\s*[|;\t]\s*/);
+    if (parts.length < 2) continue;
+    const m = parts[0].trim().match(/^(\d{4}-\d{2}-\d{2})(?:[ T](\d{1,2}):(\d{2}))?/);
+    if (!m || !validDay(m[1])) continue;
+    const title = (parts.length >= 3 ? parts.slice(2).join(' ') : parts[1]).replace(/\s+/g, ' ').trim().slice(0, 280);
+    if (!title) continue;
+    const time = m[2] != null ? String(+m[2]).padStart(2, '0') + ':' + m[3] : null;
+    const dur = parts.length >= 3 ? normDur(parseFloat(String(parts[1]).replace(',', '.'))) : null;
+    out.push({ due: m[1], time: validTime(time) ? time : null, dur, text: title });
+  }
+  return out;
+}
+async function calPaste() {
+  let text = '';
+  try { text = navigator.clipboard && navigator.clipboard.readText ? await navigator.clipboard.readText() : ''; } catch (e) { text = ''; }
+  const day = today();
+  const found = parseCal(text).filter(x => x.due >= day);
+  if (!found.length) {
+    const r = await dialog({ title: 'Keine Termine gefunden', text: 'Starte zuerst den Kurzbefehl „Momentum Woche“. Er kopiert deine Termine, dann hier noch einmal tippen.', ok: 'So richtest du es ein', cancel: 'OK' });
+    if (r) openHelp();
+    return;
+  }
+  const key = x => x.text.toLowerCase() + '|' + x.due + '|' + (x.time || '');
+  const have = new Set(Array.from(S.tasks.values()).map(t => key({ text: t.text, due: t.due, time: t.time })));
+  const fresh = found.filter(x => !have.has(key(x)));
+  if (!fresh.length) { toast('Alle Termine sind schon da.'); return; }
+  const ok = await dialog({ title: plural(fresh.length, 'Termin', 'Termine') + ' übernehmen?', text: fresh.slice(0, 4).map(x => shortDate(x.due) + (x.time ? ' ' + x.time : '') + ' · ' + x.text).join('\n') + (fresh.length > 4 ? '\n…' : '') + (found.length > fresh.length ? '\n' + plural(found.length - fresh.length, 'Termin ist', 'Termine sind') + ' schon da.' : ''), ok: 'Übernehmen' });
+  if (!ok) return;
+  for (const x of fresh) addTask({ text: x.text, due: x.due, now: false, prio: 1, topicId: null, time: x.time, dur: x.dur, src: 'cal' });
+  if (topLayer() && topLayer().id === 'L-help') closeLayer('L-help');
+  haptic(); Sound.play('save');
+  renderAll();
+  toast(plural(fresh.length, 'Termin', 'Termine') + ' im Zeitplan');
+}
+function openHelp() { const L = openLayer('L-help'); $('.sheet-body', L).scrollTop = 0; }
+
 /* ----- Alles zeichnen ----- */
 function renderAll() {
   renderAlarm();
@@ -871,6 +1010,7 @@ function go(name) {
   if (a && a.blur && isField(a)) a.blur();
   const from = ui.tab;
   ui.tab = name;
+  Sound.play('swipe');
   for (const v of $$('.view')) v.classList.toggle('active', v.id === 'v-' + name);
   glideBeam(from, name);
   for (const b of $$('.tab')) { const on = b.dataset.tab === name; b.classList.toggle('on', on); b.setAttribute('aria-current', on ? 'page' : 'false'); }
