@@ -13,5 +13,10 @@
     "version": "1.1.1",
     "datum": "2026-11-18",
     "text": "Überfällige Tagesziele im eigenen Feld, klare Farbstufen, epischer Start, Abhak-Licht nach Stufe."
+  },
+  {
+    "version": "1.2.0",
+    "datum": "2026-11-20",
+    "text": "Zeitstrahl auf der Aufgaben-Seite, Details und Notizen, roter Alarm-Rand, Folge-Aufgaben, Kurzbefehle, Töne und Bewegung"
   }
 ]

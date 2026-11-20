@@ -48,6 +48,23 @@ Themen: Klavier, Film/Foto, Sport (verwaltbar). Export/Import JSON.
   das Licht der Lichtlinie fegt einmal über die ganze Breite. Body-Klassen: intro → go → enter → live (Tests warten auf body.live).
 - test/t11.js prüft das alles.
 
+## Neu in 1.2.0 (20.11.2026, Autopilot)
+- Tastatur: iOS-Eigenverschiebung des Fensters wird zurückgenommen (unshift), Felder landen zwischen oberem Rand und Tastatur (revealField, auch lange Textfelder an der Tippstelle). test/t12.js.
+- Aufgaben: neue optionale Felder note (Text), time ("HH:MM"), dur (Minuten 5–720), moved (Zahl), followed (bool), src ('cal'). Ziele im Tagesplan: note.
+  Alte Datensätze ohne Felder funktionieren (Standardwerte), Import prüft streng. Export enthält zusätzlich data.rules (optional).
+- Text in Klammern wird beim Speichern Detail (note). Heute: Tippen auf eine Aufgabe/ein Ziel klappt Details auf, darin „Bearbeiten“ bzw. „Notiz“ (Ebene L-note). Kreis/Wischen bleibt Abhaken.
+- Erfassen: Zeitzeile (Uhrzeit + Dauer 15/30/60/90/120) erscheint nach „Wann“, sofort ohne Gleiten. Bearbeiten: Details-Feld, „Wieder öffnen“ bei Erledigtem, „Kalender“/„Wecker“ bei Aufgaben mit Uhrzeit.
+- Aufgaben-Seite = Zeit-Übersicht ohne Abhaken: Filter, Ziele überfällig, Überfällig (rot), Wochenband 14 Tage mit Lastbalken, gewählter Tag
+  („Im Lauf des Tages“ + senkrechter Zeitstrahl mit Blöcken nach Uhrzeit/Dauer, Überschneidungen nebeneinander, Jetzt-Linie, läuft/vorbei), „Danach“ nach Tagen, „Später“, „Erledigt“. Tippen öffnet die Aufgabe. test/t13.js.
+- Überfällig tut weh: #alarm-Rand in 3 Stufen (Score: Hoch 3, Normal 2, Niedrig 1, Ziel 4; Ziel oder ≥ 8 = Wellen zur Mitte, per transform/opacity),
+  Startbild rot mit „n überfällig“, Verschieben überfälliger Aufgaben mit Rückfrage und Zähler „n× verschoben“, Icon-Badge (setAppBadge, Erlaubnis per Einstellungen). test/t14.js, t15.js.
+- Folge-Aufgaben: Regeln in meta 'rules' [{id, word, then, since}]; Stichwort in einer Aufgabe → zum Ende ihrer Zeit (oder beim Abhaken) „then“ als Jetzt-Aufgabe, genau einmal (followed). Nur bei offener App.
+- Kalender & Wecker über Kurzbefehle „Momentum Termin“, „Momentum Wecker“ (shortcuts://run-shortcut, JSON) und „Momentum Woche“ (Zwischenablage, Zeilen „JJJJ-MM-TT HH:MM | Minuten | Titel“, Kalender-Knopf auf Aufgaben, ohne Doppel). Anleitung in der App (L-help).
+- Töne (Web Audio, synthetisch, leise, audioSession ambient, erst nach erster Berührung), Schalter in Einstellungen, localStorage 'momentum.sound'.
+- Design: Lichtlinie 2–3 px mit mehr Glanz, Eck-Ringe in Bereichsfarbe mit Schimmer (body[data-area]), Seitenwechsel mit HUD-Scanlinie (#hud, .view.reveal),
+  leise Dauer-Schwingung (drift über translate, Glanz, Kanten atmen), pausiert bei Tastatur/Sheets, aus bei „Bewegung reduzieren“. test/t16.js.
+- Tests: lib.tap wartet nicht mehr auf Playwrights Stabilität (die App schwebt absichtlich), sondern auf Sichtbarkeit und das Ende des Auftritts.
+
 Nicht bauen: Login, Cloud, Push, KI, Gamification, Statistik-Dashboards, Light Mode.
 
 ## Design
