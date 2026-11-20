@@ -22,7 +22,10 @@ const I = {
   info: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>',
   crown: '<svg viewBox="0 0 24 24"><path d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5z"/></svg>',
   trophy: '<svg viewBox="0 0 64 64"><path d="M20 10h24v14a12 12 0 0 1-24 0z"/><path d="M20 15h-7a7 7 0 0 0 7 9M44 15h7a7 7 0 0 1-7 9"/><path d="M32 36v10M24 54h16M26 46h12v8H26z"/></svg>',
-  swap: '<svg viewBox="0 0 24 24"><path d="M7 4L3 8l4 4M3 8h14M17 20l4-4-4-4M21 16H7"/></svg>'
+  swap: '<svg viewBox="0 0 24 24"><path d="M7 4L3 8l4 4M3 8h14M17 20l4-4-4-4M21 16H7"/></svg>',
+  play: '<svg viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5z"/></svg>',
+  pause: '<svg viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></svg>',
+  reset: '<svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v4h4"/></svg>'
 };
 const ART_PARTY = `<svg viewBox="0 0 170 84" aria-hidden="true"><g fill="none" stroke-width="2" stroke-linecap="round">
   <path d="M33 20 C 80 20, 90 64, 137 64" stroke="#E4B76C"/><path d="M33 64 C 80 64, 90 20, 137 20" stroke="#5E6470"/>
@@ -58,12 +61,14 @@ try { navigator.storage && navigator.storage.persist && navigator.storage.persis
 if ((S.view === 'party' && !S.party) || (S.view === 'cup' && !S.cup) ||
     (['names', 'partyCfg', 'teams'].includes(S.view) && !S.draft)) S.view = 'home';
 
-const ui = { lastView: null, nowKey: null, reroll: false, modal: null, eggBusy: false, eggT: null };
+const ui = { lastView: null, nowKey: null, reroll: false, modal: null, eggBusy: false, eggT: null, alarm: null };
+const MAX_GOALS = 10;
+const TIMER_CHOICES = [0, 3, 4, 5, 6, 8];
 
 /* ---------- Helfer ---------- */
 const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
-function duration(games) {
-  const m = games * MIN_PER_GAME;
+function duration(games, perGame = MIN_PER_GAME) {
+  const m = games * perGame;
   if (m < 60) return `≈ ${m} Min`;
   const h = Math.floor(m / 60), r = m % 60;
   return `≈ ${h} Std${r ? ` ${r} Min` : ''}`;
@@ -199,6 +204,8 @@ function viewPartyCfg() {
     return `<button class="chip num ${k === D.k ? 'on' : ''} ${ok ? '' : 'off'}" data-act="pick-k" data-k="${k}" aria-label="${k} Spiele">${k}</button>`;
   }).join('');
   const M = n * D.k / 4;
+  const tm = D.timer === undefined ? 5 : D.timer;
+  const perGame = tm ? tm + 1 : MIN_PER_GAME;
   let rule;
   if (valid.length === 8) rule = `Bei ${n} Spielern geht jede Anzahl auf.`;
   else rule = `Bei <b>${n} Spielern</b> geht nur ${valid.join(', ').replace(/, (\d+)$/, ' oder $1')}. Pro Partie stehen immer genau 4 Leute am Kicker, also muss Spieler × Spiele durch 4 teilbar sein (${n} × ${D.k} = ${n * D.k} → ${M} Partien). Sonst hätte am Ende jemand ein Spiel mehr oder weniger.`;
@@ -212,8 +219,10 @@ function viewPartyCfg() {
     <div class="summary">
       <div class="stat"><b class="num">${M}</b><span>Partien</span></div>
       <div class="stat"><b class="num">${D.k}×</b><span>spielt jeder</span></div>
-      <div class="stat"><b class="num">${duration(M).replace('≈ ', '')}</b><span>ungefähr (6 Min/Spiel)</span></div>
+      <div class="stat"><b class="num">${duration(M, perGame).replace('≈ ', '')}</b><span>ungefähr (${perGame} Min/Spiel)</span></div>
     </div>
+    <div><h2 class="h-md">Spielzeit pro Partie</h2><p class="muted" style="margin:6px 0 0">Mit Timer und Wecker-Ton. Wer nach Abpfiff vorne liegt, gewinnt. Unentschieden ist möglich.</p></div>
+    <div class="chips">${TIMER_CHOICES.map(t => `<button class="chip num ${t === tm ? 'on' : ''}" style="min-width:${t ? 64 : 88}px;font-size:${t ? 22 : 17}px" data-act="pick-timer" data-t="${t}">${t ? t + '′' : 'Ohne'}</button>`).join('')}</div>
     <div class="note">${I.info}<div>${rule}${pauseN > 0 ? ` Während einer Partie haben ${plural(pauseN, 'Person', 'Leute')} Pause.` : ' Bei 4 Leuten spielt jeder jede Partie, nur die Duos wechseln.'}</div></div>
   </div>`;
   return shell({
@@ -292,6 +301,7 @@ function viewParty() {
         <div class="vs">VS</div>
         <div class="side r"><div class="who">${duoHTML(mt.b.map(nm))}</div></div>
       </div>
+      ${timerMin(P) ? timerHTML(P, cur) : ''}
       <div class="cta"><button class="btn btn-primary btn-block" data-act="party-result" data-i="${cur}">Ergebnis eintragen</button></div>
       ${pause.length ? `<div class="pause">Pause: <b>${pause.map(esc).join(', ')}</b></div>` : ''}
     </section>`;
@@ -637,11 +647,12 @@ function partyResultSheet(i) {
     if (bump) { b.classList.remove('bump'); void b.offsetWidth; b.classList.add('bump'); }
     $('#sc-a', el).classList.toggle('ahead', st.ga > st.gb);
     $('#sc-b', el).classList.toggle('ahead', st.gb > st.ga);
+    el.querySelectorAll(`.pm2 button[data-s="${s}"]`).forEach(x => { x.disabled = Number(x.dataset.d) > 0 ? st['g' + s] >= MAX_GOALS : st['g' + s] <= 0; });
   };
   upd('a'); upd('b');
   el.querySelectorAll('.pm2 button').forEach(b => b.addEventListener('click', () => {
     const k = 'g' + b.dataset.s;
-    st[k] = Math.max(0, Math.min(99, st[k] + Number(b.dataset.d)));
+    st[k] = Math.max(0, Math.min(MAX_GOALS, st[k] + Number(b.dataset.d)));
     upd(b.dataset.s, true);
   }));
   $('[data-x]', el).addEventListener('click', () => closeSheet());
@@ -682,7 +693,7 @@ function cupResultSheet(id) {
     <div class="pick">
       ${[A, B].map((t, k) => `<button class="pk" data-pick="${t}" id="pk-${k}"><span class="crown">${I.crown}</span><b>${esc(ctx.tname(t))}</b><small>${mem(t)}</small></button>`).join('')}
     </div>
-    <details class="opt" ${st.goals ? 'open' : ''}><summary>${I.plus.replace('<svg', '<svg style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2"')} Tore eintragen (optional, nur Statistik)</summary>
+    <details class="opt" ${st.goals ? 'open' : ''}><summary>${I.plus.replace('<svg', '<svg style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2"')} Tore eintragen (optional, 0–10, nur Statistik)</summary>
       <div class="mini">${['a', 'b'].map(s => `<div class="ms"><button data-d="-1" data-s="${s}" aria-label="Tor weniger">${I.minus}</button><b class="num" id="g-${s}">${st['g' + s]}</b><button data-d="1" data-s="${s}" aria-label="Tor mehr">${I.plus}</button></div>`).join('')}</div>
     </details>
     <div class="btns"><button class="btn btn-primary" data-save ${st.winner == null ? 'disabled' : ''}>Speichern</button>
@@ -694,13 +705,14 @@ function cupResultSheet(id) {
       $('#pk-' + j + ' small', el).innerHTML = on ? 'Gewinner' : mem(t);
     });
     $('#g-a', el).textContent = st.ga; $('#g-b', el).textContent = st.gb;
+    el.querySelectorAll('.ms button').forEach(x => { const v = st['g' + x.dataset.s]; x.disabled = Number(x.dataset.d) > 0 ? v >= MAX_GOALS : v <= 0; });
     $('[data-save]', el).disabled = st.winner == null;
   };
   sync();
   el.querySelectorAll('[data-pick]').forEach(b => b.addEventListener('click', () => { st.winner = Number(b.dataset.pick); sync(); }));
   el.querySelectorAll('.ms button').forEach(b => b.addEventListener('click', () => {
     const k = 'g' + b.dataset.s;
-    st[k] = Math.max(0, Math.min(99, st[k] + Number(b.dataset.d)));
+    st[k] = Math.max(0, Math.min(MAX_GOALS, st[k] + Number(b.dataset.d)));
     st.goals = true;
     if (st.ga !== st.gb) st.winner = st.ga > st.gb ? A : B;
     sync();
@@ -774,12 +786,6 @@ const TRAKTOR = [
   'Alle Spieler, die einen Traktor haben, bekommen nur die Hälfte der Punkte.',
   'Schiedsrichter-Entscheid: Tore von Traktorbesitzern zählen nur halb.',
   'Traktor auf dem Spielfeld erkannt. Punkte werden halbiert.'
-];
-const BAUERNREGELN = [
-  'Steht der Bauer an der Stange, wird dem Gegner gar nicht bange.',
-  'Dreht der Bauer wild im Kreis, verliert er, wie ein jeder weiß.',
-  'Fährt der Bauer Traktor statt zu üben, bleibt sein Torkonto im Trüben.',
-  'Kräht der Bauer auf dem Mist, verliert er, wie’s gewöhnlich ist.'
 ];
 const EGG_WIN_LINE = '<div class="egg-line">🛒 Herzlichen Glückwunsch, Bauer McMartin! Und jetzt ab zu Edeka nach Bargfeld-Stegen.</div>';
 
@@ -887,15 +893,123 @@ function afterResult(mcInfo, fin) {
       if (mcInfo.won) await eggBanner({ icon: '🛒', title: 'Herzlichen Glückwunsch, Bauer McMartin!', text: 'Und jetzt ab zu Edeka nach Bargfeld-Stegen.', ms: 7600 });
       else {
         S.egg.n = ((S.egg.n || 0) + 1); save();
-        // abwechselnd Traktor-Regel und Bauernregel
-        const n = S.egg.n - 1, half = Math.floor(n / 2);
-        if (n % 2 === 0) await eggBanner({ icon: '🚜', title: 'Achtung, neue Regel!', text: TRAKTOR[half % TRAKTOR.length], ms: 7600 });
-        else await eggBanner({ icon: '🌾', title: 'Alte Bauernregel', text: BAUERNREGELN[half % BAUERNREGELN.length], ms: 7600 });
+        await eggBanner({ icon: '🚜', title: 'Achtung, neue Regel!', text: TRAKTOR[(S.egg.n - 1) % TRAKTOR.length], ms: 7600 });
       }
     }
     if (fin) celebrate(); else eggMaybeAsk();
   }, 420);
 }
+
+
+/* =========================================================
+   Spielzeit-Timer (Punkte-Party)
+   ========================================================= */
+const timerMin = (P) => (P.timer === undefined ? 5 : P.timer);
+function clockFor(P, cur) {
+  const full = timerMin(P) * 60000;
+  if (!P.clock || P.clock.m !== cur) P.clock = { m: cur, run: false, endsAt: 0, left: full, rang: false };
+  return P.clock;
+}
+const clockLeft = (c) => (c.run ? Math.max(0, c.endsAt - Date.now()) : c.left);
+function fmtClock(ms) { const sec = Math.ceil(ms / 1000); return `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}`; }
+function timerHTML(P, cur) {
+  const c = clockFor(P, cur), full = timerMin(P) * 60000, left = clockLeft(c);
+  const fresh = !c.run && left === full;
+  const cls = c.run ? (left <= 30000 ? 'run low' : 'run') : (left === 0 ? 'done' : (fresh ? '' : 'paused'));
+  return `<div class="timer ${cls}" id="timer">
+    <div><div class="eyebrow">${c.run ? 'Läuft' : left === 0 ? 'Abpfiff' : fresh ? 'Spielzeit' : 'Pausiert'}</div><div class="tdisp num" id="tdisp">${fmtClock(left)}</div></div>
+    <div class="tbtns">
+      ${fresh ? `<button class="tbtn" data-act="t-adj" data-d="-1" aria-label="Eine Minute weniger" ${timerMin(P) <= 1 ? 'disabled' : ''}>${I.minus}</button>` : `<button class="tbtn" data-act="t-reset" aria-label="Zurücksetzen">${I.reset}</button>`}
+      ${left > 0 ? `<button class="tmain" data-act="t-toggle">${c.run ? I.pause + ' Pause' : I.play + (fresh ? ' Anpfiff' : ' Weiter')}</button>` : ''}
+      ${fresh ? `<button class="tbtn" data-act="t-adj" data-d="1" aria-label="Eine Minute mehr" ${timerMin(P) >= 15 ? 'disabled' : ''}>${I.plus}</button>` : ''}
+    </div></div>`;
+}
+function clockToggle() {
+  const P = S.party, { cur } = partyState();
+  if (!P || cur < 0) return;
+  unlockAudio();
+  const c = clockFor(P, cur);
+  if (c.run) { c.left = clockLeft(c); c.run = false; wakeOff(); }
+  else {
+    if (c.left <= 0) c.left = timerMin(P) * 60000;
+    c.endsAt = Date.now() + c.left; c.run = true; c.rang = false; wakeOn();
+  }
+  save(); render();
+}
+function clockReset() {
+  const P = S.party; if (!P) return;
+  P.clock = null; wakeOff(); stopAlarm(); save(); render();
+}
+function clockTick() {
+  if (S.view !== 'party' || !S.party || !S.party.clock || !S.party.clock.run) return;
+  const c = S.party.clock, left = clockLeft(c);
+  const d = $('#tdisp'), box = $('#timer');
+  if (d) d.textContent = fmtClock(left);
+  if (box) box.classList.toggle('low', left <= 30000);
+  if (left <= 0) {
+    const late = Date.now() - c.endsAt;
+    c.run = false; c.left = 0; wakeOff();
+    const ring = !c.rang && late < 30000;
+    c.rang = true; save(); render();
+    if (ring) timeUp();
+  }
+}
+setInterval(clockTick, 250);
+
+// Ton: Web Audio, beim Antippen von "Anpfiff" freigeschaltet (iPad erlaubt Ton nur nach einer Berührung)
+let actx = null;
+function unlockAudio() {
+  try {
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    if (actx.state === 'suspended') actx.resume();
+    const o = actx.createOscillator(), g = actx.createGain();
+    g.gain.value = 0.0001; o.connect(g); g.connect(actx.destination); o.start(); o.stop(actx.currentTime + 0.03);
+  } catch (e) { /* kein Ton möglich */ }
+}
+function beepBurst() {
+  if (!actx) return;
+  try {
+    if (actx.state === 'suspended') actx.resume();
+    const t0 = actx.currentTime + 0.05;
+    for (let r = 0; r < 3; r++) for (let i = 0; i < 4; i++) {
+      const t = t0 + r * 0.9 + i * 0.16;
+      const o = actx.createOscillator(), g = actx.createGain();
+      o.type = 'square'; o.frequency.value = i === 3 ? 1318 : 988;
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(0.3, t + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.12);
+      o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t + 0.14);
+    }
+  } catch (e) {}
+}
+function stopAlarm() { if (ui.alarm) { clearInterval(ui.alarm); ui.alarm = null; } }
+function timeUp() {
+  stopAlarm();
+  beepBurst();
+  let n = 1;
+  ui.alarm = setInterval(() => { if (++n > 4) stopAlarm(); else beepBurst(); }, 3000);
+  document.querySelectorAll('.timeup-ov').forEach(e => e.remove());
+  const ov = document.createElement('div');
+  ov.className = 'egg-ov timeup-ov';
+  ov.innerHTML = `<div class="egg-card"><div class="egg-icon ring">⏰</div><div class="egg-title">Abpfiff!</div>
+    <div class="egg-text">Die Zeit ist um. Tragt jetzt das Ergebnis ein.</div>
+    <div class="btns" style="display:grid;gap:10px;width:min(360px,100%);margin-top:6px"><button class="btn btn-primary" data-tr>Ergebnis eintragen</button><button class="btn btn-ghost" data-tc>Schließen</button></div></div>`;
+  document.body.appendChild(ov);
+  const close = () => { stopAlarm(); ov.classList.add('out'); setTimeout(() => ov.remove(), 250); };
+  $('[data-tc]', ov).addEventListener('click', close);
+  $('[data-tr]', ov).addEventListener('click', () => {
+    close();
+    const { cur } = S.party ? partyState() : { cur: -1 };
+    if (cur >= 0 && !ui.modal) partyResultSheet(cur);
+  });
+}
+// Bildschirm wach halten, solange die Uhr läuft
+let wake = null;
+async function wakeOn() { try { if ('wakeLock' in navigator && !wake) { wake = await navigator.wakeLock.request('screen'); wake.addEventListener('release', () => { wake = null; }); } } catch (e) {} }
+function wakeOff() { try { if (wake) wake.release(); } catch (e) {} wake = null; }
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && S.party && S.party.clock && S.party.clock.run) { wakeOn(); clockTick(); }
+});
 
 /* =========================================================
    Siegerehrung
@@ -1063,11 +1177,19 @@ document.addEventListener('click', async (e) => {
       else { D.kWarn = k; D.k = KL.partyNearestValid(n, k); }
       save(); render(); break;
     }
+    case 'pick-timer': D.timer = Number(b.dataset.t); save(); render(); break;
+    case 't-toggle': clockToggle(); break;
+    case 't-reset': clockReset(); break;
+    case 't-adj': {
+      const P = S.party;
+      P.timer = Math.max(1, Math.min(15, timerMin(P) + Number(b.dataset.d)));
+      P.clock = null; save(); render(); break;
+    }
     case 'party-create': {
       const n = D.names.length;
       b.disabled = true;
       const matches = KL.partyBuild(n, D.k);
-      S.party = { players: D.names.slice(), k: D.k, matches, stats: KL.partyStats(n, matches), results: {} };
+      S.party = { players: D.names.slice(), k: D.k, matches, stats: KL.partyStats(n, matches), results: {}, timer: D.timer === undefined ? 5 : D.timer, clock: null };
       S.cup = null; S.celebrated = {}; S.egg = { asked: {} }; S.tab.party = 'plan'; S.view = 'party';
       ui.reroll = true; ui.nowKey = null;
       save(); render(); break;

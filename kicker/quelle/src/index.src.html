@@ -393,6 +393,28 @@ svg{display:block}
 .egg-sheet{display:grid;gap:18px;justify-items:center;text-align:center;padding:6px 0}
 .egg-sheet .btns{width:100%}
 .egg-line{font:650 18px/1.35 var(--font-display);color:var(--text);padding:12px 20px;border-radius:999px;background:var(--brass-soft);border:1px solid rgba(228,183,108,.35);animation:rise .9s .35s var(--ease) both;text-wrap:balance}
+
+/* ---------- Timer ---------- */
+.timer{margin-top:20px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:14px 14px 14px 20px;border-radius:22px;background:rgba(0,0,0,.28);border:1px solid var(--line)}
+.tdisp{font:800 56px/1 var(--font-num);letter-spacing:-.02em;margin-top:6px;min-width:140px;transition:color .3s}
+.timer.paused .tdisp{color:var(--muted)}
+.timer.low .tdisp{color:var(--danger);animation:tpulse 1s ease-in-out infinite}
+.timer.done .tdisp{color:var(--danger)}
+.timer.run{border-color:rgba(228,183,108,.35)}
+@keyframes tpulse{50%{opacity:.55}}
+.tbtns{display:flex;gap:8px;align-items:center}
+.tbtn{width:52px;height:52px;border-radius:50%;background:var(--surface-2);border:1px solid var(--line-2);display:grid;place-items:center;transition:transform .15s var(--ease)}
+.tbtn:active{transform:scale(.9)}
+.tbtn[disabled]{opacity:.3}
+.tbtn svg{width:22px;height:22px;stroke:var(--text);stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.tmain{min-height:52px;padding:0 22px;border-radius:999px;border:1.5px solid var(--brass);color:var(--brass);font-weight:700;font-size:17px;display:inline-flex;gap:8px;align-items:center;transition:transform .15s var(--ease),background .2s}
+.tmain:active{transform:scale(.95)}
+.tmain svg{width:18px;height:18px;stroke:currentColor;fill:currentColor;stroke-width:2.2;stroke-linejoin:round;stroke-linecap:round}
+.timer.run .tmain{border-color:var(--line-2);color:var(--text)}
+.timer.run .tmain svg{fill:none}
+.egg-icon.ring{animation:ring .5s ease-in-out infinite}
+@keyframes ring{0%,100%{transform:rotate(-12deg)}50%{transform:rotate(12deg)}}
+.pm2 button[disabled],.ms button[disabled]{opacity:.3}
 @media (max-width:520px){
   .summary{grid-template-columns:1fr 1fr}
   .summary .stat:last-child{grid-column:span 2}
