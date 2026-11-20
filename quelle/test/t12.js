@@ -15,11 +15,12 @@ const { start, ok } = require('./common');
     window.__vvFire('scroll');
   }, [px, honour]);
 
+  const openEdit = async () => { if (!(await p.$('#today .rw.open'))) { await T('#today .rw .row-main'); await W(600); } await T('#today .rw.open [data-act="editTask"]'); await W(700); };
   await capture('Drucken', { when: 'today' });
   await W(2300);
 
   console.log('Aufgabe bearbeiten, dann in den Text tippen');
-  await T('#today .rw .row-main'); await W(700);
+  await openEdit();
   await T('#e-text'); await W(300);
   await iosShift(220, true); await W(700);
   let v = await vis('#e-text');
@@ -30,7 +31,7 @@ const { start, ok } = require('./common');
   await T('#L-entry [data-act="closeTop"]'); await W(600);
 
   console.log('Wenn iOS die Verschiebung nicht zurücknimmt');
-  await T('#today .rw .row-main'); await W(700);
+  await openEdit();
   await T('#e-text'); await W(300);
   await iosShift(200, false); await W(700);
   v = await vis('#e-text');

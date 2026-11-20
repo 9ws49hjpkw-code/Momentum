@@ -47,7 +47,7 @@ const { start, ok } = require('./common');
   const fit = await p.evaluate(() => { const s = document.querySelector('#L-entry .sheet').getBoundingClientRect(), b = document.querySelector('#e-save').getBoundingClientRect(), body = document.querySelector('#L-entry .sheet-body'); return { top: Math.round(s.top), sheetBottom: Math.round(s.bottom), saveBottom: Math.round(b.bottom), limit: document.documentElement.clientHeight - 336, scroll: body.scrollHeight - body.clientHeight }; });
   ok(fit.top >= 59 && fit.saveBottom < fit.sheetBottom && fit.sheetBottom <= fit.limit && fit.scroll <= 0, 'auch mit langem Text ist Speichern ganz sichtbar, ohne Scrollen (' + JSON.stringify(fit) + ')');
   await T('#e-when [data-when="today"]'); await W(100); await T('#e-save'); await W(2800);
-  await T('#today .rw[data-swipe] .row-main'); await W(700); await T('#e-text'); await W(900);
+  await T('#today .rw[data-swipe] .row-main'); await W(600); await T('#today .rw.open [data-act="editTask"]'); await W(700); await T('#e-text'); await W(900);
   const fit2 = await p.evaluate(() => { const s = document.querySelector('#L-entry .sheet').getBoundingClientRect(), b = document.querySelector('#e-save').getBoundingClientRect(), body = document.querySelector('#L-entry .sheet-body'); return { top: Math.round(s.top), sheetBottom: Math.round(s.bottom), saveBottom: Math.round(b.bottom), limit: document.documentElement.clientHeight - 336, scroll: body.scrollHeight - body.clientHeight }; });
   ok(fit2.top >= 59 && fit2.saveBottom < fit2.sheetBottom && fit2.sheetBottom <= fit2.limit && fit2.scroll <= 0, 'Bearbeiten mit Tastatur: Speichern ganz sichtbar (' + JSON.stringify(fit2) + ')');
   await shot('92-bearbeiten-lang-tastatur');

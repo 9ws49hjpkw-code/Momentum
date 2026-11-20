@@ -47,8 +47,9 @@ const assert = (c, m) => { if (!c) { console.log('  ✗ ' + m); process.exitCode
   await L.tap(p, '[data-tab="tasks"]'); await p.waitForTimeout(450); await L.shot(p, '15-aufgaben');
   const groups = await p.$$eval('#tasks .sec-h', e => e.map(x => x.textContent));
   console.log('  Gruppen:', groups.join(' | '));
-  assert(groups.join().includes('Heute') && groups.join().includes('Demnächst') && groups.join().includes('Später'), 'Gruppen Heute, Demnächst, Später');
-  const order = await p.$$eval('#tasks .sec:nth-of-type(2) .row-title', e => e.map(x => x.textContent));
+  const dh = await p.$$eval('#tasks .dv-head h2', e => e.map(x => x.textContent));
+  assert(dh[0] === 'Heute' && groups.join().includes('Danach') && groups.join().includes('Später'), 'Zeit-Übersicht: Heute, Danach, Später');
+  const order = await p.$$eval('#tasks .dayv .row-title', e => e.map(x => x.textContent));
   console.log('  Reihenfolge erste Gruppe:', order.join(' | '));
   await L.tap(p, '[data-tab="ideas"]'); await p.waitForTimeout(450); await L.shot(p, '16-ideen');
 

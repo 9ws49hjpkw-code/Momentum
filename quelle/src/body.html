@@ -78,14 +78,17 @@
           <button class="chip" data-act="ePrio" data-prio="1">Normal</button>
           <button class="chip" data-act="ePrio" data-prio="0">Niedrig</button>
         </div></div>
-        <div class="frow" id="e-time-row"><span class="ic" data-ic="timer"></span><div class="chips" id="e-time">
-          <label class="chip chip-date" id="e-time-chip"><span id="e-time-label">Uhrzeit</span><input type="time" id="e-time-in" aria-label="Uhrzeit wählen"></label>
-          <button class="chip" data-act="eDur" data-dur="15">15 Min</button>
-          <button class="chip" data-act="eDur" data-dur="30">30 Min</button>
-          <button class="chip" data-act="eDur" data-dur="60">1 Std</button>
-          <button class="chip" data-act="eDur" data-dur="90">1,5 Std</button>
+        <div class="fold" id="e-dur-fold"><div>
+          <div class="frow" id="e-time-row"><span class="ic" data-ic="timer"></span><div class="chips" id="e-time">
+            <label class="chip chip-date" id="e-time-chip"><span id="e-time-label">Uhrzeit</span><input type="time" id="e-time-in" aria-label="Uhrzeit wählen"></label>
+            <button class="chip" data-act="eDur" data-dur="15">15 Min</button>
+            <button class="chip" data-act="eDur" data-dur="30">30 Min</button>
+            <button class="chip" data-act="eDur" data-dur="60">1 Std</button>
+            <button class="chip" data-act="eDur" data-dur="90">1,5 Std</button>
+            <button class="chip" data-act="eDur" data-dur="120">2 Std</button>
+          </div></div>
         </div></div>
-        <div class="fold" id="e-detail-fold"><div>
+        <div class="fold kbhide" id="e-detail-fold"><div>
           <div class="grow e-detail multi" id="e-detail-grow"><textarea id="e-detail" rows="1" placeholder="Details, Notiz, was du dafür brauchst" autocapitalize="sentences" aria-label="Details"></textarea></div>
         </div></div>
       </div></div>

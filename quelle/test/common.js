@@ -19,6 +19,9 @@ async function start(opts) {
     else if (o.when) await T(`#e-when [data-when="${o.when}"]`);
     if (o.prio != null) await T(`#e-prio [data-prio="${o.prio}"]`);
     if (o.topic != null) await T('#e-topics .chip', o.topic);
+    if (o.time || o.dur) await W(450);
+    if (o.time) await p.evaluate(v => { const e = document.querySelector('#e-time-in'); e.value = v; e.dispatchEvent(new Event('input', { bubbles: true })); e.dispatchEvent(new Event('change', { bubbles: true })); }, o.time);
+    if (o.dur) await T(`#e-time [data-dur="${o.dur}"]`);
     await W(120); await T('#e-save'); await W(600);
   };
   const setDate = d => p.evaluate(d => { const e = document.querySelector('#e-date'); e.focus(); e.value = d; e.dispatchEvent(new Event('input', { bubbles: true })); e.dispatchEvent(new Event('change', { bubbles: true })); e.blur(); }, d);

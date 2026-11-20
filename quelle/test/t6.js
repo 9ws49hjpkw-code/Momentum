@@ -43,7 +43,7 @@ const fs = require('fs'), L = require('./lib');
   await T('#dlg-ok'); await W(700);
   ok(!(await texts('#settings-body .li-t b')).includes('Film/Foto'), 'Thema gelöscht');
   await T('#L-settings [data-act="closeTop"]'); await W(600); await T('[data-tab="tasks"]'); await W(300);
-  ok((await texts('#tasks .rw[data-swipe] .row-title')).includes('Drohnenflug-Regeln nachlesen') && !(await texts('#tasks .tp')).includes('Film/Foto'), 'Aufgaben bleiben, nur ohne Thema');
+  ok((await texts('#tasks .ti:not(.is-done) .row-title, #tasks .tl-b:not(.is-done) .tl-t')).includes('Drohnenflug-Regeln nachlesen') && !(await texts('#tasks .tp')).includes('Film/Foto'), 'Aufgaben bleiben, nur ohne Thema');
 
   console.log('Export');
   await T('[data-tab="today"]'); await W(300); await T('#v-today [data-act="settings"]'); await W(600);
@@ -62,9 +62,10 @@ const fs = require('fs'), L = require('./lib');
   // Daten verändern, dann Backup zurückspielen
   await T('#L-settings [data-act="closeTop"]'); await W(600);
   await t.capture('Nach dem Export angelegt', { when: 'today' });
+  await T('[data-tab="today"]'); await W(300);
+  for (let i = 0; i < 3; i++) { await T('#today .rw[data-swipe] .check'); await W(1100); }
   await T('[data-tab="tasks"]'); await W(300);
-  for (let i = 0; i < 3; i++) { await T('#tasks .rw[data-swipe] .check'); await W(1100); }
-  ok((await texts('#tasks .rw[data-swipe] .row-title')).length === 6, 'Stand vor dem Import: 6 offen');
+  ok((await texts('#tasks .ti:not(.is-done) .row-title, #tasks .tl-b:not(.is-done) .tl-t')).length === 6, 'Stand vor dem Import: 6 offen');
   await T('[data-tab="today"]'); await W(300); await T('#v-today [data-act="settings"]'); await W(600);
   // falsche Datei
   fs.writeFileSync(require('path').join(L.TMP, 'bad.json'), '{"hallo":1}');
@@ -83,12 +84,12 @@ const fs = require('fs'), L = require('./lib');
   await shot('67-import-bestaetigen');
   await T('#dlg-cancel'); await W(500);
   await T('#L-settings [data-act="closeTop"]'); await W(600); await T('[data-tab="tasks"]'); await W(300);
-  ok((await texts('#tasks .rw[data-swipe] .row-title')).length === 6, 'Abbrechen ändert nichts');
+  ok((await texts('#tasks .ti:not(.is-done) .row-title, #tasks .tl-b:not(.is-done) .tl-t')).length === 6, 'Abbrechen ändert nichts');
   await T('[data-tab="today"]'); await W(300); await T('#v-today [data-act="settings"]'); await W(600);
   await p.setInputFiles('#import-file', file); await W(700); await T('#dlg-ok'); await W(900);
   ok((await t.toastText()).includes('importiert'), 'Hinweis: ' + (await t.toastText()));
   await T('#L-settings [data-act="closeTop"]'); await W(600); await T('[data-tab="tasks"]'); await W(300);
-  const after = await texts('#tasks .rw[data-swipe] .row-title');
+  const after = await texts('#tasks .ti:not(.is-done) .row-title, #tasks .tl-b:not(.is-done) .tl-t');
   ok(after.length === 8 && !after.includes('Nach dem Export angelegt'), 'Import stellt den exportierten Stand her (8 offen)');
   await T('[data-tab="today"]'); await W(300);
   ok((await texts('#today .goal .goal-text')).length === 1, 'Tagesziel ist wieder da');
@@ -96,7 +97,7 @@ const fs = require('fs'), L = require('./lib');
   ok((await p.inputValue('#j-editor textarea >> nth=0')) === 'Erster Eintrag für den Export.', 'Journal ist wieder da');
   await p.reload(); await p.waitForSelector('body.live'); await L.decorate(p); await W(300);
   await T('[data-tab="tasks"]'); await W(300);
-  ok((await texts('#tasks .rw[data-swipe] .row-title')).length === 8, 'importierter Stand übersteht Neuladen');
+  ok((await texts('#tasks .ti:not(.is-done) .row-title, #tasks .tl-b:not(.is-done) .tl-t')).length === 8, 'importierter Stand übersteht Neuladen');
   ok((await texts('#tasks .filter .chip')).join('|') === 'Alle|Klavier|Sport & Laufen|Studium', 'Themen aus dem Backup: ' + (await texts('#tasks .filter .chip')).join(' | '));
 
   console.log('Import in eine frische App');
@@ -105,6 +106,6 @@ const fs = require('fs'), L = require('./lib');
   await L.tap(p2, '#v-today [data-act="settings"]'); await p2.waitForTimeout(600);
   await p2.setInputFiles('#import-file', file); await p2.waitForTimeout(700); await L.tap(p2, '#dlg-ok'); await p2.waitForTimeout(900);
   await L.tap(p2, '#L-settings [data-act="closeTop"]'); await p2.waitForTimeout(600); await L.tap(p2, '[data-tab="tasks"]'); await p2.waitForTimeout(300);
-  ok((await p2.$$eval('#tasks .rw[data-swipe] .row-title, #tasks .og .og-t', e => e.length)) === 8, 'Backup lässt sich auf einem neuen Gerät einspielen');
+  ok((await p2.$$eval('#tasks .ti:not(.is-done) .row-title, #tasks .tl-b:not(.is-done) .tl-t, #tasks .og .og-t', e => e.length)) === 8, 'Backup lässt sich auf einem neuen Gerät einspielen');
   await t.end();
 })().catch(e => { console.error('FAIL', e); process.exit(1); });

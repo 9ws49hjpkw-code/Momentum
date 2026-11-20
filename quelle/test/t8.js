@@ -41,7 +41,7 @@ const L = require('./lib');
   await T('#plus'); await W(700); await audit('Erfassen'); await T('#e-seg [data-type="idea"]'); await W(500); await audit('Erfassen Idee');
   await p.evaluate(() => document.activeElement.blur()); await W(300); await p.keyboard.press('Escape'); await W(600);
   await T('[data-tab="tasks"]'); await W(400); await audit('Aufgaben'); await noOverflow('Aufgaben');
-  await T('#tasks .rw[data-swipe] .row-main'); await W(700); await audit('Aufgabe bearbeiten'); await T('#L-entry [data-act="closeTop"]'); await W(600);
+  await T('#tasks .ti'); await W(700); await audit('Aufgabe bearbeiten'); await T('#L-entry [data-act="closeTop"]'); await W(600);
   await T('[data-tab="ideas"]'); await W(400); await audit('Ideen');
   await T('#ideas .rw .row'); await W(700); await audit('Idee'); await T('#L-entry [data-act="closeTop"]'); await W(600);
   await T('[data-tab="today"]'); await W(300);
@@ -55,12 +55,27 @@ const L = require('./lib');
   console.log('Alles erledigt / Filter leer');
   await T('[data-tab="tasks"]'); await W(400);
   await T('#tasks .filter .chip', 1); await W(300);
-  for (let i = 0; i < 1; i++) { await T('#tasks .rw[data-swipe] .check, #tasks .og .check'); await W(1400); }
+  /* Auf der Aufgaben-Seite wird nicht mehr abgehakt: offene Aufgaben direkt im Speicher erledigen, dann neu laden */
+  const doneInDb = async topicIdx => {
+    await p.evaluate(async topicIdx => {
+      const req = indexedDB.open('momentum'); const db = await new Promise(r => { req.onsuccess = () => r(req.result); });
+      const get = s => new Promise(r => { const q = db.transaction(s).objectStore(s).getAll(); q.onsuccess = () => r(q.result); });
+      const topics = (await get('topics')).sort((a, b) => a.order - b.order), tid = topicIdx == null ? null : topics[topicIdx].id;
+      const days = await get('days'), tasks = await get('tasks');
+      const tx = db.transaction(['tasks', 'days'], 'readwrite');
+      for (const x of tasks) if (!x.done && (tid == null || x.topicId === tid)) { x.done = true; x.doneAt = Date.now(); tx.objectStore('tasks').put(x); }
+      for (const d of days) { let ch = false; for (const g of d.goals) if (!g.taskId && !g.done && tid == null) { g.done = true; ch = true; } if (ch) tx.objectStore('days').put(d); }
+      await new Promise(r => { tx.oncomplete = r; }); db.close();
+    }, topicIdx);
+    await p.reload(); await p.waitForSelector('body.live'); await t.L.decorate(p); await W(300);
+    await T('[data-tab="tasks"]'); await W(400);
+  };
+  await doneInDb(0);
+  await T('#tasks .filter .chip', 1); await W(300);
   ok((await texts('#tasks .empty h3'))[0] === 'Nichts offen', 'Filter ohne offene Aufgaben: ' + (await texts('#tasks .empty p'))[0]);
   await W(2500); await shot('80-filter-leer');
   await T('#tasks .filter .chip', 0); await W(300);
-  let n = (await p.$$('#tasks .rw[data-swipe]')).length;
-  while (n-- > 0) { await T('#tasks .rw[data-swipe] .check'); await W(1150); }
+  await doneInDb(null);
   ok((await texts('#tasks .empty h3'))[0] === 'Alles erledigt', 'Aufgaben: alles erledigt');
   await W(2600); await shot('81-alles-erledigt');
 

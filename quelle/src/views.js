@@ -36,12 +36,10 @@ function taskMeta(t, group) {
 }
 /* Details klappen unter der Aufgabe auf (Heute): Notiz, Klammer-Details, Zeit, dazu „Bearbeiten“ */
 function rowDetails(t) {
-  const det = taskDetails(t), tl = timeLabel(t);
+  const det = taskDetails(t);
   return h('div.rw-det', null, h('div', null, h('div.rw-det-in', null,
     det.length ? det.map(x => h('p.det-note', null, x)) : h('p.det-none', null, 'Keine Details. Unter „Bearbeiten“ ergänzt du welche.'),
-    h('div.det-foot', null,
-      tl ? h('span.det-time', null, ic('clock'), tl) : h('span'),
-      btn('.pill.det-edit', 'editTask', { id: t.id }, 'Bearbeiten')))));
+    h('div.det-foot', null, h('span'), btn('.pill.det-edit', 'editTask', { id: t.id }, 'Bearbeiten')))));
 }
 /* Farbe des Themas für die ganze Zeile */
 function tpVars(id) { const t = id && topicById(id); return t ? { '--h': t.hue } : null; }
@@ -153,51 +151,173 @@ function renderToday() {
     none ? empty('check', 'Nichts fällig', goals.length ? 'Bleiben deine Tagesziele. Mehr steht heute nicht an.' : 'Heute steht nichts an. Fällt dir etwas ein, leg es mit + ab.', true) : null);
 }
 
-/* ----- Aufgaben ----- */
+/* ----- Aufgaben: Zeit-Übersicht ----- */
+/* Hier wird nichts abgehakt. Tippen öffnet die Aufgabe mit allen Details. */
+const BAND = 14, PPM = 1.15;
+const fWd = fmt({ weekday: 'short' });
+function tiMeta(t, ctx) {
+  const m = [];
+  if (ctx === 'done') m.push(h('span', null, doneLabel(t)));
+  else {
+    if (ctx === 'over') m.push(h('span.over', null, dueLabel(t.due)));
+    else if (ctx === 'later') m.push(h('span', null, dueLabel(t.due)));
+    if (t.prio === 2) m.push(h('span.hot', null, 'Hoch'));
+    else if (t.prio === 0) m.push(h('span', null, 'Niedrig'));
+    if (t.moved > 0) m.push(h('span.moved', null, t.moved + '× verschoben'));
+  }
+  const tp = topicTag(t.topicId);
+  if (tp) m.push(tp);
+  if (taskDetails(t).length) m.push(h('span.has-det', { 'aria-label': 'hat Details' }, ic('note')));
+  return m;
+}
+function tiCard(t, ctx) {
+  const tv = tpVars(t.topicId), tl = timeLabel(t), meta = tiMeta(t, ctx);
+  return h('button.ti', { type: 'button', class: 'p' + t.prio + (t.done ? ' is-done' : '') + (ctx === 'over' ? ' od' : '') + (tv ? ' tp-on' : '') + (ui.fresh === t.id ? ' fresh' : ''), vars: tv, data: { act: 'editTask', id: t.id } },
+    h('span.ti-main', null,
+      h('span.row-title', null, taskTitle(t)),
+      meta.length ? h('span.row-meta', null, meta) : null),
+    tl ? h('span.ti-time', null, tl) : null);
+}
+function loadOf(list) { return list.reduce((n, t) => n + (t.dur || 30), 0); }
+function weekBand(day, open) {
+  const days = [];
+  for (let i = 0; i < BAND; i++) days.push(addDays(day, i));
+  return h('div.wband', null, h('div.wb-days', null, days.map(d => {
+    const list = open.filter(t => t.due === d), load = loadOf(list);
+    const lv = Math.min(1, load / 480);
+    return h('button.wb-day', { type: 'button', class: (d === ui.tday ? 'on' : '') + (d === day ? ' today' : '') + (list.some(t => t.prio === 2) ? ' hot' : ''), 'aria-pressed': String(d === ui.tday), 'aria-label': longDate(d) + ', ' + plural(list.length, 'Aufgabe', 'Aufgaben'), vars: { '--l': lv.toFixed(3) }, data: { act: 'tday', day: d } },
+      h('span.wb-w', null, d === day ? 'Heute' : fWd.format(D(d)).replace('.', '')),
+      h('span.wb-n', null, String(+d.slice(8))),
+      h('i.wb-bar', null, h('i')),
+      h('span.wb-c', null, list.length ? String(list.length) : ''));
+  })));
+}
+/* Blöcke, die sich überschneiden, teilen sich die Breite */
+function lanes(items) {
+  items.sort((a, b) => a.a - b.a || b.e - a.e);
+  let cluster = [], end = -1;
+  const flush = () => {
+    const lastEnd = [];
+    for (const it of cluster) {
+      let l = lastEnd.findIndex(e => e <= it.a);
+      if (l < 0) { l = lastEnd.length; lastEnd.push(0); }
+      lastEnd[l] = it.e; it.lane = l;
+    }
+    for (const it of cluster) it.n = lastEnd.length;
+    cluster = [];
+  };
+  for (const it of items) { if (it.a >= end && cluster.length) flush(); cluster.push(it); end = Math.max(end, it.e); }
+  if (cluster.length) flush();
+  return items;
+}
+function timeline(list, isToday) {
+  const now = minNow();
+  const items = list.map(t => { const a = toMin(t.time), d = t.dur || 30; return { t, a, e: Math.min(1440, a + d), d }; });
+  /* Sichtbarer Ausschnitt: eine Stunde vor dem Ersten (bzw. jetzt) bis eine Stunde nach dem Letzten, mindestens 6 Stunden */
+  let lo = Infinity, hi = -Infinity;
+  for (const it of items) { lo = Math.min(lo, it.a); hi = Math.max(hi, it.e); }
+  if (isToday) { lo = Math.min(lo, now); hi = Math.max(hi, now); }
+  if (lo === Infinity) { lo = 9 * 60; hi = 17 * 60; }
+  let from = Math.max(0, Math.floor(lo / 60) * 60 - 60), to = Math.min(1440, Math.ceil(hi / 60) * 60 + 60);
+  if (to - from < 360) to = Math.min(1440, from + 360);
+  if (to - from < 360) from = Math.max(0, to - 360);
+  const y = m => Math.round((m - from) * PPM);
+  const hours = [];
+  for (let m = from; m <= to; m += 60) hours.push(h('div.tl-h', { style: 'top:' + y(m) + 'px', class: isToday && m + 60 <= now ? 'past' : '' }, h('span', null, String(m / 60 % 24).padStart(2, '0'))));
+  const blocks = lanes(items).map(it => {
+    const t = it.t, tv = tpVars(t.topicId), hgt = Math.max(30, Math.round(it.d * PPM) - 3);
+    const st = isToday && !t.done ? (it.e <= now ? ' past' : it.a <= now ? ' live' : '') : '';
+    return h('button.tl-b', { type: 'button', class: 'p' + t.prio + (t.done ? ' is-done' : '') + (tv ? ' tp-on' : '') + st + (hgt < 44 ? ' short' : ''), vars: Object.assign({ '--lane': it.lane, '--n': it.n, '--y': y(it.a) + 'px', '--bh': hgt + 'px' }, tv || {}), data: { act: 'editTask', id: t.id } },
+      h('span.tl-t', null, taskTitle(t)),
+      h('span.tl-m', null, timeLabel(t) + (st === ' live' ? ' · läuft' : '')));
+  });
+  const nowEl = isToday && now >= from && now <= to ? h('div.tl-now', { style: 'top:' + y(now) + 'px' }, h('span', null, fromMin(now))) : null;
+  return h('div.tl', { style: 'height:' + (y(to) + 14) + 'px' }, hours, h('div.tl-col', null, blocks), nowEl);
+}
+function dayView(day, open, doneAll) {
+  const d = ui.tday, isToday = d === day;
+  const list = open.filter(t => t.due === d), doneHere = doneAll.filter(t => t.due === d);
+  const timed = list.concat(doneHere).filter(t => toMin(t.time) != null);
+  const free = list.filter(t => toMin(t.time) == null).sort(cmpTask);
+  const load = loadOf(list.filter(t => t.dur));
+  const sum = list.length ? plural(list.length, 'Aufgabe', 'Aufgaben') + (load ? ' · ' + durLabel(load) + ' geplant' : '') : (doneHere.length ? 'Alles erledigt' : 'Nichts geplant');
+  return h('section.dayv', null,
+    h('div.dv-head', null,
+      h('h2', null, isToday ? 'Heute' : dueLabel(d)),
+      h('span.dv-date', null, plainDate(d)),
+      h('span.dv-sum', null, sum)),
+    free.length ? h('div.dv-free', null, h('h3.dv-sub', null, 'Im Lauf des Tages', h('span.n', null, free.length)), h('div.ti-list', null, free.map(t => tiCard(t, 'day')))) : null,
+    timed.length || isToday ? timeline(timed, isToday) : null,
+    !list.length && !doneHere.length && !isToday ? h('p.dv-empty', null, 'Frei. Was hier landen soll, legst du mit + und einem Datum ab.') : null);
+}
 function renderTasks() {
   const day = today(), box = $('#tasks');
   if (ui.filter && !topicById(ui.filter)) ui.filter = null;
+  if (!ui.tday || ui.tday < day || diffDays(ui.tday, day) >= BAND) ui.tday = day;
   const pass = t => !ui.filter || t.topicId === ui.filter;
   const all = Array.from(S.tasks.values());
   const og = overdueGoals(day).filter(o => o.g.taskId ? pass(S.tasks.get(o.g.taskId)) : !ui.filter);
   const ogIds = new Set(og.filter(o => o.g.taskId).map(o => o.g.taskId));
   const open = all.filter(t => !t.done && pass(t) && !ogIds.has(t.id));
-  const done = all.filter(t => t.done && pass(t)).sort((a, b) => (b.doneAt || 0) - (a.doneAt || 0));
-  const g = { over: [], today: [], soon: [], later: [] };
-  for (const t of open) g[groupOf(t, day)].push(t);
-  for (const k in g) g[k].sort(cmpTask);
+  const doneAll = all.filter(t => t.done && pass(t));
+  const done = doneAll.slice().sort((a, b) => (b.doneAt || 0) - (a.doneAt || 0));
+  const over = open.filter(t => t.due < day).sort(cmpTask);
+  const ahead = open.filter(t => t.due >= day);
   const openAll = all.filter(t => !t.done).length;
-  const old = $('.filter .chips', box), keep = old ? old.scrollLeft : 0;
+  const oldC = $('.filter .chips', box), keep = oldC ? oldC.scrollLeft : 0;
+  const oldB = $('.wb-days', box), keepB = oldB ? oldB.scrollLeft : null;
   let filter = null;
   if (S.topics.length && all.length) {
     filter = h('div.filter', null, h('div.chips', null,
       btn('.chip' + (ui.filter ? '' : '.on'), 'filter', {}, 'Alle'),
       S.topics.map(t => btn('.chip' + (ui.filter === t.id ? '.on' : ''), 'filter', { id: t.id }, h('i.dot', { vars: { '--h': t.hue } }), t.name))));
   }
-  let blank = null;
-  if (!open.length && !og.length) {
-    if (ui.filter) blank = empty('tTasks', 'Nichts offen', 'Für „' + topicById(ui.filter).name + '“ steht gerade nichts an.');
-    else if (!all.length) blank = empty('tTasks', 'Noch keine Aufgaben', 'Tipp auf +, schreib es auf und sag, wann. Dann ist es aus dem Kopf.');
-    else blank = empty('check', 'Alles erledigt', 'Nichts mehr offen. Der Rest gehört dir.');
+  $('#tasks-sub').textContent = openAll ? plural(openAll, 'offene Aufgabe', 'offene Aufgaben') : 'Nichts offen';
+  if (!all.length) {
+    fill(box, empty('tTasks', 'Noch keine Aufgaben', 'Tipp auf +, schreib es auf und sag, wann. Mit Uhrzeit und Dauer erscheint es hier im Zeitstrahl.'));
+    return;
   }
+  /* Was nach dem gewählten Tag kommt: nach Tag gruppiert, dann alles Spätere */
+  const rest = ahead.filter(t => t.due !== ui.tday).sort(cmpTime);
+  const byDay = new Map(), later = [];
+  for (const t of rest) {
+    if (diffDays(t.due, day) < BAND) { if (!byDay.has(t.due)) byDay.set(t.due, []); byDay.get(t.due).push(t); }
+    else later.push(t);
+  }
+  const agenda = [];
+  for (const [d, list] of byDay) agenda.push(h('div.ag-day', null, h('h3.ag-h', null, h('b', null, dueLabel(d)), h('span', null, plainDate(d))), h('div.ti-list', null, list.map(t => tiCard(t, 'day')))));
+  let blank = null;
+  if (!open.length && !og.length && ui.filter) blank = empty('tTasks', 'Nichts offen', 'Für „' + topicById(ui.filter).name + '“ steht gerade nichts an.', true);
+  else if (!open.length && !og.length) blank = empty('check', 'Alles erledigt', 'Nichts mehr offen. Der Rest gehört dir.', true);
   let doneSec = null;
   if (done.length) {
     const shown = done.slice(0, ui.doneLimit);
     doneSec = h('section.sec', null,
       h('button.done-toggle', { type: 'button', 'aria-expanded': String(ui.doneOpen), data: { act: 'toggleDone' } }, 'Erledigt', h('span.n', null, done.length), ic('chevD')),
-      ui.doneOpen ? h('div.group.glass', { style: 'margin-top:6px' }, shown.map(t => taskRow(t, 'done'))) : null,
+      ui.doneOpen ? h('div.ti-list', { style: 'margin-top:6px' }, shown.map(t => tiCard(t, 'done'))) : null,
       ui.doneOpen && done.length > shown.length ? btn('.more', 'moreDone', {}, 'Mehr anzeigen') : null);
   }
-  $('#tasks-sub').textContent = openAll ? plural(openAll, 'offene Aufgabe', 'offene Aufgaben') : 'Nichts offen';
   fill(box,
     filter,
     og.length ? h('div.sec', null, overGoalsCard(og)) : null,
-    g.over.length ? taskSection('Überfällig', g.over, 'over', 'over-h') : null,
-    g.today.length ? taskSection('Heute', g.today, 'today') : null,
-    g.soon.length ? taskSection('Demnächst', g.soon, 'soon') : null,
-    g.later.length ? taskSection('Später', g.later, 'later') : null,
-    blank, doneSec);
+    blank,
+    over.length ? h('section.sec.over-s', null, h('h2.sec-h.over-h', null, 'Überfällig', h('span.n', null, over.length)), h('div.ti-list', null, over.map(t => tiCard(t, 'over')))) : null,
+    h('section.sec.plan-s', null, weekBand(day, ahead), dayView(day, open, doneAll)),
+    agenda.length ? h('section.sec.ag', null, h('h2.sec-h', null, 'Danach'), agenda) : null,
+    later.length ? h('section.sec', null, h('h2.sec-h', null, 'Später', h('span.n', null, later.length)), h('div.ti-list', null, later.map(t => tiCard(t, 'later')))) : null,
+    doneSec);
   if (keep) { const c = $('.filter .chips', box); if (c) c.scrollLeft = keep; }
+  const wb = $('.wb-days', box);
+  if (wb) {
+    if (keepB != null) wb.scrollLeft = keepB;
+    else { const on = $('.wb-day.on', wb); if (on && on.offsetLeft > wb.clientWidth - 70) wb.scrollLeft = on.offsetLeft - 20; }
+  }
+}
+/* Jetzt-Linie und „läuft“ bleiben aktuell, solange Aufgaben offen ist */
+function tickTasks() {
+  if (ui.tab !== 'tasks' || layers.length || animating || document.hidden) return;
+  if (!$('#tasks .tl-now') && !$('#tasks .tl-b')) return;
+  renderTasks();
 }
 
 /* ----- Ideen ----- */
@@ -345,6 +465,8 @@ function syncEntry() {
   $('#e-time-label').textContent = E.time ? E.time + ' Uhr' : 'Uhrzeit';
   for (const b of $$('#e-time [data-dur]')) b.classList.toggle('on', +b.dataset.dur === E.dur);
   $('#e-detail-fold').classList.toggle('off', !(isTask && E.mode === 'task'));
+  /* Zeitrahmen (Uhrzeit + Dauer) erscheint, sobald ein Tag gewählt ist – freiwillig */
+  $('#e-dur-fold').classList.toggle('off', !(isTask && (E.when || E.time || E.dur || E.mode === 'task')));
   for (const b of $$('#e-topics [data-id]')) b.classList.toggle('on', b.dataset.id === E.topicId);
   let note = '';
   if (isNew && !isTask) note = 'Die Idee parkt. In 7 Tagen fragt „Heute“, was daraus wird.';
@@ -399,7 +521,7 @@ function openEntry(o) {
   const topics = $('#e-topics');
   fill(topics, S.topics.map(t => btn('.chip', 'eTopic', { id: t.id }, h('i.dot', { vars: { '--h': t.hue } }), t.name)));
   $('#e-topic-fold').classList.toggle('off', !S.topics.length);
-  for (const c of $$('#L-entry .chips')) c.scrollLeft = 0;
+  for (const c of $$('#L-entry .chips, #L-entry .fold > div, #L-entry .sheet-body')) c.scrollLeft = 0;
   syncEntry();
   if (o.mode === 'new') guessKb();
   const L = openLayer('L-entry');
