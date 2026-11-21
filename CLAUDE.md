@@ -18,3 +18,9 @@ Der Nutzer hat keinen Computer. Claude ändert, testet und veröffentlicht selbs
 - Alte Datensätze ohne neue Felder müssen weiter funktionieren (Standardwerte beim Lesen).
 - Export/Import-Format „momentum“ bleibt lesbar; neue Felder sind optional.
 - `sw.js`: nur eigene, gültige Antworten cachen; neue Version anbieten, nicht erzwingen.
+
+## Weitere Apps im Repo
+- **Notenweg** (Klavier-Lern-App, iPad): `notenweg/`, Quelle und Regeln in `notenweg/quelle/PROJEKT.md` (zuerst lesen).
+  Bauen: `python3 notenweg/quelle/build.py`, Tests: `node notenweg/quelle/test/e2e.js && node notenweg/quelle/test/monkey.js`.
+  Adresse: https://9ws49hjpkw-code.github.io/Momentum/notenweg/
+- **Kickerabend**: `kicker/`, siehe `kicker/quelle/LIESMICH.md`.
