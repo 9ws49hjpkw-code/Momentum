@@ -299,8 +299,12 @@ const MT = { bpm: 72, beats: 4, on: false, next: 0, beat: 0, timer: null, taps: 
 function metronomeHTML() {
   return `<div class="metro"><div class="row" style="justify-content:center;gap:18px"><button class="iconbtn" data-a="mt-step" data-d="-4" aria-label="langsamer">−</button><div><div class="bpm" id="mt-bpm">${MT.bpm}</div><div class="small muted">Schläge pro Minute</div></div><button class="iconbtn" data-a="mt-step" data-d="4" aria-label="schneller">+</button></div><input type="range" min="30" max="200" value="${MT.bpm}" id="mt-range" data-f="mt-range" aria-label="Tempo"><div class="dots" id="mt-dots">${Array.from({ length: MT.beats }, (_, i) => `<span></span>`).join('')}</div><div class="btnrow" style="justify-content:center"><button class="btn" data-a="mt-toggle">${MT.on ? '■ Stopp' : '▶︎ Start'}</button><button class="btn ghost" data-a="mt-tap">Tippen</button><div class="seg">${[2, 3, 4, 6].map(v => `<button class="${MT.beats === v ? 'on' : ''}" data-a="mt-beats" data-v="${v}">${v === 6 ? '6/8' : v + '/4'}</button>`).join('')}</div></div></div>`;
 }
+function mtStop() { if (!MT.on) return; MT.on = false; clearInterval(MT.timer); $$('[data-a="mt-toggle"]').forEach(b => { b.textContent = '▶\ufe0e Start'; }); }
+/* Metronom läuft nur, solange es sichtbar ist: Seite gewechselt, Bereich zugeklappt oder App verlassen → aus. */
+document.addEventListener('visibilitychange', () => { if (document.hidden) mtStop(); });
 function mtSched() {
   const ctx = Sound.ctx; if (!ctx || !MT.on) return;
+  const el = document.getElementById('mt-bpm'); if (!el || el.closest('details:not([open])') || !el.getClientRects().length) { mtStop(); return; }
   const spb = 60 / MT.bpm * (MT.beats === 6 ? 0.5 : 1);
   while (MT.next < ctx.currentTime + 0.12) {
     const b = MT.beat % MT.beats; const acc = b === 0 || (MT.beats === 6 && b === 3);
@@ -510,7 +514,7 @@ const APP = (() => {
   /* ---------- Router ---------- */
   let curView = 'pfad';
   function route() {
-    stopPlay(true);
+    stopPlay(true); mtStop();
     const h = decodeURIComponent((location.hash || '#pfad').slice(1));
     let html = '', nav = 'pfad';
     try {
@@ -1202,7 +1206,7 @@ const APP = (() => {
       if (s.t === 'read' || s.t === 'sum' || s.t === 'piece' || s.t === 'tool' || s.t === 'listen' || s.t === 'piano') { S.stepAt[l.id] = Math.max(S.stepAt[l.id] || 0, LV.step + 1); dayRec().items.lern = true; save(); }
       if (LV.step >= l.steps.length - 1) {
         if (!isDone(l.id)) { const sc = QZ.run && QZ.run.done ? QZ.run.done.score : null; completeLesson(l, sc); }
-        QZ.reset(); $('#view').innerHTML = `<nav class="crumb"><a href="#pfad">← Lernpfad</a></nav>` + lessonDoneHTML(l); window.scrollTo(0, 0); return;
+        QZ.reset(); mtStop(); $('#view').innerHTML = `<nav class="crumb"><a href="#pfad">← Lernpfad</a></nav>` + lessonDoneHTML(l); window.scrollTo(0, 0); return;
       }
       LV.step++; QZ.reset(); route();
     },

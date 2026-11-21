@@ -82,3 +82,4 @@ Geschützte Stücke (Einaudi, Tony Ann, Alcocer …) nur mit Kauflink (`inApp: f
   Daten bleiben unverändert, die Haken zählen als erledigt). Beschriftungen im Notenkasten im Dark Mode lesbar,
   ▶ nicht mehr als Emoji.
 - 4.4 (Build 5): Jeder „Am Klavier“-Schritt, der ein Metronom erwähnt, hat ein eigenes Metronom (Tempo aus „♩ = …“ vorgewählt).
+- 4.5 (Build 6): Metronom stoppt automatisch bei Seitenwechsel, „Weiter“, zugeklapptem Bereich und beim Verlassen der App.
