@@ -5,8 +5,8 @@ Für jede neue Version BUILD erhöhen. Die App-Dateien in notenweg/ nie von Hand
 """
 import base64, json, os, shutil, sys
 
-BUILD = '7'
-VERSION = '4.6'          # sichtbare Versionsnummer in der App (Fortschritt → Deine Daten)
+BUILD = '8'
+VERSION = '4.7'          # sichtbare Versionsnummer in der App (Fortschritt → Deine Daten)
 
 Q = os.path.dirname(os.path.abspath(__file__))
 SRC = os.path.join(Q, 'src')

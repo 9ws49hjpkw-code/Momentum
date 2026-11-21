@@ -635,7 +635,7 @@ const APP = (() => {
       h += `<section class="card framed"><p class="eyebrow">Lektion ${l.id} · ca. ${l.min || 25} Minuten</p><h1>${esc(l.title)}</h1><p class="lead">${esc(l.sub || '')}</p>${FLOUR}${l.goals ? `<h4>Danach kannst du</h4><ul class="body">${l.goals.map(g => `<li>${g}</li>`).join('')}</ul>` : ''}<h4>Ablauf</h4><p class="small muted">${stepSummary(l)}</p><div class="btnrow"><button class="btn" data-a="l-begin">Beginnen</button>${!isDone(id) ? `<button class="btn ghost" data-a="l-skip">Kann ich schon → direkt zum Test</button>` : ''}</div>${!isDone(id) ? '<p class="small muted" style="margin-top:8px">Abkürzung: Mit mindestens 90 % im Abschlusstest zählt die Lektion als bestanden.</p>' : ''}</section>`;
       return h;
     }
-    if (LV.mode === 'skiptest') return h + `<section class="card"><p class="eyebrow">Lektion ${l.id} · Abkürzung</p><h2>Direkt zum Test</h2><p class="small muted">Gemischte Fragen aus der ganzen Lektion. Ab 90 % gilt sie als bestanden.</p><div id="quiz"></div></section>`;
+    if (LV.mode === 'skiptest') return h + `<section class="card"><p class="eyebrow">Lektion ${l.id} · Abkürzung</p><h2>Direkt zum Test</h2><p class="small muted">Gemischte Fragen aus der ganzen Lektion. Ab 90 % gilt sie als bestanden. Klappt es nicht, kannst du danach die Lektion ganz normal von vorne lernen.</p><div id="quiz"></div></section>`;
     const s = l.steps[LV.step];
     h += `<section class="lhead"><div class="row-between"><span class="eyebrow" style="margin:0">Lektion ${l.id} · ${esc(l.title)}</span><span class="small muted num">${LV.step + 1}/${N}</span></div><div class="steps-dots">${l.steps.map((st, i) => `<button class="${i < reached || isDone(id) ? 'done' : ''}${i === LV.step ? ' cur' : ''}" data-a="l-go" data-i="${i}" aria-label="Schritt ${i + 1}" ${i > reached && !isDone(id) ? 'disabled' : ''}></button>`).join('')}</div></section>`;
     h += stepHTML(l, s, LV.step);
@@ -749,7 +749,7 @@ const APP = (() => {
     const weak = {}; r.res.filter(x => !x.ok).forEach(x => weak[x.item[0]] = (weak[x.item[0]] || 0) + 1);
     const GN = { noteName: 'Notennamen', noteKey: 'Note → Taste', ivSize: 'Intervallgröße', ivQual: 'Intervalle genau', keySig: 'Vorzeichen → Tonart', keyAcc: 'Vorzeichen einer Tonart', triadQual: 'Dreiklänge', inversion: 'Umkehrungen', measureFill: 'Notenwerte im Takt', noteValue: 'Notenwerte', term: 'Fachbegriffe', degree: 'Stufenakkorde', prog: 'Akkordfolgen', symNotes: 'Akkordsymbole', pool: 'Wissensfragen' };
     if (r.pass) return `<div class="feedback ok"><b class="v">Bestanden – ${pct} %</b><div>${r.baseOk} von ${r.baseN} Aufgaben auf Anhieb richtig${r.res.some(x => !x.base) ? ', alle Fehler mit Ersatzaufgaben repariert' : ''}.</div></div>`;
-    return `<div class="feedback no"><b class="v">Noch nicht bestanden – ${pct} %</b><div>Nötig: ${Math.round((run.cfg.pass || 0.8) * 100)} %${r.repairsOpen ? ' und jede falsche Aufgabe mit einer richtigen Ersatzaufgabe repariert' : ''}.</div>${Object.keys(weak).length ? `<div class="small" style="margin-top:6px">Schwerpunkte zum Nacharbeiten: ${Object.keys(weak).map(g => GN[g] || g).join(', ')}.</div>` : ''}<div class="btnrow" style="margin-top:10px"><button class="btn sm" data-a="test-retry">Neuer Test mit neuen Aufgaben</button></div></div>`;
+    return `<div class="feedback no"><b class="v">Noch nicht bestanden – ${pct} %</b><div>Nötig: ${Math.round((run.cfg.pass || 0.8) * 100)} %${r.repairsOpen ? ' und jede falsche Aufgabe mit einer richtigen Ersatzaufgabe repariert' : ''}.</div>${Object.keys(weak).length ? `<div class="small" style="margin-top:6px">Schwerpunkte zum Nacharbeiten: ${Object.keys(weak).map(g => GN[g] || g).join(', ')}.</div>` : ''}<div class="btnrow" style="margin-top:10px"><button class="btn sm" data-a="test-retry">Neuer Test mit neuen Aufgaben</button>${LV.mode === 'skiptest' && location.hash.startsWith('#lektion-') ? '<button class="btn sm ghost" data-a="l-fromstart">Doch lieber: Lektion von vorne</button>' : ''}</div></div>`;
   }
   function afterQuizDone(run) {
     const h = location.hash;
@@ -1196,7 +1196,8 @@ const APP = (() => {
     'test-retry': () => { const h = location.hash; QZ.reset(); if (h.startsWith('#pruefung-')) { EX.phase = EX.phase === 'placement' ? 'placement' : 'theory'; } rerender(); },
     'ex-start': () => { LV.again = true; QZ.reset(); rerender(); },
     'l-begin': () => { LV.started = true; LV.mode = 'steps'; LV.step = Math.min(S.stepAt[LV.id] || 0, LBY[LV.id].steps.length - 1); rerender(); },
-    'l-skip': () => { LV.mode = 'skiptest'; QZ.reset(); rerender(); },
+    'l-skip': () => { LV.mode = 'skiptest'; LV.started = true; QZ.reset(); rerender(); },
+    'l-fromstart': () => { LV.mode = 'steps'; LV.step = 0; LV.started = true; QZ.reset(); route(); },
     'l-go': t => { LV.step = +t.dataset.i; LV.mode = 'steps'; LV.started = true; QZ.reset(); route(); },
     'l-prev': () => { LV.step = Math.max(0, LV.step - 1); QZ.reset(); route(); },
     'l-next': () => {
