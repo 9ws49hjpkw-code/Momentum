@@ -75,6 +75,10 @@ Themen: Klavier, Film/Foto, Sport (verwaltbar). Export/Import JSON.
 - Aufgaben → „Erledigt“ (unten, einklappbar) ist jetzt ein Rückblick: Gruppen je Tag (Heute, Gestern, Wochentag + Datum), neueste zuerst, rechts „n geschafft“ für den ganzen Tag, an jeder Karte die Uhrzeit des Erledigens. Themen-Filter gilt. views.js `doneChronicle`, `tiMeta(t,'chron')`. test/t18.js.
 - Offen (Fragen 20.11.): Umschalter „Geplant | Erledigt“ oben statt unten, Zeitraum-Knöpfe, erledigte Tagesziele im Rückblick.
 
+## Neu in 1.3.1 (21.11.2026)
+- Roter Rand etwa halb so stark (dünne Linie, wenig Glühen). Die Welle zur Mitte ist entfernt, beim Betreten nur noch einmal sanftes Atmen.
+- Töne neu, wie Systemklänge: nur ein kurzer, trockener Klick beim Abhaken (Ziel: zwei), ein ganz leiser beim Speichern. Kein Start-Klang, keine Töne beim Navigieren, kein Nachhall. test/t17.js.
+
 Nicht bauen: Login, Cloud, Push, KI, Gamification, Statistik-Dashboards, Light Mode.
 
 ## Design

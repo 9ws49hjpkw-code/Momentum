@@ -1,7 +1,7 @@
 // Baut index.html aus den Quelldateien und legt alles flach in ../momentum
 const fs = require('fs'), path = require('path');
 const SRC = path.join(__dirname, 'src'), OUT = path.join(__dirname, '..');
-const BUILD = '1.3.0';
+const BUILD = '1.3.1';
 const read = f => fs.readFileSync(path.join(SRC, f), 'utf8');
 
 function spring(k, c, steps) {

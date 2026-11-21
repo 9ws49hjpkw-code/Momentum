@@ -25,7 +25,7 @@ const { start, ok } = require('./common');
   await jump('2026-11-21T09:00:00+01:00'); await W(400);
   a = await lvl();
   ok(a.l === '3', 'überfälliges Tagesziel → Stufe 3 (' + a.l + ')');
-  ok(await p.evaluate(() => getComputedStyle(document.querySelector('#alarm'), '::after').animationName) === 'al-in', 'Stufe 3: Wellen laufen zur Mitte');
+  ok(await p.evaluate(() => getComputedStyle(document.querySelector('#alarm'), '::after').animationName) === 'none', 'Stufe 3: keine Welle zur Mitte (1.3.1)');
   await shot('142-rand-3');
   await T('#today .og .check'); await W(1400);
   a = await lvl();

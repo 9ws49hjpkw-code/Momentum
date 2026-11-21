@@ -86,18 +86,14 @@ body.live #ambient::after{animation:ringglow 9s -4.5s ease-in-out infinite}
 #alarm{position:fixed;inset:0;z-index:40;pointer-events:none;opacity:0;--ai:0;border-radius:0;transition:opacity .8s ease}
 #alarm::before,#alarm::after{content:"";position:absolute;inset:0;border-radius:inherit;will-change:opacity}
 #alarm[data-l="1"]{opacity:1}
-#alarm[data-l="1"]::before{box-shadow:inset 0 0 0 1.5px rgba(255,59,85,.5),inset 0 0 26px rgba(255,45,75,.22)}
+#alarm[data-l="1"]::before{box-shadow:inset 0 0 0 1px rgba(255,59,85,.26),inset 0 0 14px rgba(255,45,75,.09)}
 #alarm[data-l="2"]{opacity:1}
-#alarm[data-l="2"]::before{box-shadow:inset 0 0 0 2px rgba(255,59,85,.72),inset 0 0 calc(34px + 20px * var(--ai)) rgba(255,40,70,.36)}
+#alarm[data-l="2"]::before{box-shadow:inset 0 0 0 1px rgba(255,59,85,.36),inset 0 0 calc(18px + 6px * var(--ai)) rgba(255,40,70,.14)}
 #alarm[data-l="3"]{opacity:1}
-#alarm[data-l="3"]::before{box-shadow:inset 0 0 0 2.5px rgba(255,45,75,.9),inset 0 0 calc(44px + 30px * var(--ai)) rgba(255,30,62,.48),inset 0 0 8px rgba(255,120,140,.6)}
-#alarm[data-l="3"]::after{border-radius:54px;box-shadow:inset 0 0 36px 12px rgba(255,40,70,.5),inset 0 0 0 2px rgba(255,90,110,.5);opacity:0}
-/* Bewegung nur beim Betreten der App (und wenn es schlimmer wird): einmal, danach ruhig */
-#alarm.pulse[data-l="2"]::before{animation:al-breathe 2.4s ease-in-out 1}
-#alarm.pulse[data-l="3"]::before{animation:al-breathe 2.4s ease-in-out 1}
-#alarm.pulse[data-l="3"]::after{will-change:transform,opacity;animation:al-in 2.4s cubic-bezier(.3,.6,.3,1) 1 both}
-@keyframes al-breathe{0%,100%{opacity:1}50%{opacity:.55}}
-@keyframes al-in{0%{transform:scale(1.03);opacity:0}14%{opacity:1}100%{transform:scale(.62);opacity:0}}
+#alarm[data-l="3"]::before{box-shadow:inset 0 0 0 1.5px rgba(255,45,75,.46),inset 0 0 calc(24px + 8px * var(--ai)) rgba(255,30,62,.2)}
+/* Beim Betreten der App (und wenn es schlimmer wird) einmal sanft atmen, danach ruhig. Keine Welle. */
+#alarm.pulse[data-l="2"]::before,#alarm.pulse[data-l="3"]::before{animation:al-breathe 2.4s ease-in-out 1}
+@keyframes al-breathe{0%,100%{opacity:1}50%{opacity:.6}}
 body:not(.live) #alarm,body.layered #alarm{opacity:0}
 body.layered #alarm::before,body.layered #alarm::after{animation-play-state:paused}
 

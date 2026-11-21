@@ -717,7 +717,7 @@ function renderSettings() {
     h('div.sec', null,
       h('h3.sec-h', null, 'Erinnern'),
       h('div.glass.list', null,
-        h('button.li', { type: 'button', data: { act: 'soundToggle' } }, ic('sound'), h('span.li-t', null, h('b', null, 'Töne'), h('span', null, Sound.on() ? 'An · leise, Stummschalter wird beachtet' : 'Aus')), h('span.sw', { class: Sound.on() ? 'on' : '' }, h('i'))),
+        h('button.li', { type: 'button', data: { act: 'soundToggle' } }, ic('sound'), h('span.li-t', null, h('b', null, 'Töne'), h('span', null, Sound.on() ? 'An · nur beim Abhaken und Speichern, Stummschalter wird beachtet' : 'Aus')), h('span.sw', { class: Sound.on() ? 'on' : '' }, h('i'))),
         h('button.li', { type: 'button', data: { act: 'badgeAsk' } }, ic('alarm'), h('span.li-t', null, h('b', null, 'Roter Zähler am App-Icon'), h('span', null, badgeText()))),
         h('button.li', { type: 'button', data: { act: 'rulesOpen' } }, ic('note'), h('span.li-t', null, h('b', null, 'Folge-Aufgaben'), h('span', null, rules().length ? plural(rules().length, 'Regel', 'Regeln') + ' aktiv' : 'Stichwort → Aufgabe danach')), ic('chevR', 'chev')),
         h('button.li', { type: 'button', data: { act: 'shortcutsHelp' } }, ic('cal'), h('span.li-t', null, h('b', null, 'Kalender & Wecker'), h('span', null, 'Über Kurzbefehle, einmal einrichten')), ic('chevR', 'chev')))),

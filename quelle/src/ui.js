@@ -17,12 +17,12 @@ function haptic() {
   } catch (e) {}
 }
 
-/* ----- Töne: dezent, synthetisch (keine Dateien). Weiche Glas-Pings und Luft statt Effekt-Klänge, mit etwas Raum.
-   Der Stummschalter wird beachtet (audioSession „ambient“). iOS erlaubt Ton erst nach einer Berührung:
-   der Start-Klang kommt dann beim ersten Tippen nach (innerhalb weniger Sekunden). Schalter in den Einstellungen. ----- */
+/* ----- Töne: wie Systemklänge – kurz, trocken, leise. Nur als Bestätigung (Abhaken, Ziel, Speichern),
+   keine Melodien, kein Start-Klang, kein Nachhall, nichts beim Navigieren.
+   Der Stummschalter wird beachtet (audioSession „ambient“). Schalter in den Einstellungen. ----- */
 const Sound = (() => {
   const KEY = 'momentum.sound';
-  let ctx = null, out = null, room = null, noiseBuf = null, pend = null;
+  let ctx = null, out = null, noiseBuf = null;
   const on = () => { try { return localStorage.getItem(KEY) !== '0'; } catch (e) { return true; } };
   const set = v => { try { localStorage.setItem(KEY, v ? '1' : '0'); } catch (e) {} };
   function build() {
@@ -31,16 +31,8 @@ const Sound = (() => {
     try { if (navigator.audioSession) navigator.audioSession.type = 'ambient'; } catch (e) {}
     try {
       ctx = new C();
-      const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 7200; lp.Q.value = .4;
-      out = ctx.createGain(); out.gain.value = 1; out.connect(lp); lp.connect(ctx.destination);
-      /* kleiner Raum: kurzer, dunkler Nachhall */
-      const len = Math.floor(ctx.sampleRate * 1.4), ir = ctx.createBuffer(2, len, ctx.sampleRate);
-      for (let c = 0; c < 2; c++) { const d = ir.getChannelData(c); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3.2); }
-      const cv = ctx.createConvolver(); cv.buffer = ir;
-      const dark = ctx.createBiquadFilter(); dark.type = 'lowpass'; dark.frequency.value = 3800;
-      room = ctx.createGain(); room.gain.value = .32;
-      room.connect(cv); cv.connect(dark); dark.connect(lp);
-      noiseBuf = ctx.createBuffer(1, Math.floor(ctx.sampleRate * .6), ctx.sampleRate);
+      out = ctx.createGain(); out.gain.value = 1; out.connect(ctx.destination);
+      noiseBuf = ctx.createBuffer(1, Math.floor(ctx.sampleRate * .05), ctx.sampleRate);
       const n = noiseBuf.getChannelData(0); for (let i = 0; i < n.length; i++) n[i] = Math.random() * 2 - 1;
     } catch (e) { ctx = null; return false; }
     return true;
@@ -48,60 +40,30 @@ const Sound = (() => {
   function unlock() {
     if (!on()) return;
     if (!ctx && !build()) return;
-    const go = () => { const q = pend; pend = null; if (q && performance.now() - q.t < 6000) play(q.n); };
-    if (ctx.state !== 'running' && ctx.resume) ctx.resume().then(go, () => {}); else go();
+    if (ctx.state !== 'running' && ctx.resume) ctx.resume().catch(() => {});
   }
-  /* Zurück in die App: kurzer Start-Klang, wenn das System den Ton wieder freigibt */
-  function wake() {
-    if (!on() || !ctx) return;
-    const p = ctx.state === 'running' ? Promise.resolve() : (ctx.resume ? ctx.resume() : Promise.reject());
-    p.then(() => play('wake'), () => {});
-  }
-  /* weicher Ton mit leiser Obertonlinie (Glas/Mallet), wet = Anteil Raum */
-  function ping(f, at, dur, vol, o) {
-    o = o || {};
-    const t = ctx.currentTime + at, g = ctx.createGain();
-    const parts = o.pure ? [[1, 1]] : [[1, 1], [2.756, .14], [5.404, .04]];
-    for (const [m, v] of parts) {
-      const os = ctx.createOscillator(), gg = ctx.createGain();
-      os.type = 'sine'; os.frequency.setValueAtTime(f * m, t);
-      if (o.to) os.frequency.exponentialRampToValueAtTime(o.to * m, t + dur);
-      gg.gain.value = v; os.connect(gg); gg.connect(g);
-      os.start(t); os.stop(t + dur + .05);
-    }
-    const atk = o.atk || .004;
+  function wake() {}
+  /* Klick: winziger Rausch-Anschlag plus kurzer, schnell verklingender Ton (trocken) */
+  function tick(at, f, vol, len) {
+    const t = ctx.currentTime + at;
+    const src = ctx.createBufferSource(), bp = ctx.createBiquadFilter(), gn = ctx.createGain();
+    src.buffer = noiseBuf; bp.type = 'bandpass'; bp.frequency.value = 4200; bp.Q.value = 1.6;
+    gn.gain.setValueAtTime(Math.min(.03, vol * .8), t); gn.gain.exponentialRampToValueAtTime(0.0001, t + .012);
+    src.connect(bp); bp.connect(gn); gn.connect(out); src.start(t); src.stop(t + .02);
+    const os = ctx.createOscillator(), g = ctx.createGain();
+    os.type = 'sine'; os.frequency.setValueAtTime(f, t);
     g.gain.setValueAtTime(0.0001, t);
-    g.gain.exponentialRampToValueAtTime(Math.min(.08, vol), t + atk);
-    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-    g.connect(out);
-    if (o.wet !== 0) { const w = ctx.createGain(); w.gain.value = o.wet == null ? .7 : o.wet; g.connect(w); w.connect(room); }
-  }
-  /* Luft: gefiltertes Rauschen, optional gleitend */
-  function air(at, dur, vol, f, f2, q) {
-    const t = ctx.currentTime + at, src = ctx.createBufferSource(), bp = ctx.createBiquadFilter(), g = ctx.createGain();
-    src.buffer = noiseBuf; bp.type = 'bandpass'; bp.Q.value = q || 1.4;
-    bp.frequency.setValueAtTime(f, t); if (f2) bp.frequency.exponentialRampToValueAtTime(f2, t + dur);
-    g.gain.setValueAtTime(0.0001, t);
-    g.gain.exponentialRampToValueAtTime(Math.min(.06, vol), t + Math.min(.06, dur * .4));
-    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-    src.connect(bp); bp.connect(g); g.connect(out);
-    const w = ctx.createGain(); w.gain.value = .5; g.connect(w); w.connect(room);
-    src.start(t); src.stop(t + dur + .05);
+    g.gain.exponentialRampToValueAtTime(Math.min(.03, vol), t + .002);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + (len || .045));
+    os.connect(g); g.connect(out); os.start(t); os.stop(t + (len || .045) + .02);
   }
   const P = {
-    tap() { air(0, .03, .022, 5200, 0, 2.2); ping(2900, 0, .035, .006, { pure: 1, wet: 0 }); },
-    open() { air(0, .2, .016, 700, 2600, 1.1); },
-    swipe() { air(0, .24, .018, 900, 3200, 1.2); ping(1318, .1, .35, .014); },
-    save() { ping(1046, 0, .32, .018); ping(1568, .055, .45, .012); },
-    check(prio) { const f = [880, 1046, 1318][prio == null ? 1 : prio]; ping(f, 0, .5, .03); ping(f * 1.5, .07, .6, prio === 2 ? .016 : .01); },
-    goal() { [523, 784, 1175].forEach((f, i) => ping(f, i * .045, 1.3, .016, { atk: .03 })); ping(2349, .2, .9, .008); air(0, .5, .01, 1500, 5000, 1); },
-    over() { ping(196, 0, .28, .045, { pure: 1, to: 150, wet: .4 }); ping(196, .26, .34, .035, { pure: 1, to: 140, wet: .4 }); ping(784, .02, .5, .006, { wet: .9 }); },
-    intro() { ping(98, 0, 1.1, .03, { pure: 1, atk: .35, to: 147, wet: .3 }); air(.05, .75, .012, 400, 3600, .9); ping(1568, .78, 1.2, .016); ping(2349, .84, 1.1, .008); },
-    wake() { air(0, .3, .01, 600, 2800, 1); ping(1568, .12, .9, .012); }
+    check() { tick(0, 1760, .02, .05); },
+    goal() { tick(0, 1760, .018, .05); tick(.07, 2350, .014, .06); },
+    save() { tick(0, 1400, .012, .04); }
   };
   function play(name, arg) {
-    if (!on() || !P[name]) return;
-    if (!ctx || ctx.state !== 'running') { if (name === 'intro' || name === 'over') pend = { n: name, t: performance.now() }; return; }
+    if (!on() || !P[name] || !ctx || ctx.state !== 'running') return;
     try { P[name](arg); } catch (e) {}
   }
   return { on, set: v => { set(v); if (v) unlock(); }, play, unlock, wake, ready: () => !!ctx };
