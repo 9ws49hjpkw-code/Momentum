@@ -77,3 +77,7 @@ Geschützte Stücke (Einaudi, Tony Ann, Alcocer …) nur mit Kauflink (`inApp: f
   Bogen-Absturz bei ganzen Noten mit zweiter Stimme behoben.
 - 4.2 (Build 3, 21.11.2026): Wochenbericht ausführlicher (nächster Schritt, Prüfungen, Vorwoche, schwache
   Aufgabentypen, fällige Wiederholungen) – er ist jetzt die einzige Datenquelle für den Klavier-Coach in Claude.
+- 4.3 (Build 4, 21.11.2026): Vorbereitungs-Haken (Noten laut benennen, Rhythmus klatschen/zählen) in allen
+  „Am Klavier“-Checklisten ausgeblendet und nur als kleiner Hinweis gezeigt (Nutzerwunsch: „immer“, `isPrep` in app.js;
+  Daten bleiben unverändert, die Haken zählen als erledigt). Beschriftungen im Notenkasten im Dark Mode lesbar,
+  ▶ nicht mehr als Emoji.

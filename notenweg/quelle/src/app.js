@@ -177,7 +177,7 @@ function play(events, o = {}) {
 const REG = {}; let regN = 0;
 function scoreBox(spec, opt = {}) {
   const k = 'sb' + (++regN); REG[k] = { spec, opt };
-  const bar = opt.play ? `<div class="scorebar"><button class="btn sm" data-a="score-play" data-k="${k}">▶ Anhören</button>${opt.speed ? `<label class="tick small">Tempo <select data-f="speed" data-k="${k}">${[0.4, 0.5, 0.6, 0.8, 1].map(v => `<option value="${v}"${(opt.speedDef || 1) === v ? ' selected' : ''}>${Math.round(v * 100)} %</option>`).join('')}</select></label>` : ''}${opt.loopable ? `<label class="tick small"><input type="checkbox" data-f="loop" data-k="${k}"${opt.loop ? ' checked' : ''}><span>Schleife</span></label>` : ''}${opt.metro ? `<label class="tick small"><input type="checkbox" data-f="click" data-k="${k}"${opt.click ? ' checked' : ''}><span>Metronom</span></label>` : ''}</div>` : '';
+  const bar = opt.play ? `<div class="scorebar"><button class="btn sm" data-a="score-play" data-k="${k}">▶︎ Anhören</button>${opt.speed ? `<label class="tick small">Tempo <select data-f="speed" data-k="${k}">${[0.4, 0.5, 0.6, 0.8, 1].map(v => `<option value="${v}"${(opt.speedDef || 1) === v ? ' selected' : ''}>${Math.round(v * 100)} %</option>`).join('')}</select></label>` : ''}${opt.loopable ? `<label class="tick small"><input type="checkbox" data-f="loop" data-k="${k}"${opt.loop ? ' checked' : ''}><span>Schleife</span></label>` : ''}${opt.metro ? `<label class="tick small"><input type="checkbox" data-f="click" data-k="${k}"${opt.click ? ' checked' : ''}><span>Metronom</span></label>` : ''}</div>` : '';
   const st = opt.fixedW ? ` style="display:inline-block;max-width:100%"` : '';
   return `<div class="scorebox${opt.barTop ? ' long' : ''}" data-k="${k}"${st}>${opt.barTop ? bar : ''}<div class="scorewrap"></div>${opt.kbd ? '<div class="kbdwrap"></div>' : ''}${opt.barTop ? '' : bar}</div>`;
 }
@@ -255,7 +255,7 @@ function playScore(k, btn) {
       if (!r.opt.noKeys) hlKeys(e.m, on, e.st);
       if (on && e.mOrd != null) { const mb = document.getElementById(`${k}-m${e.mOrd}`); if (lastMbar && lastMbar !== mb) { lastMbar.classList.remove('is-bar'); if (r.opt.follow && mb) { const rc = mb.getBoundingClientRect(); if (rc.top < 120 || rc.bottom > window.innerHeight - 150) mb.scrollIntoView({ block: 'center', behavior: 'smooth' }); } } if (mb && r.opt.follow) mb.classList.add('is-bar'); lastMbar = mb; }
     },
-    onEnd: manual => { $$('.is-now', box).forEach(x => x.classList.remove('is-now')); $$('.on-rh,.on-lh', box).forEach(x => x.classList.remove('on-rh', 'on-lh')); $$('.is-bar', box).forEach(x => x.classList.remove('is-bar')); if (btn) btn.innerHTML = '▶ Anhören'; if (!manual && r.opt.loop && document.body.contains(box)) setTimeout(() => { if (!PL) playScore(k, btn); }, 350); }
+    onEnd: manual => { $$('.is-now', box).forEach(x => x.classList.remove('is-now')); $$('.on-rh,.on-lh', box).forEach(x => x.classList.remove('on-rh', 'on-lh')); $$('.is-bar', box).forEach(x => x.classList.remove('is-bar')); if (btn) btn.innerHTML = '▶︎ Anhören'; if (!manual && r.opt.loop && document.body.contains(box)) setTimeout(() => { if (!PL) playScore(k, btn); }, 350); }
   });
   if (PL) PL.k = k;
   if (btn) btn.innerHTML = '■ Stopp';
@@ -297,7 +297,7 @@ function toast(msg) { let el = $('#toast'); if (!el) { el = document.createEleme
 /* ---------------- Metronom ---------------- */
 const MT = { bpm: 72, beats: 4, on: false, next: 0, beat: 0, timer: null, taps: [] };
 function metronomeHTML() {
-  return `<div class="metro"><div class="row" style="justify-content:center;gap:18px"><button class="iconbtn" data-a="mt-step" data-d="-4" aria-label="langsamer">−</button><div><div class="bpm" id="mt-bpm">${MT.bpm}</div><div class="small muted">Schläge pro Minute</div></div><button class="iconbtn" data-a="mt-step" data-d="4" aria-label="schneller">+</button></div><input type="range" min="30" max="200" value="${MT.bpm}" id="mt-range" data-f="mt-range" aria-label="Tempo"><div class="dots" id="mt-dots">${Array.from({ length: MT.beats }, (_, i) => `<span></span>`).join('')}</div><div class="btnrow" style="justify-content:center"><button class="btn" data-a="mt-toggle">${MT.on ? '■ Stopp' : '▶ Start'}</button><button class="btn ghost" data-a="mt-tap">Tippen</button><div class="seg">${[2, 3, 4, 6].map(v => `<button class="${MT.beats === v ? 'on' : ''}" data-a="mt-beats" data-v="${v}">${v === 6 ? '6/8' : v + '/4'}</button>`).join('')}</div></div></div>`;
+  return `<div class="metro"><div class="row" style="justify-content:center;gap:18px"><button class="iconbtn" data-a="mt-step" data-d="-4" aria-label="langsamer">−</button><div><div class="bpm" id="mt-bpm">${MT.bpm}</div><div class="small muted">Schläge pro Minute</div></div><button class="iconbtn" data-a="mt-step" data-d="4" aria-label="schneller">+</button></div><input type="range" min="30" max="200" value="${MT.bpm}" id="mt-range" data-f="mt-range" aria-label="Tempo"><div class="dots" id="mt-dots">${Array.from({ length: MT.beats }, (_, i) => `<span></span>`).join('')}</div><div class="btnrow" style="justify-content:center"><button class="btn" data-a="mt-toggle">${MT.on ? '■ Stopp' : '▶︎ Start'}</button><button class="btn ghost" data-a="mt-tap">Tippen</button><div class="seg">${[2, 3, 4, 6].map(v => `<button class="${MT.beats === v ? 'on' : ''}" data-a="mt-beats" data-v="${v}">${v === 6 ? '6/8' : v + '/4'}</button>`).join('')}</div></div></div>`;
 }
 function mtSched() {
   const ctx = Sound.ctx; if (!ctx || !MT.on) return;
@@ -315,7 +315,7 @@ function mtToggle() {
   MT.on = !MT.on;
   if (MT.on) { MT.next = ctx.currentTime + 0.08; MT.beat = 0; MT.timer = setInterval(mtSched, 25); }
   else clearInterval(MT.timer);
-  const b = $('[data-a="mt-toggle"]'); if (b) b.textContent = MT.on ? '■ Stopp' : '▶ Start';
+  const b = $('[data-a="mt-toggle"]'); if (b) b.textContent = MT.on ? '■ Stopp' : '▶︎ Start';
 }
 function mtSet(bpm) { MT.bpm = Math.max(30, Math.min(220, Math.round(bpm))); const e = $('#mt-bpm'); if (e) e.textContent = MT.bpm; const r = $('#mt-range'); if (r) r.value = MT.bpm; }
 
@@ -413,7 +413,7 @@ function qHTML(q, run) {
   const label = kind === 'ex' || kind === 'free' ? `${c.ok} von ${run.cfg.need} richtig` : `Aufgabe ${Math.min(run.i + 1, run.qs.length)} von ${run.qs.length}`;
   let h = `<div class="qcard"><div class="qmeta"><span>${label}${q.base === false ? ' · <i>Ersatzaufgabe</i>' : ''}</span><span class="pips">${pips}</span></div>`;
   h += `<div class="qtext">${q.q}</div>`;
-  if (q.listen) h += `<div class="listen"><button class="btn" data-a="q-listen">▶ Anhören</button></div>`;
+  if (q.listen) h += `<div class="listen"><button class="btn" data-a="q-listen">▶︎ Anhören</button></div>`;
   if (q.fig) h += `<div class="qfig">${figHTML(q.fig, { quiz: true })}</div>`;
   if (q.choices) {
     h += `<div class="answers">${q.choices.map((c0, i) => `<button class="ans${c0.fig ? ' fig-ans' : ''}" data-a="q-ans" data-i="${i}">${c0.fig ? figHTML(c0.fig, { quiz: true }) + `<span class="small">${esc(c0.t)}</span>` : esc(c0.t)}</button>`).join('')}</div>`;
@@ -426,7 +426,7 @@ function qHTML(q, run) {
   return h;
 }
 function feedbackHTML(q, ok, extra = '') {
-  return `<div class="feedback ${ok ? 'ok' : 'no'}"><b class="v">${ok ? TH.pick(['Richtig.', 'Genau.', 'Sitzt.', 'Sehr gut.', 'Stimmt.']) : TH.pick(['Nicht ganz.', 'Noch nicht.', 'Knapp daneben.'])}</b>${extra}${q.explain ? `<div class="small">${q.explain}</div>` : ''}${!ok ? '<div class="small muted" style="margin-top:4px">Du bekommst gleich eine ähnliche, neue Aufgabe dazu.</div>' : ''}<div class="btnrow" style="margin-top:10px">${q.play && !q.listen ? '<button class="btn sm ghost" data-a="q-play">▶ Klang</button>' : ''}<button class="btn sm" data-a="q-next" id="qnext">Weiter</button></div></div>`;
+  return `<div class="feedback ${ok ? 'ok' : 'no'}"><b class="v">${ok ? TH.pick(['Richtig.', 'Genau.', 'Sitzt.', 'Sehr gut.', 'Stimmt.']) : TH.pick(['Nicht ganz.', 'Noch nicht.', 'Knapp daneben.'])}</b>${extra}${q.explain ? `<div class="small">${q.explain}</div>` : ''}${!ok ? '<div class="small muted" style="margin-top:4px">Du bekommst gleich eine ähnliche, neue Aufgabe dazu.</div>' : ''}<div class="btnrow" style="margin-top:10px">${q.play && !q.listen ? '<button class="btn sm ghost" data-a="q-play">▶︎ Klang</button>' : ''}<button class="btn sm" data-a="q-next" id="qnext">Weiter</button></div></div>`;
 }
 
 /* Quintenzirkel als SVG */
@@ -667,7 +667,9 @@ const APP = (() => {
     } else if (s.t === 'piano') {
       h += `<div class="body">${bodyWithFigs(s.body, s.figs || (s.fig ? [s.fig] : []))}</div>`;
       const st = (S.pchk || {})[l.id + ':' + i] || [];
-      h += `<h4>Abhaken, wenn erledigt</h4><ul class="checks">${(s.checks || []).map((c, k) => `<li><label><input type="checkbox" data-f="pchk" data-l="${l.id}" data-s="${i}" data-k="${k}"${st[k] ? ' checked' : ''}><span>${c}</span></label></li>`).join('')}</ul>`;
+      const prep = (s.checks || []).filter(isPrep);
+      if (prep.length) h += `<p class="small muted prephint">Vorher kurz, ohne Abhaken: ${prep.some(c => c.startsWith('Noten')) ? 'Noten benennen' : ''}${prep.length > 1 ? ', dann ' : ''}${prep.some(c => c.startsWith('Rhythmus')) ? 'Rhythmus zählen und klatschen' : ''} – erst dann spielen.</p>`;
+      h += `<h4>Abhaken, wenn erledigt</h4><ul class="checks">${(s.checks || []).map((c, k) => isPrep(c) ? '' : `<li><label><input type="checkbox" data-f="pchk" data-l="${l.id}" data-s="${i}" data-k="${k}"${st[k] ? ' checked' : ''}><span>${c}</span></label></li>`).join('')}</ul>`;
       if (s.metro) h += `<details class="more"><summary>Metronom</summary>${metronomeHTML()}</details>`;
     } else if (s.t === 'piece') {
       const p = PBY[s.id];
@@ -683,10 +685,12 @@ const APP = (() => {
     h += `</section>`;
     return h;
   }
+  /* Vorbereitung (Noten benennen, Rhythmus klatschen/zählen) wird nicht abgehakt, nur als kleiner Hinweis gezeigt. */
+  const isPrep = c => /^(Noten( links)? laut benannt|Rhythmus (laut gezählt und geklatscht|geklatscht und gezählt))/.test(c);
   function stepComplete(l, i) {
     const s = l.steps[i];
     const key = l.id + ':' + i;
-    if (s.t === 'piano') { const st = (S.pchk || {})[key] || []; return (s.checks || []).every((_, k) => st[k]); }
+    if (s.t === 'piano') { const st = (S.pchk || {})[key] || []; return (s.checks || []).every((c, k) => st[k] || isPrep(c)); }
     if (s.t === 'ex' || s.t === 'mix' || s.t === 'test') return !!(S.exDone || {})[key] || (s.t === 'test' && isDone(l.id));
     if (s.t === 'sight') return !!(S.exDone || {})[key] || isDone(l.id);
     return true;
@@ -1075,18 +1079,18 @@ const APP = (() => {
       <label>Muster<select data-f="bg-pat">${BG_PATS.map(([k, t]) => `<option value="${k}"${BG.pat === k ? ' selected' : ''}>${t}</option>`).join('')}</select></label></div>
       <div class="bgchords">${ch.map((c, i) => `<div class="bgc" data-ci="${i}"><b>${esc(c.sym)}</b><span class="small muted">${esc(c.deg)}</span></div>`).join('')}</div>
       <div class="kbdbox" id="bgkbd">${Kbd.render({ from: 36, to: 84, width: 760, labels: 'c', marks })}</div>
-      <div class="btnrow" style="justify-content:space-between;align-items:center"><button class="btn" data-a="bg-play">${BG.on ? '■ Stopp' : '▶ Start'}</button><label class="small">Tempo <select data-f="bg-bpm">${[50, 60, 72, 84, 96, 108].map(b => `<option${BG.bpm === b ? ' selected' : ''}>${b}</option>`).join('')}</select></label></div>
+      <div class="btnrow" style="justify-content:space-between;align-items:center"><button class="btn" data-a="bg-play">${BG.on ? '■ Stopp' : '▶︎ Start'}</button><label class="small">Tempo <select data-f="bg-bpm">${[50, 60, 72, 84, 96, 108].map(b => `<option${BG.bpm === b ? ' selected' : ''}>${b}</option>`).join('')}</select></label></div>
       <p class="small muted">${esc(TH.keyLabel(BG.n, BG.minor))} · blau markiert: die Töne der Tonleiter für die rechte Hand. Tipp: lange Töne, Akkordtöne auf Schlag 1, Pausen lassen.</p></div>`;
   }
   function bgPlay() {
     const btn = () => $('[data-a="bg-play"]');
-    if (BG.on) { BG.on = false; stopPlay(true); if (btn()) btn().textContent = '▶ Start'; return; }
+    if (BG.on) { BG.on = false; stopPlay(true); if (btn()) btn().textContent = '▶︎ Start'; return; }
     BG.on = true; if (btn()) btn().textContent = '■ Stopp';
     const run = () => {
       if (!BG.on || !$('#bgkbd')) { BG.on = false; return; }
       const one = bgEvents(bgChords()); const ev = [], ped = [];
       for (let r = 0; r < 4; r++) { one.ev.forEach(e => ev.push(Object.assign({}, e, { t: e.t + r * one.len, v: 0.5 }))); one.ped.forEach(p2 => ped.push({ t: p2.t + r * one.len, k: r === 0 || p2.k !== 'd' ? p2.k : 'c' })); }
-      play(ev, { bpm: BG.bpm, pedals: ped, onNote: (e, on) => { if (on) $$('.bgc').forEach(x => x.classList.toggle('on', +x.dataset.ci === e.ci)); e.m.forEach(m => $$(`#bgkbd [data-m="${m}"]`).forEach(k => k.classList.toggle('on-lh', on))); }, onEnd: man => { $$('#bgkbd .on-lh').forEach(k => k.classList.remove('on-lh')); if (!man && BG.on) run(); else { BG.on = false; if (btn()) btn().textContent = '▶ Start'; } } });
+      play(ev, { bpm: BG.bpm, pedals: ped, onNote: (e, on) => { if (on) $$('.bgc').forEach(x => x.classList.toggle('on', +x.dataset.ci === e.ci)); e.m.forEach(m => $$(`#bgkbd [data-m="${m}"]`).forEach(k => k.classList.toggle('on-lh', on))); }, onEnd: man => { $$('#bgkbd .on-lh').forEach(k => k.classList.remove('on-lh')); if (!man && BG.on) run(); else { BG.on = false; if (btn()) btn().textContent = '▶︎ Start'; } } });
     };
     run();
   }

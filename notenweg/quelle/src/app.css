@@ -21,3 +21,7 @@ body.has-timer .updbar, body.has-timer .hintbar { bottom: calc(154px + env(safe-
 .updbar .iconbtn, .hintbar .iconbtn { width: 44px; height: 44px; font-size: 1.4rem; line-height: 1; }
 @media (min-width: 900px) { .updbar, .hintbar { bottom: calc(24px + env(safe-area-inset-bottom, 0px)); } }
 @media (prefers-reduced-motion: no-preference) { .updbar, .hintbar { animation: rise .3s ease-out; } }
+/* Notenkasten bleibt hell (wie Papier), auch im Dark Mode: Beschriftungen dort immer dunkel */
+.scorebox .scorebar, .scorebox .scorebar label, .scorebox .scorebar .tick, .scorebox .scorebar span { color: #3A322B; }
+.scorebox .scorebar input[type=checkbox] { accent-color: #A07A36; }
+.prephint { margin: 4px 0 2px; font-style: italic; }
