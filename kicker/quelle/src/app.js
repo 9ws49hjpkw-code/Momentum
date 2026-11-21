@@ -1103,10 +1103,28 @@ function confetti() {
 /* =========================================================
    Aktionen
    ========================================================= */
-function startMode(mode) {
-  const names = S.roster.length >= 4 ? S.roster.slice(0, 16) : new Array(8).fill('');
-  S.draft = { mode, names, k: 4, kWarn: null, teamMode: 'random', teams: [], joker: null, sel: null };
+async function startMode(mode) {
+  let names = new Array(8).fill(''), fromRoster = false;
+  if (S.roster.length >= 4) {
+    const keep = await askKeepNames();
+    if (keep === null) { render(); return; }   // weggetippt: nichts tun
+    if (keep) { names = S.roster.slice(0, 16); fromRoster = true; }
+  }
+  S.draft = { mode, names, fromRoster, k: 4, kWarn: null, teamMode: 'random', teams: [], joker: null, sel: null };
   S.view = 'names'; save(); render();
+}
+// Neue Runde: gleiche Leute wie zuletzt?
+function askKeepNames() {
+  return new Promise(resolve => {
+    let done = false;
+    const finish = (v) => { if (done) return; done = true; resolve(v); };
+    const el = openSheet(`<div class="head"><div><div class="eyebrow">Neue Runde</div><h3 class="h-md" style="margin-top:6px">Gleiche Leute wie letztes Mal?</h3></div>
+        <button class="iconbtn" data-x aria-label="Schließen">${I.x}</button></div>
+      <div class="pool">${S.roster.slice(0, 16).map(n => `<span class="pchip static">${esc(n)}</span>`).join('')}</div>
+      <div class="btns"><button class="btn btn-primary" data-k="1">Ja, Namen übernehmen</button><button class="btn btn-ghost" data-k="0">Nein, neue Namen eintragen</button></div>`, () => finish(null));
+    el.querySelectorAll('[data-k]').forEach(b => b.addEventListener('click', () => { finish(b.dataset.k === '1'); closeSheet(); }));
+    $('[data-x]', el).addEventListener('click', () => closeSheet());
+  });
 }
 function rerollParty() {
   const P = S.party;
@@ -1145,7 +1163,7 @@ document.addEventListener('click', async (e) => {
       const n = D.names.length + d;
       if (n < 4 || n > 16) return;
       if (d > 0) {
-        D.names.push(S.roster[n - 1] && !D.names.includes(S.roster[n - 1]) ? S.roster[n - 1] : '');
+        D.names.push(D.fromRoster && S.roster[n - 1] && !D.names.includes(S.roster[n - 1]) ? S.roster[n - 1] : '');
         $('#names').insertAdjacentHTML('beforeend', nameField(n - 1, D.names[n - 1], true));
       } else { D.names.pop(); const f = $('#f' + n); if (f) f.remove(); const q = $('#eggq-' + n); if (q) q.remove(); }
       $('#cnt').textContent = n;
