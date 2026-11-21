@@ -986,9 +986,28 @@ def convert(path):
     return build(I)
 
 
+def gap_tokens(g):
+    """Unsichtbare Platzhalter für eine Lücke der Länge g (Viertel); notfalls mit Triolenanteil."""
+    try:
+        return ['x/' + DUR_OF[x] for x in split_notatable(g)]
+    except LyError:
+        pass
+    k = F(0)
+    while k <= g:
+        rem = g - k
+        try:
+            a = split_notatable(rem) if rem else []
+            b = split_notatable(k * F(3, 2)) if k else []
+            return ['x/' + DUR_OF[x] + '!T' for x in b] + ['x/' + DUR_OF[x] for x in a]
+        except LyError:
+            k += F(1, 12)
+    raise LyError('gap %s' % g)
+
+
 if __name__ == '__main__':
     r = convert(sys.argv[1])
     json.dump(r, open(sys.argv[2], 'w'), ensure_ascii=False, indent=0)
     print('measures', len(r['measures']), 'key', r['key'], 'time', r['time'], 'pickup', r['pickup'])
     for w in r['warn'][:20]: print('WARN', w)
     print('clefs', r['clefs'])
+

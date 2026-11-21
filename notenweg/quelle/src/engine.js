@@ -684,11 +684,11 @@ const Engrave = (() => {
           if (r.it.mods[')'] && open && r.headY) {
             const a = open, z = r;
             const above = a.dir === -1 || z.dir === -1 ? true : false;
-            const ya = above ? Math.min(a.headY.hi, a.dir === 1 ? a.tip : a.headY.hi) - s * 0.8 : a.headY.lo + s * 0.9;
-            const yz = above ? Math.min(z.headY.hi, z.dir === 1 ? z.tip : z.headY.hi) - s * 0.8 : z.headY.lo + s * 0.9;
+            const ya = above ? Math.min(a.headY.hi, a.dir === 1 && a.tip != null ? a.tip : a.headY.hi) - s * 0.8 : a.headY.lo + s * 0.9;
+            const yz = above ? Math.min(z.headY.hi, z.dir === 1 && z.tip != null ? z.tip : z.headY.hi) - s * 0.8 : z.headY.lo + s * 0.9;
             const xa = a.x + headW / 2, xz = z.x + headW / 2;
             let peak = above ? Math.min(ya, yz) : Math.max(ya, yz);
-            list.forEach(q => { if (q.ps && q.x > xa && q.x < xz) peak = above ? Math.min(peak, q.headY.hi - s * 0.9, q.dir === 1 ? q.tip - s * 0.6 : peak) : Math.max(peak, q.headY.lo + s * 0.9); });
+            list.forEach(q => { if (q.ps && q.x > xa && q.x < xz) peak = above ? Math.min(peak, q.headY.hi - s * 0.9, q.dir === 1 && q.tip != null ? q.tip - s * 0.6 : peak) : Math.max(peak, q.headY.lo + s * 0.9); });
             const sg = above ? -1 : 1; const hgt = s * 1.0 + Math.min(s * 1.2, (xz - xa) * 0.04);
             const c1x = xa + (xz - xa) * 0.25, c2x = xa + (xz - xa) * 0.75;
             const cy = peak + sg * hgt; const th = s * 0.22;
@@ -733,7 +733,7 @@ const Engrave = (() => {
             if (o.t) {
               let x = o.x - s * 0.2;
               [...o.t].forEach(ch => {
-                const nm = { p: 'dp', m: 'dm', f: 'df' }[ch]; if (!nm) return;
+                const nm = { p: 'dp', m: 'dm', f: 'df' }[ch]; if (!nm) { b.push(`<text x="${f(x)}" y="${f(y)}" font-size="${f(s * 1.75)}" font-style="italic" font-weight="700" font-family="'Times New Roman', Georgia, serif">${ch}</text>`); x += s * (ch === 'r' ? 0.75 : 0.7); return; }
                 const g = G(nm, { left: x, bottom: y + s * 0.0 + (ch === 'm' ? 0 : (GL[nm].b[1] < -100 ? (-GL[nm].b[1]) * (1.3 * s / 450) : 0)), h: (GL[nm].b[3] - GL[nm].b[1]) * (1.3 * s / 450) });
                 b.push(g.s); x += g.w + s * 0.05;
               });

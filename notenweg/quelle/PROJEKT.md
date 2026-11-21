@@ -28,7 +28,8 @@ notenweg/
       sw.js           Offline-Cache (Cache-Namen immer „notenweg-…“)
       fonts/          Cormorant Garamond + EB Garamond (OFL), Latin-Subset, eingebettet
     icon/             icon.svg + mkicons.js (node quelle/icon/mkicons.js)
-    tools/            kern2nw.py (Humdrum **kern → Stückformat), ly2nw.py (Hilfsfunktionen)
+    tools/            kern2nw.py (Humdrum **kern), mscx2nw.py (MuseScore/DCML), ly2nw.py (LilyPond/Mutopia),
+                      hand/ (Sonderkonverter, z. B. Gymnopédie), neue_stuecke_*.py (Texte + Freischaltung neuer Stücke)
     test/             e2e.js, monkey.js, lib.js
 ```
 
@@ -47,7 +48,16 @@ measures[{ r, l, r2?, l2?, clef?, key?, time?, label?, volta?, begin?, end? }], 
 Token: `C#4/8!f3` (Tonhöhe/Dauer w h q 8 16 32 mit Punkten), Akkord `(C4 E4 G4)/q`, Pause `r/q`, unsichtbar `x/q`.
 Modifikatoren: `!f3` Finger, `!(` `!)` Bogen, `!~` Haltebogen, `!3(` … `!3)` Triole, `!st` staccato, `!ac` Akzent,
 `!d=p` Dynamik, `!h=<` / `!h=>` / `!h=.` Gabel, `!pd` `!pc` `!pu` Pedal, `!o=tr|prall|mord|turn`, `!fe` Fermate, `!t=Text`.
-Nur Triolen als N-tolen; Vorschläge gibt es im Notensatz nicht.
+Nur Triolen als N-tolen; Vorschläge gibt es im Notensatz nicht; höchstens zwei Stimmen pro System.
+Konverter melden Takte mit mehr als zwei Stimmen als „bad“ – solche Stücke nicht übernehmen (Ausnahme nur nach
+Prüfung gegen eine Referenz, z. B. DCML notes.tsv). Bei Vorschlagsnoten den Hinweis in `src` setzen.
+
+## Neue Stücke hinzufügen
+1. Quelle klonen (GitHub), mit tools/kern2nw.py, mscx2nw.py oder ly2nw.py konvertieren, „bad“ muss leer sein.
+2. Rendern und ansehen; DCML-Stücke gegen notes/*.tsv prüfen.
+3. Eintrag mit Texten in einer neue_stuecke_*.py ergänzen und ausführen (schreibt src/stuecke/ + _reihenfolge.json).
+Ideen für später: Notensatz um Vorschläge und eine dritte Stimme erweitern – dann gehen Clair de lune,
+Träumerei und die Chopin-Nocturnes (Konvertierungen klappen schon, scheitern nur daran).
 Kapitel-Zuordnung (Pflicht/Kür) steht in lernpfad.js (`must`, `more`); neue Stücke ohne Kapitel erscheinen unter „Alle Stücke“.
 
 ## Urheberrecht
@@ -62,3 +72,6 @@ Geschützte Stücke (Einaudi, Tony Ann, Alcocer …) nur mit Kauflink (`inApp: f
 ## Verlauf
 - 4.0 (Build 1, 21.11.2026): eigenständige App (IndexedDB, offline, eigenes Icon, Export/Import, Update-Hinweis),
   Schriften eingebettet, tägliches Aufwärmen aus „Heute“ entfernt (Lektionen unverändert).
+- 4.1 (Build 2, 21.11.2026): 63 neue Originalstücke (Bach, Satie, Scarlatti, Haydn, Mozart, Beethoven, Chopin,
+  Schumann, Tschaikowsky, Grieg, Debussy, Liszt, Joplin), jetzt 116; sf/fz/sfp/rfz werden korrekt gezeigt;
+  Bogen-Absturz bei ganzen Noten mit zweiter Stimme behoben.

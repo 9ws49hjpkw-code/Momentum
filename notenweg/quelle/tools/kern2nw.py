@@ -108,7 +108,7 @@ def convert(path, title=None):
     labels = []  # (t, label)
     expansion = None
     tempo = None
-    warn = []
+    warn = []; graces = [0]
     started = False
     pending_ped = []
     for ln, line in enumerate(lines):
@@ -189,7 +189,7 @@ def convert(path, title=None):
                 if t == '.': continue
                 info = parse_token(t)
                 if info['grace']:
-                    continue
+                    graces[0] += 1; continue
                 if info['dur'] is None: continue
                 if len(set(info['durs'])) > 1:
                     # chord with mixed durations: keep longest group in this layer, others as extra layer
@@ -215,7 +215,9 @@ def convert(path, title=None):
         nxt = [e for e, sp in zip(ends, spines) if sp['kind'] == '**kern' and e > T]
         if nxt: T = min(nxt)
     total = T
-    return build(notes, dyns, peds, bars, clefs, keys, times, labels, expansion, tempo, total, warn)
+    r = build(notes, dyns, peds, bars, clefs, keys, times, labels, expansion, tempo, total, warn)
+    r['graces'] = graces[0]
+    return r
 
 
 def first_kern(spines):
@@ -414,7 +416,21 @@ def voice_tokens(v, m0, L):
             toks.extend(gap_tokens(o - pos)); pos = o
         if o < pos: raise LyError('overlap')
         bt = to_beats_token(n.dur)
-        if bt is None: raise LyError('duration %s' % n.dur)
+        if bt is None:
+            # nicht direkt notierbare Dauer (z. B. 9/4): in übergebundene Teile zerlegen, an Schlaggrenzen
+            parts = split_tied(o, n.dur)
+            if parts is None: raise LyError('duration %s' % n.dur)
+            t0 = n.t
+            for k, d in enumerate(parts):
+                last = k == len(parts) - 1
+                n2 = KNote(t=t0, dur=d, pitches=n.pitches, rest=n.rest, hidden=n.hidden,
+                           mods=(dict(n.mods) if k == 0 else {}) if not last else ({kk: vv for kk, vv in n.mods.items() if kk in (')', 'pu')} if k > 0 else dict(n.mods)),
+                           staff=n.staff, layer=n.layer, tie=(True if not last else n.tie), line=n.line)
+                if k == 0 and not last: n2.mods.pop(')', None); n2.mods.pop('pu', None)
+                sub = voice_tokens_one(n2)
+                toks.append(sub); t0 += d
+            pos = o + n.dur
+            continue
         base, trip = bt
         if n.rest:
             tok = ('x/' if n.hidden else 'r/') + base
@@ -426,6 +442,7 @@ def voice_tokens(v, m0, L):
             mm = n.mods
             for k in ('st', 'ac', 'tn', 'fe'):
                 if mm.get(k): mods.append('!' + k)
+            if mm.get('f'): mods.append('!f' + str(mm['f']))
             if mm.get('o'): mods.append('!o=' + mm['o'])
             if mm.get('d'): mods.append('!d=' + mm['d'])
             if mm.get('h'): mods.append('!h=' + mm['h'])
@@ -456,3 +473,39 @@ if __name__ == '__main__':
     json.dump(r, open(sys.argv[2], 'w'), ensure_ascii=False, indent=0)
     print('measures', len(r['measures']), 'key', r['key'], 'time', r['time'], 'pickup', r['pickup'], 'bad', r['bad'][:20], 'bpm', r['bpm'])
     for w in r['warn'][:15]: print('WARN', w)
+
+
+def split_tied(o, d):
+    """Dauer d ab Position o (im Takt) in notierbare Stücke zerlegen: erst bis zur nächsten Schlaggrenze."""
+    out = []; pos = o; rest = d
+    while rest > 0:
+        nxt = (pos // 1 + 1) - pos if pos % 1 else F(1)
+        take = None
+        for cand in sorted(NORMAL, reverse=True):
+            if cand <= rest and (cand <= nxt or pos % 1 == 0) and (pos % 1 == 0 or cand <= nxt):
+                take = cand; break
+        if take is None: return None
+        out.append(take); pos += take; rest -= take
+    return out
+
+
+def voice_tokens_one(n):
+    """ein einzelnes Token ohne Triolen (für zerlegte Dauern)"""
+    base = DUR_OF[n.dur]
+    if n.rest: return ('x/' if n.hidden else 'r/') + base
+    ps = sorted(set(n.pitches), key=pitch_key)
+    tok = (ps[0] if len(ps) == 1 else '(' + ' '.join(ps) + ')') + '/' + base
+    mm = n.mods; mods = []
+    for k in ('st', 'ac', 'tn', 'fe'):
+        if mm.get(k): mods.append('!' + k)
+    if mm.get('f'): mods.append('!f' + str(mm['f']))
+    if mm.get('o'): mods.append('!o=' + mm['o'])
+    if mm.get('d'): mods.append('!d=' + mm['d'])
+    if mm.get('h'): mods.append('!h=' + mm['h'])
+    if mm.get('('): mods.append('!(')
+    if mm.get('pc'): mods.append('!pc')
+    elif mm.get('pd'): mods.append('!pd')
+    if mm.get('pu'): mods.append('!pu')
+    if n.tie: mods.append('!~')
+    if mm.get(')'): mods.append('!)')
+    return tok + ''.join(mods)
