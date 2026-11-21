@@ -81,3 +81,4 @@ Geschützte Stücke (Einaudi, Tony Ann, Alcocer …) nur mit Kauflink (`inApp: f
   „Am Klavier“-Checklisten ausgeblendet und nur als kleiner Hinweis gezeigt (Nutzerwunsch: „immer“, `isPrep` in app.js;
   Daten bleiben unverändert, die Haken zählen als erledigt). Beschriftungen im Notenkasten im Dark Mode lesbar,
   ▶ nicht mehr als Emoji.
+- 4.4 (Build 5): Jeder „Am Klavier“-Schritt, der ein Metronom erwähnt, hat ein eigenes Metronom (Tempo aus „♩ = …“ vorgewählt).

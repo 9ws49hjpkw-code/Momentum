@@ -3,7 +3,7 @@
    Neue Versionen werden installiert und dann angeboten (die App zeigt „Neue Version bereit“).
    Nur eigene, gültige Antworten werden gespeichert, nie WLAN-Anmeldeseiten oder Umleitungen.
    Caches heißen immer „notenweg-…“: Momentum und Kickerabend liegen auf derselben Domain. */
-const VERSION = 'notenweg-b4';
+const VERSION = 'notenweg-b5';
 const SCOPE = self.registration.scope;
 const INDEX = new URL('index.html', SCOPE).href;
 const ASSETS = ['manifest.json', 'icon-180.png', 'icon-192.png', 'icon-512.png'].map(f => new URL(f, SCOPE).href);

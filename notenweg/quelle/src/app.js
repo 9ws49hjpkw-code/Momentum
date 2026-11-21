@@ -670,7 +670,11 @@ const APP = (() => {
       const prep = (s.checks || []).filter(isPrep);
       if (prep.length) h += `<p class="small muted prephint">Vorher kurz, ohne Abhaken: ${prep.some(c => c.startsWith('Noten')) ? 'Noten benennen' : ''}${prep.length > 1 ? ', dann ' : ''}${prep.some(c => c.startsWith('Rhythmus')) ? 'Rhythmus zählen und klatschen' : ''} – erst dann spielen.</p>`;
       h += `<h4>Abhaken, wenn erledigt</h4><ul class="checks">${(s.checks || []).map((c, k) => isPrep(c) ? '' : `<li><label><input type="checkbox" data-f="pchk" data-l="${l.id}" data-s="${i}" data-k="${k}"${st[k] ? ' checked' : ''}><span>${c}</span></label></li>`).join('')}</ul>`;
-      if (s.metro) h += `<details class="more"><summary>Metronom</summary>${metronomeHTML()}</details>`;
+      const mtxt = [(s.body || '')].concat(s.checks || []).join(' ');
+      if (s.metro || /Metronom/.test(mtxt)) {
+        const mb = /♩\s*=\s*(\d+)/.exec(mtxt); if (mb && !MT.on) mtSet(+mb[1]);
+        h += `<details class="more metro-d"><summary>Metronom${mb ? ` (♩ = ${mb[1]})` : ''}</summary>${metronomeHTML()}</details>`;
+      }
     } else if (s.t === 'piece') {
       const p = PBY[s.id];
       h += `<div class="body">${bodyWithFigs(s.body, s.figs || [])}</div>`;
