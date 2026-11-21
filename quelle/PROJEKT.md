@@ -71,6 +71,10 @@ Themen: Klavier, Film/Foto, Sport (verwaltbar). Export/Import JSON.
 - Erfassen-Sheet: .fold mit minmax(0,1fr) – Chip-Zeilen machten das Sheet breiter, iOS schob es beim Markieren seitlich. Dazu Rücksetzen von scrollLeft bei .sheet-body/.scroll.
 - Töne neu: weiche Glas-Pings, Luft, kleiner Raumhall, sehr leise. Start-Klang (iOS: kommt beim ersten Tippen nach, beim Zurückkehren „wake“). test/t17.js.
 
+## Neu in 1.3.0 (21.11.2026, Autopilot)
+- Aufgaben → „Erledigt“ (unten, einklappbar) ist jetzt ein Rückblick: Gruppen je Tag (Heute, Gestern, Wochentag + Datum), neueste zuerst, rechts „n geschafft“ für den ganzen Tag, an jeder Karte die Uhrzeit des Erledigens. Themen-Filter gilt. views.js `doneChronicle`, `tiMeta(t,'chron')`. test/t18.js.
+- Offen (Fragen 20.11.): Umschalter „Geplant | Erledigt“ oben statt unten, Zeitraum-Knöpfe, erledigte Tagesziele im Rückblick.
+
 Nicht bauen: Login, Cloud, Push, KI, Gamification, Statistik-Dashboards, Light Mode.
 
 ## Design

@@ -23,5 +23,10 @@
     "version": "1.2.1",
     "datum": "2026-11-20",
     "text": "Startbild mit Überfälligem bleibt länger, roter Rand bewegt sich nur einmal beim Öffnen, Aufgabe-Sheet verrutscht beim Markieren nicht mehr, neue dezente Töne mit Start-Klang."
+  },
+  {
+    "version": "1.3.0",
+    "datum": "2026-11-21",
+    "text": "Erledigtes auf der Aufgaben-Seite als Rückblick nach Tagen, mit Zähler und Uhrzeit"
   }
 ]
