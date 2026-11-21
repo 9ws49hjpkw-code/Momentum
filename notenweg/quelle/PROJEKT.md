@@ -83,3 +83,4 @@ Geschützte Stücke (Einaudi, Tony Ann, Alcocer …) nur mit Kauflink (`inApp: f
   ▶ nicht mehr als Emoji.
 - 4.4 (Build 5): Jeder „Am Klavier“-Schritt, der ein Metronom erwähnt, hat ein eigenes Metronom (Tempo aus „♩ = …“ vorgewählt).
 - 4.5 (Build 6): Metronom stoppt automatisch bei Seitenwechsel, „Weiter“, zugeklapptem Bereich und beim Verlassen der App.
+- 4.6 (Build 7): Goldene Knöpfe als Link (z. B. „Weiter: …“ nach einer Lektion) hatten im Dark Mode Gold auf Gold – jetzt Mitternachtsblau.

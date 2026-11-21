@@ -25,3 +25,7 @@ body.has-timer .updbar, body.has-timer .hintbar { bottom: calc(154px + env(safe-
 .scorebox .scorebar, .scorebox .scorebar label, .scorebox .scorebar .tick, .scorebox .scorebar span { color: #3A322B; }
 .scorebox .scorebar input[type=checkbox] { accent-color: #A07A36; }
 .prephint { margin: 4px 0 2px; font-style: italic; }
+/* Goldene Knöpfe: Schrift immer dunkel (Mitternachtsblau), auch wenn der Knopf ein Link ist und im Dark Mode */
+:root a.btn:not(.ghost), :root a.btn:not(.ghost):visited { color: var(--gold-ink); }
+:root[data-theme="dark"] .btn:not(.ghost), :root[data-theme="dark"] a.btn:not(.ghost) { color: #141821; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .btn:not(.ghost), :root:not([data-theme="light"]) a.btn:not(.ghost) { color: #141821; } }
