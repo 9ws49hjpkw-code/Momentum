@@ -75,3 +75,5 @@ Geschützte Stücke (Einaudi, Tony Ann, Alcocer …) nur mit Kauflink (`inApp: f
 - 4.1 (Build 2, 21.11.2026): 63 neue Originalstücke (Bach, Satie, Scarlatti, Haydn, Mozart, Beethoven, Chopin,
   Schumann, Tschaikowsky, Grieg, Debussy, Liszt, Joplin), jetzt 116; sf/fz/sfp/rfz werden korrekt gezeigt;
   Bogen-Absturz bei ganzen Noten mit zweiter Stimme behoben.
+- 4.2 (Build 3, 21.11.2026): Wochenbericht ausführlicher (nächster Schritt, Prüfungen, Vorwoche, schwache
+  Aufgabentypen, fällige Wiederholungen) – er ist jetzt die einzige Datenquelle für den Klavier-Coach in Claude.
