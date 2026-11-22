@@ -896,7 +896,10 @@ const APP = (() => {
   function sightBlock(lv, ctx) {
     if (!SR.cur || SR.ctx !== ctx || SR.lvSet !== lv) { SR.cur = TH.sightRead(lv); SR.ctx = ctx; SR.lvSet = lv; SR.n = 0; SR.ok = 0; }
     const x = SR.cur;
-    return `<div class="sight"><p class="small muted">${esc(x.key)} · ${x.spec.time === 'C' ? '4/4' : x.spec.time}${ctx === 'l' ? '' : ` · Stufe ${lv}`} · erst 30 Sekunden ansehen (Tonart, Takt, Muster), dann einmal ohne Anhalten spielen – Metronom ♩ = ${x.bpm}.</p>${scoreBox(x.spec, { play: true, bpm: x.bpm, countIn: true, speed: true, metro: true })}<div class="btnrow" style="margin-top:10px"><button class="btn" data-a="sr-ok" data-c="${ctx}">Ohne Anhalten geschafft</button><button class="btn ghost" data-a="sr-no" data-c="${ctx}">Hängen geblieben</button></div><p class="small muted" style="margin-top:6px">${SR.n ? `Diese Runde: ${SR.ok} von ${SR.n} ohne Anhalten.` : 'Erst danach anhören und vergleichen.'}${ctx === 'l' ? ' Drei Stücke schaffen, dann geht es weiter.' : ''}</p></div>`;
+    /* Eigenes Metronom fürs Blattspiel: Tempo und Takt des Stücks vorgewählt (nur wenn es gerade nicht läuft). */
+    if (!MT.on) { mtSet(x.bpm); MT.beats = ({ '3/4': 3, '2/4': 2, '6/8': 6 })[x.spec.time] || 4; }
+    const mtD = `<details class="more metro-d sight-mt"${SR.mtOpen ? ' open' : ''}><summary>Metronom (♩ = ${x.bpm})</summary>${metronomeHTML()}</details>`;
+    return `<div class="sight"><p class="small muted">${esc(x.key)} · ${x.spec.time === 'C' ? '4/4' : x.spec.time}${ctx === 'l' ? '' : ` · Stufe ${lv}`} · erst 30 Sekunden ansehen (Tonart, Takt, Muster), dann einmal ohne Anhalten spielen – Metronom ♩ = ${x.bpm}.</p>${scoreBox(x.spec, { play: true, bpm: x.bpm, countIn: true, speed: true, metro: true })}${mtD}<div class="btnrow" style="margin-top:10px"><button class="btn" data-a="sr-ok" data-c="${ctx}">Ohne Anhalten geschafft</button><button class="btn ghost" data-a="sr-no" data-c="${ctx}">Hängen geblieben</button></div><p class="small muted" style="margin-top:6px">${SR.n ? `Diese Runde: ${SR.ok} von ${SR.n} ohne Anhalten.` : 'Erst danach anhören und vergleichen.'}${ctx === 'l' ? ' Drei Stücke schaffen, dann geht es weiter.' : ''}</p></div>`;
   }
   function vSight() {
     const lv = SR.lv || sightLevel();
@@ -1243,6 +1246,7 @@ const APP = (() => {
     S.sight.push({ d: today(), lv: SR.cur ? SR.cur.lv : 1, ok: ok ? 1 : 0 }); SR.n++; if (ok) SR.ok++;
     if (ctx === 'free' && SR.n >= 3) { dayRec().items.blatt = true; }
     if (ctx === 'l') { const l = LBY[LV.id]; if (l && SR.ok >= 3) markStep(l, LV.step); }
+    SR.mtOpen = !!$('.sight-mt[open]');
     save(); const keepN = SR.n, keepOk = SR.ok; SR.cur = TH.sightRead(SR.lvSet || 1); SR.n = keepN; SR.ok = keepOk; rerender();
   }
   // Eingaben

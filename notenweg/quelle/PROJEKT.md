@@ -85,3 +85,4 @@ Geschützte Stücke (Einaudi, Tony Ann, Alcocer …) nur mit Kauflink (`inApp: f
 - 4.5 (Build 6): Metronom stoppt automatisch bei Seitenwechsel, „Weiter“, zugeklapptem Bereich und beim Verlassen der App.
 - 4.6 (Build 7): Goldene Knöpfe als Link (z. B. „Weiter: …“ nach einer Lektion) hatten im Dark Mode Gold auf Gold – jetzt Mitternachtsblau.
 - 4.7 (Build 8): „Kann ich schon → direkt zum Test“ bleibt; nach einem nicht bestandenen Test gibt es „Doch lieber: Lektion von vorne“. Dabei behoben: der Knopf startete den Test bei neuen Lektionen gar nicht.
+- 4.8 (Build 9): Blattspiel (des Tages und in Lektionen) hat ein eigenes Metronom zum Aufklappen, Tempo und Takt des Stücks vorgewählt; bleibt beim nächsten Stück aufgeklappt.
