@@ -10,7 +10,7 @@ Wunsch (Zitat): „ist es gewollt, dass die Tages Ziele nach dem Erledigen noch 
 Verständnis: Nur eine Frage. Ja, gewollt (`.goal.is-done .goal-text` in styles.css). Nichts zu bauen, in Notion beantwortet.
 Umsetzung: keine. Beim nächsten Release mit nach „Erledigt“ verschieben.
 
-### A1. Erledigtes nach Tagen gruppiert  [offen]
+### A1. Erledigtes nach Tagen gruppiert  [erledigt]
 Wunsch (Zitat): „Dazu gehörig wäre es ja auch gleich praktisch direkt alle schon erledigten sufgaben sich vor Augen halten zu können. Zb im Dashboard und dann nach Zeit sortiert. Dann man sich filtern kann“
 Verständnis: Heute gibt es unten auf der Aufgaben-Seite einen eingeklappten Bereich „Erledigt“ (views.js `renderTasks`, `doneSec`,
 sortiert nach `doneAt` absteigend, Themen-Filter greift schon). Er ist zu versteckt und eine flache Liste. Gewünscht: ein Rückblick
