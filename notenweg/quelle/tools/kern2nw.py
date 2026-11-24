@@ -293,7 +293,7 @@ def build(notes, dyns, peds, bars, clefs, keys, times, labels, expansion, tempo,
             ev = [n for n in notes if n.staff == st and m0 <= n.t < m1]
             layers = {}
             for n in ev: layers.setdefault(n.layer, []).append(n)
-            voices = [[], []]
+            voices = [[], [], []]          # bis zu drei Stimmen pro System (die dritte: Mittelstimme, Schlüssel r3/l3)
 
             def fits(v, n):
                 for o in v:
@@ -317,20 +317,23 @@ def build(notes, dyns, peds, bars, clefs, keys, times, labels, expansion, tempo,
                     elif lay >= 2 and merge(n): pass
                     elif fits(voices[1 - tgt], n): voices[1 - tgt].append(n)
                     elif merge(n): pass
+                    elif not n.rest and fits(voices[2], n): voices[2].append(n)
                     else:
                         # identical rest duplicates are fine to drop
                         if n.rest: continue
                         bad.add(mi); warn.append('bar idx %d staff %s: >2 voices at %s' % (mi, sl, float(n.t - m0)))
             # a voice of only rests that duplicates nothing: drop rests-only second voice
             if voices[1] and all(n.rest for n in voices[1]): voices[1] = []
-            if not voices[0] and voices[1]: voices = [voices[1], []]
+            if not voices[0] and voices[1]: voices = [voices[1], [], voices[2]]
+            if voices[2] and not voices[1]: voices = [voices[0], voices[2], []]   # dritte Stimme rückt nach, wenn die zweite fehlt
             for vi, v in enumerate(voices):
-                if not v and vi == 1: continue
+                if not v and vi >= 1: continue
                 try:
                     toks = voice_tokens(v, m0, L)
                 except LyError as ex:
                     bad.add(mi); warn.append('measure %d staff %s: %s' % (mi, sl, ex)); toks = gap_tokens(L) if L else []
-                key = sl + ('2' if vi == 1 else '')
+                key = sl + ('2' if vi == 1 else '3' if vi == 2 else '')
+                if vi == 2: toks = [('x/' + t[2:]) if t.startswith('r/') else t for t in toks]   # Pausen der Mittelstimme ausblenden
                 meas[mi][key] = ' '.join(toks) if toks else ''
             # whole-measure empty voice 1 -> full rest
             if not voices[0]:
@@ -353,6 +356,7 @@ def build(notes, dyns, peds, bars, clefs, keys, times, labels, expansion, tempo,
             meas[mi].setdefault('clef', {}).setdefault(sl, []).append([float(loc), c])
             cur = c
     # key & time changes
+    if keys and keys[0][0] > 0: keys = [(F(0), 'C')] + list(keys)   # keine Vorzeichnung am Anfang = C-Dur/a-Moll
     key0 = keys[0][1] if keys else 'C'
     curk = key0
     for (t, k) in keys[1:]:
@@ -407,16 +411,76 @@ def disp_time(t):
     return {'4/4': 'C', '2/2': 'C|'}.get(t, t)
 
 
+TUP_BASES = [F(2), F(1), F(1, 2), F(1, 4), F(1, 8), F(1, 16)]
+
+
+def tup_ratio(d):
+    """Dauer, die weder normal noch Triole ist -> (Verhältnis r = notiert->klingend, Grundwert v), z. B. 1/7 -> (4/7, 1/4)"""
+    for v in TUP_BASES:
+        if v / 2 < d < v:
+            r = d / v
+            if r.denominator <= 32: return r, v
+    return None
+
+
+def note_tok(n, base):
+    if n.rest:
+        return ('x/' if n.hidden else 'r/') + base
+    ps = sorted(set(n.pitches), key=pitch_key)
+    if not ps: return 'x/' + base          # Akkord ohne sichtbare Töne
+    tok = (ps[0] if len(ps) == 1 else '(' + ' '.join(ps) + ')') + '/' + base
+    mods = []; mm = n.mods
+    for k in ('st', 'ac', 'tn', 'fe'):
+        if mm.get(k): mods.append('!' + k)
+    if mm.get('f'): mods.append('!f' + str(mm['f']))
+    if mm.get('o'): mods.append('!o=' + mm['o'])
+    if mm.get('g'): mods.append('!g=' + mm['g'])
+    if mm.get('gs'): mods.append('!gs=' + mm['gs'])
+    if mm.get('d'): mods.append('!d=' + mm['d'])
+    if mm.get('h'): mods.append('!h=' + mm['h'])
+    if mm.get('('): mods.append('!(')
+    if mm.get('pc'): mods.append('!pc')
+    elif mm.get('pd'): mods.append('!pd')
+    if mm.get('pu'): mods.append('!pu')
+    if n.tie: mods.append('!~')
+    if mm.get(')'): mods.append('!)')
+    return tok + ''.join(mods)
+
+
 def voice_tokens(v, m0, L):
     v = sorted(v, key=lambda n: n.t)
     toks = []; pos = F(0)
+    tg = None   # offene N-tole: dict(r, a, b, span, acc, i0)
+
+    def close():
+        nonlocal tg
+        if tg:
+            toks[tg['i0']] += '!N(=%d:%d' % (tg['a'], tg['b']); toks[-1] += '!N)'
+        tg = None
     for n in v:
         o = n.t - m0
         if o > pos:
-            toks.extend(gap_tokens(o - pos)); pos = o
+            g = o - pos
+            if tg and (g / tg['r']) in DUR_OF and tg['acc'] + g <= tg['span']:
+                toks.append('x/' + DUR_OF[g / tg['r']]); tg['acc'] += g; pos = o
+                if tg['acc'] == tg['span']: close()
+            else:
+                close(); toks.extend(gap_tokens(g)); pos = o
         if o < pos: raise LyError('overlap')
+        if tg and (n.dur / tg['r']) in DUR_OF and tg['acc'] + n.dur <= tg['span']:
+            toks.append(note_tok(n, DUR_OF[n.dur / tg['r']])); tg['acc'] += n.dur; pos = o + n.dur
+            if tg['acc'] == tg['span']: close()
+            continue
+        close()
         bt = to_beats_token(n.dur)
         if bt is None:
+            tr = tup_ratio(n.dur)
+            if tr:
+                r, vv = tr
+                tg = dict(r=r, a=r.denominator, b=r.numerator, span=r.numerator * vv, acc=F(0), i0=len(toks))
+                toks.append(note_tok(n, DUR_OF[vv])); tg['acc'] += n.dur; pos = o + n.dur
+                if tg['acc'] == tg['span']: close()
+                continue
             # nicht direkt notierbare Dauer (z. B. 9/4): in übergebundene Teile zerlegen, an Schlaggrenzen
             parts = split_tied(o, n.dur)
             if parts is None: raise LyError('duration %s' % n.dur)
@@ -432,32 +496,11 @@ def voice_tokens(v, m0, L):
             pos = o + n.dur
             continue
         base, trip = bt
-        if n.rest:
-            tok = ('x/' if n.hidden else 'r/') + base
-        else:
-            ps = sorted(set(n.pitches), key=pitch_key)
-            tok = (ps[0] if len(ps) == 1 else '(' + ' '.join(ps) + ')') + '/' + base
-        mods = []
-        if not n.rest:
-            mm = n.mods
-            for k in ('st', 'ac', 'tn', 'fe'):
-                if mm.get(k): mods.append('!' + k)
-            if mm.get('f'): mods.append('!f' + str(mm['f']))
-            if mm.get('o'): mods.append('!o=' + mm['o'])
-            if mm.get('d'): mods.append('!d=' + mm['d'])
-            if mm.get('h'): mods.append('!h=' + mm['h'])
-            if mm.get('('): mods.append('!(')
-            if mm.get('pc'): mods.append('!pc')
-            elif mm.get('pd'): mods.append('!pd')
-            if mm.get('pu'): mods.append('!pu')
-            if n.tie: mods.append('!~')
-            if mm.get(')'): mods.append('!)')
-        else:
-            if n.mods.get('pu'): mods.append('!pu')
-        tok += ''.join(mods)
+        tok = note_tok(n, base) if not n.rest else (('x/' if n.hidden else 'r/') + base + ('!pu' if n.mods.get('pu') else ''))
         if trip: tok += '!T'
         toks.append(tok)
         pos = o + n.dur
+    close()
     if pos < L: toks.extend(gap_tokens(L - pos))
     if pos > L: raise LyError('voice longer than measure')
     return mark_trips(toks)
@@ -500,6 +543,8 @@ def voice_tokens_one(n):
         if mm.get(k): mods.append('!' + k)
     if mm.get('f'): mods.append('!f' + str(mm['f']))
     if mm.get('o'): mods.append('!o=' + mm['o'])
+    if mm.get('g'): mods.append('!g=' + mm['g'])
+    if mm.get('gs'): mods.append('!gs=' + mm['gs'])
     if mm.get('d'): mods.append('!d=' + mm['d'])
     if mm.get('h'): mods.append('!h=' + mm['h'])
     if mm.get('('): mods.append('!(')

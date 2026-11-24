@@ -44,20 +44,21 @@ notenweg/
 ## Stückformat (stuecke/<id>.json)
 `{ id, title, composer, cat, keyde, lvl (1–6), bpm, after ('2.4' = nach Lektion, 'ch:III' = nach Kapitelprüfung),
 why, focus[], src, links[[Titel,URL]], key ('E' = Dur-Name der Vorzeichen), time ('C', 'C|', '3/4' …), pickup,
-measures[{ r, l, r2?, l2?, clef?, key?, time?, label?, volta?, begin?, end? }], order[] }`
-Token: `C#4/8!f3` (Tonhöhe/Dauer w h q 8 16 32 mit Punkten), Akkord `(C4 E4 G4)/q`, Pause `r/q`, unsichtbar `x/q`.
-Modifikatoren: `!f3` Finger, `!(` `!)` Bogen, `!~` Haltebogen, `!3(` … `!3)` Triole, `!st` staccato, `!ac` Akzent,
-`!d=p` Dynamik, `!h=<` / `!h=>` / `!h=.` Gabel, `!pd` `!pc` `!pu` Pedal, `!o=tr|prall|mord|turn`, `!fe` Fermate, `!t=Text`.
-Nur Triolen als N-tolen; Vorschläge gibt es im Notensatz nicht; höchstens zwei Stimmen pro System.
-Konverter melden Takte mit mehr als zwei Stimmen als „bad“ – solche Stücke nicht übernehmen (Ausnahme nur nach
-Prüfung gegen eine Referenz, z. B. DCML notes.tsv). Bei Vorschlagsnoten den Hinweis in `src` setzen.
+measures[{ r, l, r2?, l2?, r3?, l3?, clef?, key?, time?, label?, volta?, begin?, end? }], order[] }`
+Stimmen pro System: `r`/`l` (Hälse oben), `r2`/`l2` (Hälse unten), `r3`/`l3` (Mittelstimme, Hälse oben, bei Kollision nach rechts versetzt; Pausen meist unsichtbar `x/`).
+Token: `C#4/8!f3` (Tonhöhe/Dauer w h q 8 16 32 64 mit Punkten), Akkord `(C4 E4 G4)/q`, Pause `r/q`, unsichtbar `x/q`.
+Modifikatoren: `!f3` Finger, `!(` `!)` Bogen, `!~` Haltebogen, `!3(` … `!3)` Triole, `!N(=7:4` … `!N)` beliebige N-tole (a Noten in der Zeit von b), `!st` staccato, `!ac` Akzent,
+`!d=p` Dynamik, `!g=D5+E5` Vorschläge vor dem Schlag (`&` = Vorschlagsakkord), `!gs=D5` Acciaccatura mit Strich, `!h=<` / `!h=>` / `!h=.` Gabel, `!pd` `!pc` `!pu` Pedal, `!o=tr|prall|mord|turn`, `!fe` Fermate, `!t=Text`.
+Höchstens drei Stimmen pro System. kern2nw schreibt Quintolen, Septolen, 11er-Gruppen usw. als `!N(` (seit 5.0).
+Konverter melden Takte mit mehr als drei Stimmen als „bad“ – solche Stücke nicht übernehmen (oder gezielt per `patch` reparieren, siehe neue_stuecke_2026_11c.py).
+mscx2nw übernimmt Vorschläge (seit 5.0); Nachschläge werden weiter weggelassen und gemeldet.
+Ältere Stücke mit dem Hinweis „Vorschlagsnoten nicht dargestellt“ könnten jetzt neu konvertiert werden.
 
 ## Neue Stücke hinzufügen
 1. Quelle klonen (GitHub), mit tools/kern2nw.py, mscx2nw.py oder ly2nw.py konvertieren, „bad“ muss leer sein.
 2. Rendern und ansehen; DCML-Stücke gegen notes/*.tsv prüfen.
 3. Eintrag mit Texten in einer neue_stuecke_*.py ergänzen und ausführen (schreibt src/stuecke/ + _reihenfolge.json).
-Ideen für später: Notensatz um Vorschläge und eine dritte Stimme erweitern – dann gehen Clair de lune,
-Träumerei und die Chopin-Nocturnes (Konvertierungen klappen schon, scheitern nur daran).
+Ideen für später: Nachschläge; Stücke mit vier Stimmen in einer Hand (Chopin op. 9/3, 15/1, 15/2, 48/2, Schumann „Von fremden Ländern“).
 Kapitel-Zuordnung (Pflicht/Kür) steht in lernpfad.js (`must`, `more`); neue Stücke ohne Kapitel erscheinen unter „Alle Stücke“.
 
 ## Urheberrecht
@@ -66,7 +67,7 @@ Geschützte Stücke (Einaudi, Tony Ann, Alcocer …) nur mit Kauflink (`inApp: f
 
 ## Ablauf bei Änderungen
 1. Nur in `quelle/` ändern. 2. BUILD in build.py erhöhen. 3. `python3 notenweg/quelle/build.py`.
-4. Tests: `node notenweg/quelle/test/e2e.js && node notenweg/quelle/test/monkey.js` – alles grün, keine Konsolenfehler.
+4. Tests: `node notenweg/quelle/test/e2e.js && node notenweg/quelle/test/monkey.js && node notenweg/quelle/test/metronom.js` – alles grün, keine Konsolenfehler.
 5. Commit auf main, push. GitHub Pages veröffentlicht in ca. 1 Minute; in der App erscheint „Neue Version bereit“.
 
 ## Verlauf
@@ -86,3 +87,11 @@ Geschützte Stücke (Einaudi, Tony Ann, Alcocer …) nur mit Kauflink (`inApp: f
 - 4.6 (Build 7): Goldene Knöpfe als Link (z. B. „Weiter: …“ nach einer Lektion) hatten im Dark Mode Gold auf Gold – jetzt Mitternachtsblau.
 - 4.7 (Build 8): „Kann ich schon → direkt zum Test“ bleibt; nach einem nicht bestandenen Test gibt es „Doch lieber: Lektion von vorne“. Dabei behoben: der Knopf startete den Test bei neuen Lektionen gar nicht.
 - 4.8 (Build 9): Blattspiel (des Tages und in Lektionen) hat ein eigenes Metronom zum Aufklappen, Tempo und Takt des Stücks vorgewählt; bleibt beim nächsten Stück aufgeklappt.
+- 4.9 (Build 10): Metronom/Ton startete auf dem iPad nach App-Wechsel nicht (Audio-Kontext hing „interrupted“, Uhr stand). Jetzt wird beim nächsten Tippen ein frischer Kontext gebaut; das Metronom erkennt eine stehende Audio-Uhr und meldet sich.
+- 5.0 (Build 11): Notensatz und Wiedergabe mit **drei Stimmen pro System** und **Vorschlagsnoten** (engine.js; alte Stücke rendern bitgleich).
+  Die vier Kauflink-Einträge (Una Mattina, Nuvole Bianche, Icarus, Idea 10) entfernt; dafür 12 verwandte gemeinfreie Stücke mit Noten
+  und **Clair de lune** (tools/neue_stuecke_2026_11b.py). Lektion 7.6 zeigt jetzt die verwandten Stücke; Kapitel VII Kür angepasst.
+  Konverter: Tonart ohne Vorzeichen am Anfang wird nicht mehr von einem späteren Tonartwechsel überschrieben.
+  Dazu beliebige N-tolen und 64stel im Notensatz; 41 weitere Stücke (tools/neue_stuecke_2026_11c.py): 15 Chopin-Nocturnes, 5 Walzer,
+  Fantaisie-Impromptu, 2 Etüden, Berceuse, 5 Préludes (u. a. Regentropfen), Träumerei und Kinderszenen 12/13, Debussy (3× Children's Corner,
+  La plus que lente, Page d'album), Tschaikowsky März, Grieg op. 12/3, 12/7, 38/1. Jetzt 166 Stücke.

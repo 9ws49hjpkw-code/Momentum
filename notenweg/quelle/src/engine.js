@@ -73,7 +73,7 @@ function keyAlters(key) {
 
 const Engrave = (() => {
   const f = v => Math.round(v * 100) / 100;
-  const DUR = { w: 4, h: 2, q: 1, '8': 0.5, '16': 0.25, '32': 0.125 };
+  const DUR = { w: 4, h: 2, q: 1, '8': 0.5, '16': 0.25, '32': 0.125, '64': 0.0625 };
   const CLEF_BOTTOM_DIA = { treble: 30, bass: 18 }; // E4 / G2
   let uid = 0;
 
@@ -106,7 +106,7 @@ const Engrave = (() => {
     });
     const sl = main.lastIndexOf('/');
     const pp = main.slice(0, sl), dd = main.slice(sl + 1);
-    const dm = /^(w|h|q|8|16|32)(\.*)$/.exec(dd);
+    const dm = /^(w|h|q|8|16|32|64)(\.*)$/.exec(dd);
     if (!dm) throw new Error('bad duration ' + tok);
     const base = dm[1], dots = dm[2].length;
     let beats = DUR[base]; let add = beats; for (let i = 0; i < dots; i++) { add /= 2; beats += add; }
@@ -115,23 +115,32 @@ const Engrave = (() => {
     else {
       const list = pp.startsWith('(') ? pp.slice(1, -1).trim().split(/\s+/) : [pp];
       it.pitches = list.map(MU.parsePitch).sort((a, b) => a.dia - b.dia || a.midi - b.midi);
+      /* Vorschläge: !g=D5+E5 (vor dem Schlag, ohne Strich) oder !gs=D5 (Acciaccatura mit Strich); & verbindet Töne zu einem Vorschlagsakkord */
+      const gv = mods.gs || mods.g;
+      if (typeof gv === 'string' && gv) { it.grace = gv.split('+').map(x => x.split('&').map(MU.parsePitch).sort((a, b) => a.dia - b.dia || a.midi - b.midi)); it.gslash = !!mods.gs; }
     }
     return it;
   }
 
+  const VX = ['2', '3'];
+  let tupSeq = 0;
   const timeLen = t => !t ? 0 : (t === 'C' || t === 'C|') ? 4 : (() => { const [a, b] = t.split('/').map(Number); return a * 4 / b; })();
   // spacing for an onset gap in quarter beats
   const gapW = (g, s) => s * (1.2 + 2.25 * Math.sqrt(Math.max(g, 0.125)));
 
   function parseVoice(str) {
     const items = tokenize(str).map(parseToken);
-    let t = 0, inTrip = false;
+    /* Triolen: !3( … !3)  ·  andere N-tolen: !N(=a:b … !N)  (a Noten in der Zeit von b, z. B. 7:4) */
+    let t = 0, inTrip = false, tup = null;
     items.forEach(it => {
       if (it.mods['3(']) inTrip = true;
-      it.trip = inTrip;
+      if (typeof it.mods['N('] === 'string') { const [a, b] = it.mods['N('].split(':').map(Number); if (a > 0 && b > 0) tup = { a, b, id: ++tupSeq }; }
+      it.trip = inTrip; if (tup) it.tup = tup;
       it.t = t; it.len = it.trip ? it.beats * 2 / 3 : it.beats;
+      if (tup) it.len = it.len * tup.b / tup.a;
       t += it.len;
       if (it.mods['3)']) inTrip = false;
+      if (it.mods['N)']) tup = null;
     });
     return { items, len: t };
   }
@@ -158,24 +167,37 @@ const Engrave = (() => {
 
     // ---------- parse measures ----------
     const M = spec.measures.map((m, mi) => {
-      const voices = {}, voices2 = {};
-      staves.forEach(st => { voices[st] = parseVoice(m[staffKey(st)] || ''); const v2 = m[staffKey(st) + '2']; voices2[st] = v2 ? parseVoice(v2) : null; });
-      let len = 0; staves.forEach(st => { len = Math.max(len, voices[st].len); if (voices2[st]) len = Math.max(len, voices2[st].len); });
+      /* Stimmen pro System: '' (Hälse oben), '2' (Hälse unten), '3' (Mittelstimme, Hälse oben, bei Kollision nach rechts versetzt) */
+      const voices = {}, voices2 = {}, vx = {};
+      staves.forEach(st => { voices[st] = parseVoice(m[staffKey(st)] || ''); vx[st] = []; VX.forEach(k => { const vs = m[staffKey(st) + k]; if (vs) vx[st].push([k, parseVoice(vs)]); }); voices2[st] = vx[st].length ? vx[st][0][1] : null; });
+      const allV = st => [voices[st]].concat(vx[st].map(x => x[1]));
+      let len = 0; staves.forEach(st => allV(st).forEach(v => { len = Math.max(len, v.len); }));
       if (len === 0 && timeOf[mi]) len = timeLen(timeOf[mi]);
       const mAlters = keyAlters(keyOf[mi]);
       // onsets
       const set = new Set();
-      staves.forEach(st => { voices[st].items.forEach(it => set.add(+it.t.toFixed(5))); if (voices2[st]) voices2[st].items.forEach(it => set.add(+it.t.toFixed(5))); });
+      staves.forEach(st => allV(st).forEach(v => v.items.forEach(it => set.add(+it.t.toFixed(5)))));
       (m.chords || []).forEach(c => set.add(+(+c[0]).toFixed(5)));
       set.add(+len.toFixed(5));
       const on = [...set].filter(x => x <= len + 1e-6).sort((a, b) => a - b);
+      const v3At = {}; staves.forEach(st => vx[st].forEach(([k, v]) => { if (k === '3') v.items.forEach(it => { if (!it.rest) v3At[+it.t.toFixed(5)] = 1; }); }));
       // accidental display per staff (measure-local accidental memory)
-      const accAt = {}, dotAt = {}, minGap = {};
+      const accAt = {}, dotAt = {}, minGap = {}, graceAt = {};
       staves.forEach(st => {
         const mem = {};
-        const merged = voices[st].items.concat(voices2[st] ? voices2[st].items : []).map((it, i) => [it, i]).sort((a, b) => a[0].t - b[0].t || a[1] - b[1]).map(x => x[0]);
+        const merged = [].concat(...allV(st).map(v => v.items)).map((it, i) => [it, i]).sort((a, b) => a[0].t - b[0].t || a[1] - b[1]).map(x => x[0]);
         merged.forEach(it => {
           if (it.rest) { if (it.mods.t) { const kk0 = +it.t.toFixed(5); minGap[kk0] = Math.max(minGap[kk0] || 0, String(it.mods.t).length * s * 0.68 + s * 0.6); } return; }
+          if (it.grace) {
+            let gw = s * 0.5;
+            it.grace.forEach(gc => gc.forEach(p => {
+              const k = p.letter + p.oct; const cur = k in mem ? mem[k] : (mAlters[p.letter] || 0);
+              p.show = cur !== p.alter ? p.alter : null; mem[k] = p.alter;
+              if (p.show !== null) gw += s * 0.85;
+            }));
+            gw += it.grace.length * s * 1.05;
+            const kg = +it.t.toFixed(5); graceAt[kg] = Math.max(graceAt[kg] || 0, gw);
+          }
           it.pitches.forEach(p => {
             const k = p.letter + p.oct;
             const cur = k in mem ? mem[k] : (mAlters[p.letter] || 0);
@@ -198,9 +220,11 @@ const Engrave = (() => {
         if (dotAt[on[i]]) w += s * 0.55 * dotAt[on[i]];
         if (minGap[on[i]]) w = Math.max(w, minGap[on[i]]);
         if (accAt[on[i + 1]]) w += s * 1.25;
+        if (v3At[on[i]]) w += s * 1.3;
+        if (graceAt[on[i + 1]]) w += graceAt[on[i + 1]];
         gaps.push(w);
       }
-      let padL = s * 1.7 + (accAt[on[0]] ? s * 1.25 : 0);
+      let padL = s * 1.7 + (accAt[on[0]] ? s * 1.25 : 0) + (graceAt[on[0]] || 0);
       if (m.clef) staves.forEach(st => (m.clef[staffKey(st)] || []).forEach(([ct]) => { if (ct < 1e-6) padL += s * (mi === 0 ? 0 : 2.6); else { const ix = on.findIndex(o => Math.abs(o - ct) < 1e-5); if (ix > 0) gaps[ix - 1] += s * 2.6; } }));
       const padR = s * 1.0;
       let kx = 0;
@@ -211,7 +235,7 @@ const Engrave = (() => {
       if (m.minW && m.minW * s > natural) { const extra = m.minW * s - natural; const sum = gaps.reduce((a, b) => a + b, 0) || 1; for (let i = 0; i < gaps.length; i++) gaps[i] += extra * gaps[i] / sum; natural = m.minW * s; }
       if (m.begin === '|:') natural += s * 1.8;
       if (m.end === ':|') natural += s * 1.4;
-      return { m, mi, voices, voices2, len, on, gaps, padL, padR, natural, accAt, wholeRest, kx };
+      return { m, mi, voices, voices2, vx, len, on, gaps, padL, padR, natural, accAt, wholeRest, kx };
     });
 
     // ---------- line breaking ----------
@@ -263,6 +287,44 @@ const Engrave = (() => {
       staves.forEach(st => { buf[st] = []; ext[st] = { min: 0, max: 4 * s }; rows[st] = { names: [], fing: [], below: [], above: [], dyn: [], ped: [] }; });
       const trackY = (st, y1, y2) => { ext[st].min = Math.min(ext[st].min, y1, y2); ext[st].max = Math.max(ext[st].max, y1, y2); };
       const yPos = pos => (8 - pos) * s / 2;
+      /* kleine Vorschlagsnoten links vom Hauptton: Hals oben, einzeln mit Fähnchen (und Strich bei Acciaccatura), mehrere mit Doppelbalken */
+      const drawGrace = (b, st, r, right, bd) => {
+        const it = r.it; const k = 0.62; const gH = headW * k; const n = it.grace.length;
+        const items = it.grace.map(gc => { const ps = gc.map(p => ({ p, pos: p.dia - bd })); const na = ps.filter(q => q.p.show !== null && q.p.show !== undefined).length; return { ps, na, w: gH + s * 0.45 + na * s * 0.85 }; });
+        let x = right - items.reduce((a, q) => a + q.w, 0);
+        b.push('<g class="gr">');
+        const stems = [];
+        items.forEach(g => {
+          x += g.na * s * 0.85;
+          g.ps.forEach((q, i) => {
+            const yy = yPos(q.pos);
+            if (q.p.show !== null && q.p.show !== undefined) {
+              const ax = x - s * 0.15 - (g.ps.filter((q2, j) => j > i && q2.p.show !== null && q2.p.show !== undefined).length) * s * 0.8;
+              b.push((q.p.show === 1 ? G('sharp', { right: ax, cy: yy, h: 2.75 * s * k }) : q.p.show === -1 ? G('flat', { right: ax, bottom: yy + 0.72 * s * k, h: 2.45 * s * k }) : G('natural', { right: ax, cy: yy, h: 2.7 * s * k })).s);
+            }
+            b.push(G('headB', { left: x, cy: yy, h: s * k }).s);
+            if (q.pos <= -2) for (let lp = -2; lp >= q.pos; lp -= 2) b.push(`<rect x="${f(x - s * 0.25)}" y="${f(yPos(lp) - s * 0.06)}" width="${f(gH + s * 0.5)}" height="${f(s * 0.12)}"/>`);
+            if (q.pos >= 10) for (let lp = 10; lp <= q.pos; lp += 2) b.push(`<rect x="${f(x - s * 0.25)}" y="${f(yPos(lp) - s * 0.06)}" width="${f(gH + s * 0.5)}" height="${f(s * 0.12)}"/>`);
+          });
+          const lo = yPos(g.ps[0].pos), hi = yPos(g.ps[g.ps.length - 1].pos);
+          stems.push({ x: x + gH - SW * 0.35, y0: lo - s * 0.1, tip: hi - s * 2.6 });
+          trackY(st, hi - s * 2.8, lo + s * 0.4);
+          x += gH + s * 0.45;
+        });
+        const sw = SW * 0.8;
+        if (n === 1) {
+          const t = stems[0];
+          b.push(`<rect x="${f(t.x - sw / 2)}" y="${f(t.tip)}" width="${f(sw)}" height="${f(t.y0 - t.tip)}"/>`);
+          b.push(G('flag8', { left: t.x - sw / 2, top: t.tip, h: 3.2 * s * k }).s);
+          if (it.gslash) b.push(`<line x1="${f(t.x - s * 0.55)}" y1="${f(t.tip + s * 1.55)}" x2="${f(t.x + s * 0.95)}" y2="${f(t.tip + s * 0.45)}" stroke="currentColor" stroke-width="${f(s * 0.12)}"/>`);
+        } else {
+          const top = Math.min(...stems.map(t => t.tip));
+          stems.forEach(t => b.push(`<rect x="${f(t.x - sw / 2)}" y="${f(top)}" width="${f(sw)}" height="${f(t.y0 - top)}"/>`));
+          const xa = stems[0].x - sw / 2, xb = stems[n - 1].x + sw / 2;
+          [0, 1].forEach(l => b.push(`<rect x="${f(xa)}" y="${f(top + l * s * 0.5)}" width="${f(xb - xa)}" height="${f(s * 0.3)}"/>`));
+        }
+        b.push('</g>');
+      };
       const lineNotes = [];
       const chordTexts = [];
       // prefix: clef, key, time
@@ -318,10 +380,12 @@ const Engrave = (() => {
         if (mm.m.label) chordTexts.push({ x: x0 + s * 0.3, t: mm.m.label, row: 2, small: true });
         // draw voices
         staves.forEach(st => {
-          const vlist = [['', mm.voices[st]]]; if (mm.voices2[st]) vlist.push(['2', mm.voices2[st]]);
-          const two = vlist.length > 1; const v1At = {};
-          const otherAt = { '': {}, '2': {} };
-          if (two) vlist.forEach(([vk0, v0]) => v0.items.forEach(it0 => { if (it0.rest || !it0.pitches.length) return; const k0 = +it0.t.toFixed(5); const ds = it0.pitches.map(p => p.dia - CLEF_BOTTOM_DIA[clefAt(st, measureStart[mm.mi] + it0.t)]); const tgt = otherAt[vk0 === '' ? '2' : '']; const span = [it0.t, it0.t + it0.len]; tgt[k0] = tgt[k0] || []; tgt[k0].push({ lo: Math.min(...ds), hi: Math.max(...ds), span }); }));
+          const vlist = [['', mm.voices[st]]].concat(mm.vx[st]);
+          const two = vlist.length > 1; const v1At = {}, vAt = {};
+          const otherAt = {}; vlist.forEach(([k0]) => { otherAt[k0] = {}; });
+          /* Gegenstimmen für die Pausenhöhe: Oberstimme ('' und '3') weicht der Unterstimme aus und umgekehrt */
+          const upV = k0 => k0 !== '2';
+          if (two) vlist.forEach(([vk0, v0]) => v0.items.forEach(it0 => { if (it0.rest || !it0.pitches.length) return; const k0 = +it0.t.toFixed(5); const ds = it0.pitches.map(p => p.dia - CLEF_BOTTOM_DIA[clefAt(st, measureStart[mm.mi] + it0.t)]); const span = [it0.t, it0.t + it0.len]; vlist.forEach(([vk1]) => { if (upV(vk1) === upV(vk0)) return; const tgt = otherAt[vk1]; tgt[k0] = tgt[k0] || []; tgt[k0].push({ lo: Math.min(...ds), hi: Math.max(...ds), span }); }); }));
           const otherRange = (vk0, t0, len0) => { let lo = Infinity, hi = -Infinity; Object.values(otherAt[vk0]).forEach(arr => arr.forEach(o => { if (o.span[0] < t0 + len0 - 1e-6 && o.span[1] > t0 + 1e-6) { lo = Math.min(lo, o.lo); hi = Math.max(hi, o.hi); } })); return lo === Infinity ? null : { lo, hi }; };
           // key / time change at the start of this measure
           let kxPos = innerL + s * 0.5;
@@ -359,8 +423,8 @@ const Engrave = (() => {
           const b = buf[st];
           const bottomDia = CLEF_BOTTOM_DIA[st];
           const recs = [];
-          const forced = two ? (vk === '' ? 1 : -1) : 0;
-          const rSh = two ? (vk === '' ? -s : s) : 0;
+          const forced = two ? (upV(vk) ? 1 : -1) : 0;
+          const rSh = two ? (upV(vk) ? -s : s) : 0;
           v.items.forEach((it, ii) => {
             const id = `${prefix}-${mm.mi}-${st[0]}${vk}${ii}`;
             const xh = mm.wholeRest && it.rest && it.base === 'w' ? x0 + mW / 2 - s * 0.6 : onX[+it.t.toFixed(5)];
@@ -368,7 +432,7 @@ const Engrave = (() => {
             if (it.rest) {
               if (it.hidden) { rec.hidden = true; recs.push(rec); return; }
               let rs = rSh * (it.base === 'w' || it.base === 'h' ? 2 : 1);
-              if (two) { const orr = otherRange(vk, it.t, it.len); if (orr) { if (vk === '') { const need = orr.hi + (it.base === 'q' ? 5 : 4); const cur = 4 - rs * 2 / s; if (need > cur) rs = -(need - 4) * s / 2; } else { const need = orr.lo - (it.base === 'q' ? 5 : 4); const cur = 4 - rs * 2 / s; if (need < cur) rs = (4 - need) * s / 2; } rs = Math.round(rs / s) * s; } }
+              if (two) { const orr = otherRange(vk, it.t, it.len); if (orr) { if (upV(vk)) { const need = orr.hi + (it.base === 'q' ? 5 : 4); const cur = 4 - rs * 2 / s; if (need > cur) rs = -(need - 4) * s / 2; } else { const need = orr.lo - (it.base === 'q' ? 5 : 4); const cur = 4 - rs * 2 / s; if (need < cur) rs = (4 - need) * s / 2; } rs = Math.round(rs / s) * s; } }
               b.push(`<g class="nt rest" id="${id}">`);
               if (it.base === 'w') { const y = yPos(6) + rs; b.push(`<rect x="${f(xh)}" y="${f(y)}" width="${f(s * 1.2)}" height="${f(s * 0.5)}"/>`); }
               else if (it.base === 'h') { const y = yPos(4) + rs; b.push(`<rect x="${f(xh)}" y="${f(y - s * 0.5)}" width="${f(s * 1.2)}" height="${f(s * 0.5)}"/>`); }
@@ -385,7 +449,14 @@ const Engrave = (() => {
             rec.ps = ps;
             const tk = +it.t.toFixed(5);
             if (vk === '') v1At[tk] = rec;
-            else { const o = v1At[tk]; if (o && o.ps && ps.some(q => o.ps.some(q1 => Math.abs(q1.pos - q.pos) === 1))) rec.x += headW * 1.05; }
+            else if (vk === '2') { const o = v1At[tk]; if (o && o.ps && ps.some(q => o.ps.some(q1 => Math.abs(q1.pos - q.pos) === 1))) rec.x += headW * 1.05; }
+            else {
+              /* Mittelstimme: Köpfe, die mit einer anderen Stimme zusammenstoßen würden (gleiche Linie oder Sekunde), rücken nach rechts */
+              const hit = [v1At[tk], vAt['2' + tk]].some(o => o && o.ps && ps.some(q => o.ps.some(q1 => Math.abs(q1.pos - q.pos) <= 1)));
+              const v1 = v1At[tk]; const inside = v1 && v1.ps && v1.ps.length && ps.some(q => q.pos < v1.ps[v1.ps.length - 1].pos && q.pos > v1.ps[0].pos - 3);
+              if (hit || inside) rec.x += headW * 1.15;
+            }
+            vAt[vk + tk] = rec;
             const minPos = ps[0].pos, maxPos = ps[ps.length - 1].pos;
             rec.minPos = minPos; rec.maxPos = maxPos;
             recs.push(rec);
@@ -395,7 +466,7 @@ const Engrave = (() => {
           const groups = []; let g = null;
           recs.forEach(r => {
             const it = r.it;
-            const beamable = !it.rest && !it.hidden && (it.base === '8' || it.base === '16' || it.base === '32') && !it.mods.nb;
+            const beamable = !it.rest && !it.hidden && (it.base === '8' || it.base === '16' || it.base === '32' || it.base === '64') && !it.mods.nb;
             const bIdx = Math.floor((it.t + 1e-6) / beat);
             if (beamable && g && g.bIdx === bIdx && g.last === recs.indexOf(r) - 1) { g.notes.push(r); g.last = recs.indexOf(r); }
             else { if (g && g.notes.length > 1) groups.push(g); g = beamable ? { bIdx, notes: [r], last: recs.indexOf(r) } : null; }
@@ -464,10 +535,11 @@ const Engrave = (() => {
               b.push(G(name, { left: hx, cy: yy, h: 1.0 * s }).s);
               trackY(st, yy - s * 0.5, yy + s * 0.5);
             });
+            if (it.grace) drawGrace(b, st, r, xh - (accCol ? accCol * s * 1.0 + s * 0.55 : s * 0.3), CLEF_BOTTOM_DIA[clefAt(st, measureStart[mm.mi] + it.t)]);
             // stem
             const yLo = yPos(r.minPos), yHi = yPos(r.maxPos);
             if (!isWhole) {
-              let len = s * 3.5 + (it.base === '16' ? s * 0.5 : 0) + (it.base === '32' ? s * 1.1 : 0);
+              let len = s * 3.5 + (it.base === '16' ? s * 0.5 : 0) + (it.base === '32' ? s * 1.1 : 0) + (it.base === '64' ? s * 1.8 : 0);
               if (r.dir === 1) {
                 r.sx = xh + headW - SW / 2; r.sy0 = yLo - s * 0.15; r.tip = yHi - len;
                 if (!two && r.tip > yPos(4)) r.tip = yPos(4);
@@ -521,7 +593,7 @@ const Engrave = (() => {
             };
             beamPoly(x1 - SW / 2, x2 + SW / 2, 0);
             // secondary beams
-            const lvl2 = r => r.it.base === '16' || r.it.base === '32';
+            const lvl2 = r => r.it.base === '16' || r.it.base === '32' || r.it.base === '64';
             for (let i = 0; i < n.length; i++) {
               if (!lvl2(n[i])) continue;
               let j = i; while (j + 1 < n.length && lvl2(n[j + 1])) j++;
@@ -533,12 +605,20 @@ const Engrave = (() => {
               }
               i = j;
             }
-            const lvl3 = r => r.it.base === '32';
+            const lvl3 = r => r.it.base === '32' || r.it.base === '64';
             for (let i = 0; i < n.length; i++) {
               if (!lvl3(n[i])) continue;
               let j = i; while (j + 1 < n.length && lvl3(n[j + 1])) j++;
               if (j > i) beamPoly(n[i].sx - SW / 2, n[j].sx + SW / 2, 2);
               else beamPoly(i > 0 ? n[i].sx - s * 1.0 : n[i].sx - SW / 2, i > 0 ? n[i].sx + SW / 2 : n[i].sx + s * 1.0, 2);
+              i = j;
+            }
+            const lvl4 = r => r.it.base === '64';
+            for (let i = 0; i < n.length; i++) {
+              if (!lvl4(n[i])) continue;
+              let j = i; while (j + 1 < n.length && lvl4(n[j + 1])) j++;
+              if (j > i) beamPoly(n[i].sx - SW / 2, n[j].sx + SW / 2, 3);
+              else beamPoly(i > 0 ? n[i].sx - s * 1.0 : n[i].sx - SW / 2, i > 0 ? n[i].sx + SW / 2 : n[i].sx + s * 1.0, 3);
               i = j;
             }
             gg.beamMid = { x: (x1 + x2) / 2, y: beamY((x1 + x2) / 2) };
@@ -548,6 +628,16 @@ const Engrave = (() => {
               trackY(n[0].st, ty - s * 1.4, ty);
             }
           });
+          // N-tolen: Zahl über (bzw. unter) der ganzen Gruppe
+          { const runs = {}; recs.forEach(r => { if (r.it.tup && r.ps) (runs[r.it.tup.id] = runs[r.it.tup.id] || []).push(r); });
+            Object.values(runs).forEach(run => {
+              const up = run.filter(r => r.dir === 1).length >= run.length / 2;
+              const xa = run[0].x, xb = run[run.length - 1].x + headW; const xm = (xa + xb) / 2;
+              const ys = run.map(r => up ? Math.min(r.tip != null ? r.tip : yPos(r.maxPos), yPos(r.maxPos)) : Math.max(r.tip != null ? r.tip : yPos(r.minPos), yPos(r.minPos)));
+              const ty = up ? Math.min(...ys) - s * 0.9 : Math.max(...ys) + s * 2.0;
+              buf[st].push(`<text class="tup" x="${f(xm)}" y="${f(ty)}" text-anchor="middle" font-size="${f(s * 1.35)}" font-style="italic" font-weight="700">${run[0].it.tup.a}</text>`);
+              trackY(st, ty - s * 1.4, ty);
+            }); }
           // stems + flags
           recs.forEach(r => {
             if (!r.ps || r.it.base === 'w') return;
@@ -604,7 +694,7 @@ const Engrave = (() => {
             }
             if (it.mods.f && spec.fingers !== false) {
               const digs = String(it.mods.f).split('');
-              digs.forEach((dg, i) => rows[st].fing.push({ x: cx, t: dg, r, i, n: digs.length, below: st === 'bass' ? !(two && vk === '') : vk === '2' }));
+              digs.forEach((dg, i) => rows[st].fing.push({ x: cx, t: dg, r, i, n: digs.length, below: st === 'bass' ? !(two && upV(vk)) : vk === '2' }));
             }
             if (isNamed(st) || it.mods.n) rows[st].names.push({ x: cx, t: r.ps.map(q => MU.deName(q.p)).join('·'), r, cls: st === 'treble' ? 'rh' : 'lh' });
             if (it.mods.t) rows[st].below.push({ x: cx, t: String(it.mods.t).replace(/_/g, ' ') });
@@ -624,6 +714,7 @@ const Engrave = (() => {
             if (r.ps) {
               const midis = r.ps.map(q => q.p.midi);
               const startBeat = measureStart[mm.mi] + it.t;
+              if (it.grace) { const gd = 0.1, gn = it.grace.length; it.grace.forEach((gc, j) => events.push({ t: Math.max(0, startBeat - (gn - j) * gd), dur: gd, midis: gc.map(p => p.midi), ids: [r.id], st, tie: false, mi: mm.mi, dyn: null, ped: null, pedUp: false, grace: true })); }
               if (lastEv && lastEv.tie && lastEv.midis.join() === midis.join() && Math.abs(lastEv.t + lastEv.dur - startBeat) < 1e-6) {
                 lastEv.dur += it.len; lastEv.tie = !!it.mods['~']; lastEv.ids.push(r.id);
               } else {
@@ -644,7 +735,7 @@ const Engrave = (() => {
 
       // ties & slurs (within all measures of this line; cross-line handled by half ties)
       const lineRecs = [];
-      staves.forEach(st => ['', '2'].forEach(vk => { const list = []; line.measures.forEach(mm => { if (mm['recs_' + st + vk]) list.push(...mm['recs_' + st + vk].filter(r => !r.hidden)); }); if (list.length || vk === '') lineRecs.push({ st, vk, list }); }));
+      staves.forEach(st => ['', ...VX].forEach(vk => { const list = []; line.measures.forEach(mm => { if (mm['recs_' + st + vk]) list.push(...mm['recs_' + st + vk].filter(r => !r.hidden)); }); if (list.length || vk === '') lineRecs.push({ st, vk, list }); }));
       lineRecs.forEach(({ st, vk, list }) => {
         const b = buf[st]; const lk = st + vk;
         const tieCurve = (xa, xb, y, down) => {

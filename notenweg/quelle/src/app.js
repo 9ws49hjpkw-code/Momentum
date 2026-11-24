@@ -84,18 +84,22 @@ function setSync() { const el = $('#syncnote'); if (el) el.textContent = storeOk
 
 /* ---------------- Ton ---------------- */
 const Sound = (() => {
-  let ctx = null, master = null, wave = null;
+  let ctx = null, master = null, wave = null, born = 0;
   function init() {
+    /* iPad: Nach App-Wechsel, Anruf oder Siri bleibt der Audio-Kontext oft „interrupted“ oder „suspended“ hängen –
+       die Uhr (currentTime) steht, nichts klingt. Beim nächsten Tippen dann einfach einen frischen Kontext bauen
+       (nur wenn der alte nicht gerade erst entstanden ist, sonst würde ein zweiter Aufruf im selben Tipp ihn ersetzen). */
+    if (ctx && ctx.state !== 'running' && performance.now() - born > 1500) { try { ctx.close(); } catch (e) { } ctx = null; }
     if (!ctx) {
       const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null;
-      ctx = new AC();
+      ctx = new AC(); born = performance.now();
       const comp = ctx.createDynamicsCompressor(); comp.threshold.value = -14; comp.ratio.value = 3;
       master = ctx.createGain(); master.gain.value = 0.9; master.connect(comp); comp.connect(ctx.destination);
       const n = 20, re = new Float32Array(n), im = new Float32Array(n);
       for (let k = 1; k < n; k++) im[k] = Math.exp(-k * 0.22) / Math.pow(k, 0.7) * (k === 1 ? 1 : k % 2 ? 0.75 : 0.55);
       wave = ctx.createPeriodicWave(re, im);
     }
-    if (ctx.state === 'suspended') ctx.resume();
+    if (ctx.state !== 'running') { try { const r = ctx.resume(); if (r && r.catch) r.catch(() => { }); } catch (e) { } }
     return ctx;
   }
   function note(midi, t, dur, vel = 0.55, dest) {
@@ -305,6 +309,10 @@ document.addEventListener('visibilitychange', () => { if (document.hidden) mtSto
 function mtSched() {
   const ctx = Sound.ctx; if (!ctx || !MT.on) return;
   const el = document.getElementById('mt-bpm'); if (!el || el.closest('details:not([open])') || !el.getClientRects().length) { mtStop(); return; }
+  /* Wächter: Steht die Audio-Uhr länger als 1,5 s, ist der Ton blockiert → stoppen und Bescheid sagen (nächstes Start baut neu). */
+  const now = performance.now();
+  if (ctx.currentTime !== MT.lastT) { MT.lastT = ctx.currentTime; MT.lastWall = now; }
+  else if (now - MT.lastWall > 1500) { mtStop(); toast('Der Ton hing fest. Tippe noch einmal auf Start.'); return; }
   const spb = 60 / MT.bpm * (MT.beats === 6 ? 0.5 : 1);
   while (MT.next < ctx.currentTime + 0.12) {
     const b = MT.beat % MT.beats; const acc = b === 0 || (MT.beats === 6 && b === 3);
@@ -317,7 +325,7 @@ function mtSched() {
 function mtToggle() {
   const ctx = Sound.init(); if (!ctx) return;
   MT.on = !MT.on;
-  if (MT.on) { MT.next = ctx.currentTime + 0.08; MT.beat = 0; MT.timer = setInterval(mtSched, 25); }
+  if (MT.on) { MT.next = ctx.currentTime + 0.08; MT.beat = 0; MT.lastT = ctx.currentTime; MT.lastWall = performance.now(); MT.timer = setInterval(mtSched, 25); }
   else clearInterval(MT.timer);
   const b = $('[data-a="mt-toggle"]'); if (b) b.textContent = MT.on ? '■ Stopp' : '▶︎ Start';
 }

@@ -51,7 +51,7 @@ def convert(path):
     staves = [s for s in score.findall('Staff') if s.find('Measure') is not None]
     if len(staves) > 2: raise LyError('mehr als 2 Systeme')
     notes, dyns, peds, bars, clefs, keys, times = [], [], [], [], {}, [], []
-    warn = []; graces = 0; ottava = 0
+    warn = []; graces = 0; ottava = 0; gkept = 0; pend = {}
     mstarts = []; mlens = []; repinfo = []
     title = None
     for t in score.iter('Text'):
@@ -108,8 +108,12 @@ def convert(path):
                             peds.append((T, sid, 'd' if start else 'u'))
                         elif typ == 'Ottava' and start: ottava += 1
                     elif tag in ('Chord', 'Rest'):
-                        if tag == 'Chord' and any(el.find(g) is not None for g in ('acciaccatura', 'appoggiatura', 'grace4', 'grace8after', 'grace16', 'grace16after', 'grace32', 'grace32after')):
-                            graces += 1; continue
+                        if tag == 'Chord' and any(el.find(g) is not None for g in ('grace8after', 'grace16after', 'grace32after')):
+                            graces += 1; continue          # Nachschläge (selten) weiterhin weglassen
+                        if tag == 'Chord' and any(el.find(g) is not None for g in ('acciaccatura', 'appoggiatura', 'grace4', 'grace16', 'grace32')):
+                            gps = [spell(int(nt.findtext('pitch')), int(nt.findtext('tpc'))) for nt in el.findall('Note')]
+                            pend.setdefault((sid, vi), []).append(('&'.join(gps), el.find('acciaccatura') is not None))
+                            gkept += 1; continue
                         d = dur_of(el, tup)
                         if d is None: d = L                       # Ganztaktpause
                         if tag == 'Rest':
@@ -140,6 +144,8 @@ def convert(path):
                             if fing and all(f for _, f in fing) and all(re.fullmatch(r'[1-5]', f) for _, f in fing):
                                 fs = [f for _, f in sorted(fing, key=lambda x: pitch_order(x[0]))]
                                 mods['f'] = ''.join(fs)
+                            gl = pend.pop((sid, vi), None)
+                            if gl: mods['gs' if (len(gl) == 1 and gl[0][1]) else 'g'] = '+'.join(g for g, _ in gl)
                             notes.append(KNote(t=T, dur=d, pitches=ps, rest=False, hidden=False, mods=mods, staff=sid, layer=vi, tie=bool(ties) and all(ties), line=mi))
                         pos += d
                     elif tag == 'Fermata':
@@ -155,7 +161,9 @@ def convert(path):
         if repinfo[i]['end']: tok += ':|'
         if i + 1 < len(repinfo) and repinfo[i + 1]['start']: tok += '|:'
         bars.append((t + L, tok))
-    if graces: warn.append(f'{graces} Vorschläge weggelassen')
+    if graces: warn.append(f'{graces} Nachschläge weggelassen')
+    if pend: graces += sum(len(v) for v in pend.values()); warn.append('Vorschläge ohne Folgenote weggelassen')
+    if gkept: warn.append(f'{gkept} Vorschlagsnoten übernommen')
     if ottava: warn.append(f'{ottava} Oktavierungslinien klingend notiert')
     r = build(notes, dyns, peds, bars, clefs, keys, times, [], None, None, total, warn)
     r['order'] = play_order(repinfo, voltas(staves[0]))
