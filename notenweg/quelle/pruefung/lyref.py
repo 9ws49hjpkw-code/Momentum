@@ -43,6 +43,7 @@ class Ly:
         vm = re.search(r'\\version\s+"(\d+)\.(\d+)', src)
         s.ver = (int(vm.group(1)), int(vm.group(2))) if vm else (2, 18)
         src = strip_comments(src)
+        src = re.sub(r"[_^]~", "~", src)  # Richtungs-Haltebögen (_~ ^~) = normale Haltebögen
         s.toks = s.tokenize(src)
         s.vars = {}
         s.parse_assignments()

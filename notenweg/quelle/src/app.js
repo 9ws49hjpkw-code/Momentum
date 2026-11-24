@@ -30,6 +30,8 @@ function fill(o) {
   const r = Object.assign(d, o); r.settings = Object.assign(DEF().settings, o.settings || {});
   ['done', 'stepAt', 'exams', 'srs', 'pieces', 'songs', 'days', 'wb', 'warm'].forEach(k => { if (!r[k] || typeof r[k] !== 'object' || Array.isArray(r[k])) r[k] = {}; });
   ['blitz', 'sight', 'quiz'].forEach(k => { if (!Array.isArray(r[k])) r[k] = []; });
+  /* „bwv939“ war dasselbe Stück wie „praeludium-c“ und ist seit Build 12 entfernt: Fortschritt übernehmen (der alte Eintrag bleibt erhalten) */
+  if (r.pieces.bwv939 && typeof r.pieces.bwv939 === 'object' && !r.pieces['praeludium-c']) r.pieces['praeludium-c'] = JSON.parse(JSON.stringify(r.pieces.bwv939));
   return r;
 }
 let S = DEF();

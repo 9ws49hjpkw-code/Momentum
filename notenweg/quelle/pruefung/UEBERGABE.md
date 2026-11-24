@@ -21,15 +21,14 @@ oder App umbauen. Nichts vereinfachen. Sparsam mit dem Nutzungslimit: wenige, ge
 - lyref.py = unabhängiger LilyPond-Leser (an Inventionen + BWV 846 gegen kern/xml exakt bestätigt).
   lyapp.py: ALLE Mutopia-Stücke stimmen mit der App überein, außer den Punkten unten.
 
-## Offen
-1. consolation3: T21–55 Dauer-Abweichungen (gehaltene Oberstimme). Klären, ob Leser oder App falsch.
-2. Fehlende Vorschlagsnoten ergänzen (`!g=`/`!gs=` am Folgeton): moment3 (47), januar (5), fuer-elise (3),
-   bwv933 (3), bwv934 (2), jaegerlied (2), menuett-g (1). Weg: ly2nw um \grace/\acciaccatura/\appoggiatura
-   erweitern und Vorschläge in bestehende JSON einsetzen (Fingersätze behalten), oder per Hand.
-3. Duplikat praeludium-c = bwv939 (gleiches Stück) → eins entfernen oder bewusst behalten.
-4. Notenweg-eigene Sätze prüfen: Lesestücke, Ode, Winterball-Lieder (lieder.js): Taktlängen, Melodie.
-5. PROJEKT.md aktualisieren (Syntax `(C4~ E4)`, Prüfverfahren, Verlauf), BUILD 12 / VERSION 5.1,
-   `python3 notenweg/quelle/build.py`, Tests e2e + monkey + metronom + Render-Regression,
-   Branch nach main mergen, pushen (Freigabe liegt vor), Pages prüfen.
-6. Ehrlicher Abschlussbericht an Nils: was geprüft (wie), was gefunden und korrigiert, was entfernt, wo Grenzen sind
-   (Editionsvarianten zwischen Erstausgaben).
+## Abgeschlossen (24.11.2026, Build 12 / 5.1, nach main gemergt)
+1. consolation3: Die App war falsch – Haltebögen in Akkorden fehlten (T21, 22, 25, 26, 31, 33, 39, 42, 50, 51, 57, 60).
+   Der Leser übersah Richtungs-Haltebögen `_~`/`^~` (lyref.py korrigiert). Jetzt Note für Note gleich.
+2. Vorschläge ergänzt mit `graces.py` (aus lyref.py, Folgeton per Einsatz + Tonhöhe zugeordnet, `\acciaccatura` → `!gs=`):
+   moment3 47, januar 5 (zusätzlich gegen DCML bestätigt), fuer-elise 3, bwv933 3, bwv934 2, jaegerlied 2, menuett-g 1. Alle gleich der Quelle.
+3. bwv939 entfernt (= praeludium-c, Takte identisch); fill() übernimmt alten Fortschritt. Text praeludium-c präzisiert (Orgelpunkt nur T1–3).
+4. Eigene Sätze: Taktlängen aller Lesestücke, Ode und Winterball-Lieder (alle Stufen) korrekt; Melodien gegen Quellen
+   (Essen/Böhme: tanne, jahre, froehlich, zion, kinder; Mutopia: himmel, joy, adeste, noel, wenceslas) – einzige Abweichung
+   „O du fröhliche“ T4/T8/T16, an Böhme angepasst. Ohne maschinenlesbare Quelle (nach Gehör/Standardfassung geprüft): morgen, deck,
+   jingle, wish, silent, ode.
+5. PROJEKT.md, Build 12, Tests grün, Render-Regression: nur die geänderten Stücke rendern anders.

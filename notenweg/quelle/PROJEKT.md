@@ -47,12 +47,13 @@ why, focus[], src, links[[Titel,URL]], key ('E' = Dur-Name der Vorzeichen), time
 measures[{ r, l, r2?, l2?, r3?, l3?, clef?, key?, time?, label?, volta?, begin?, end? }], order[] }`
 Stimmen pro System: `r`/`l` (Hälse oben), `r2`/`l2` (Hälse unten), `r3`/`l3` (Mittelstimme, Hälse oben, bei Kollision nach rechts versetzt; Pausen meist unsichtbar `x/`).
 Token: `C#4/8!f3` (Tonhöhe/Dauer w h q 8 16 32 64 mit Punkten), Akkord `(C4 E4 G4)/q`, Pause `r/q`, unsichtbar `x/q`.
-Modifikatoren: `!f3` Finger, `!(` `!)` Bogen, `!~` Haltebogen, `!3(` … `!3)` Triole, `!N(=7:4` … `!N)` beliebige N-tole (a Noten in der Zeit von b), `!st` staccato, `!ac` Akzent,
+Modifikatoren: `!f3` Finger, `!(` `!)` Bogen, `!~` Haltebogen (am Akkord: alle Töne; einzelne Akkordtöne: `(C4~ E4)/h` hält nur C4; Haltebögen gehen auch über Stimmen hinweg), `!3(` … `!3)` Triole, `!N(=7:4` … `!N)` beliebige N-tole (a Noten in der Zeit von b), `!st` staccato, `!ac` Akzent,
 `!d=p` Dynamik, `!g=D5+E5` Vorschläge vor dem Schlag (`&` = Vorschlagsakkord), `!gs=D5` Acciaccatura mit Strich, `!h=<` / `!h=>` / `!h=.` Gabel, `!pd` `!pc` `!pu` Pedal, `!o=tr|prall|mord|turn`, `!fe` Fermate, `!t=Text`.
 Höchstens drei Stimmen pro System. kern2nw schreibt Quintolen, Septolen, 11er-Gruppen usw. als `!N(` (seit 5.0).
 Konverter melden Takte mit mehr als drei Stimmen als „bad“ – solche Stücke nicht übernehmen (oder gezielt per `patch` reparieren, siehe neue_stuecke_2026_11c.py).
 mscx2nw übernimmt Vorschläge (seit 5.0); Nachschläge werden weiter weggelassen und gemeldet.
-Ältere Stücke mit dem Hinweis „Vorschlagsnoten nicht dargestellt“ könnten jetzt neu konvertiert werden.
+Alle Stücke sind seit 5.1 mit Vorschlagsnoten konvertiert (Hinweise „nicht dargestellt“ gibt es nicht mehr). ly2nw lässt Vorschläge weiter weg:
+nach dem Konvertieren `pruefung/graces.py -w <id>` laufen lassen (setzt `!g=`/`!gs=` aus der LilyPond-Quelle, Fingersätze bleiben).
 
 ## Neue Stücke hinzufügen
 1. Quelle klonen (GitHub), mit tools/kern2nw.py, mscx2nw.py oder ly2nw.py konvertieren, „bad“ muss leer sein.
@@ -60,6 +61,15 @@ mscx2nw übernimmt Vorschläge (seit 5.0); Nachschläge werden weiter weggelasse
 3. Eintrag mit Texten in einer neue_stuecke_*.py ergänzen und ausführen (schreibt src/stuecke/ + _reihenfolge.json).
 Ideen für später: Nachschläge; Stücke mit vier Stimmen in einer Hand (Chopin op. 9/3, 15/1, 15/2, 48/2, Schumann „Von fremden Ländern“).
 Kapitel-Zuordnung (Pflicht/Kür) steht in lernpfad.js (`must`, `more`); neue Stücke ohne Kapitel erscheinen unter „Alle Stücke“.
+
+## Prüfung „Richtig oder gar nicht“ (5.1, Werkzeuge in `quelle/pruefung/`)
+Jedes Stück wird Note für Note gegen seine Quelle geprüft, mit Lesern, die unabhängig von den Konvertern geschrieben sind:
+`app_notes.js` (Noten so, wie die Engine sie spielt) gegen `refs.py` (kern, DCML-TSV, MusicXML) bzw. `lyref.py` (LilyPond/Mutopia);
+`compare.py` und `lyapp.py` melden fehlende/zusätzliche Töne, Dauern, Schreibweisen und Vorschläge pro Takt. Wo es eine zweite
+unabhängige Ausgabe gibt (DCML, ASAP, Chopin-Erstausgaben), wird auch dagegen verglichen (`mapping.py`).
+Winterball-Lieder: `lieder_dump.js` (Taktlängen) und `liedcmp.py` (Melodie gegen Böhme/Essen-Sammlung bzw. Mutopia).
+Abweichungen werden nur mit Beleg korrigiert. Die Werkzeuge erwarten `/home/claude/verify` und die Quellen unter `/home/claude/src/`
+(siehe UEBERGABE.md). Achtung: die Skripte `tools/neue_stuecke_*.py` würden korrigierte Stücke beim erneuten Ausführen überschreiben.
 
 ## Urheberrecht
 Nur gemeinfreie Werke mit freien Notenausgaben (Mutopia, kernScores/CCARH, DCML CC BY-NC-SA). Quelle pro Stück in `src`.
@@ -95,3 +105,9 @@ Geschützte Stücke (Einaudi, Tony Ann, Alcocer …) nur mit Kauflink (`inApp: f
   Dazu beliebige N-tolen und 64stel im Notensatz; 41 weitere Stücke (tools/neue_stuecke_2026_11c.py): 15 Chopin-Nocturnes, 5 Walzer,
   Fantaisie-Impromptu, 2 Etüden, Berceuse, 5 Préludes (u. a. Regentropfen), Träumerei und Kinderszenen 12/13, Debussy (3× Children's Corner,
   La plus que lente, Page d'album), Tschaikowsky März, Grieg op. 12/3, 12/7, 38/1. Jetzt 166 Stücke.
+- 5.1 (Build 12, 24.11.2026): **Notenprüfung aller Stücke** („Richtig oder gar nicht“). Engine: Haltebögen für einzelne Akkordtöne `(C4~ E4)`
+  und über Stimmen hinweg. kern- und DCML-Stücke neu konvertiert (Vorschläge, Teil-Haltebögen, 3 Stimmen, Tonart, N-tolen) und Note für Note
+  bestätigt; Préludes nach der Erstausgabe (Catelin 1839); Handkorrekturen mit Beleg (Therese, Mondschein, Entertainer, Maple Leaf, Invention 13,
+  Consolation 3: fehlende Haltebögen in Akkorden). Vorschlagsnoten ergänzt (Moment musical 3, Januar, Für Elise, BWV 933/934, Jägerliedchen,
+  Menuett G). Entfernt: Nocturne op. 48/1 und das Duplikat „bwv939“ (= Kleines Präludium C-Dur;
+  Fortschritt wird übernommen). „O du fröhliche“ an die Quelle angepasst (Takte 4, 8, 16). Jetzt 164 Stücke.
