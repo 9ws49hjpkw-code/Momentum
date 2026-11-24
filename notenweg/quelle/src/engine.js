@@ -114,7 +114,8 @@ const Engrave = (() => {
     if (pp === 'r' || pp === 'x') { it.rest = true; it.hidden = pp === 'x'; }
     else {
       const list = pp.startsWith('(') ? pp.slice(1, -1).trim().split(/\s+/) : [pp];
-      it.pitches = list.map(MU.parsePitch).sort((a, b) => a.dia - b.dia || a.midi - b.midi);
+      /* Haltebogen nur für einzelne Akkordtöne: (A3 C4~ E4)/q – ein angehängtes ~ am Ton */
+      it.pitches = list.map(x => { const t = x.endsWith('~'); const q = MU.parsePitch(t ? x.slice(0, -1) : x); if (t) q.tie = true; return q; }).sort((a, b) => a.dia - b.dia || a.midi - b.midi);
       /* Vorschläge: !g=D5+E5 (vor dem Schlag, ohne Strich) oder !gs=D5 (Acciaccatura mit Strich); & verbindet Töne zu einem Vorschlagsakkord */
       const gv = mods.gs || mods.g;
       if (typeof gv === 'string' && gv) { it.grace = gv.split('+').map(x => x.split('&').map(MU.parsePitch).sort((a, b) => a.dia - b.dia || a.midi - b.midi)); it.gslash = !!mods.gs; }
@@ -272,7 +273,7 @@ const Engrave = (() => {
     const clefAt = (st, g) => { let c = clefCh[st][0][1]; for (const [g0, c0] of clefCh[st]) if (g0 <= g + 1e-6) c = c0; return c; };
     let yCursor = 0;
     let measureRects = [];
-    const pedOpen = {}; const tieCarry = {};
+    const pedOpen = {}; const tieCarry = {}; const tiePool = {};
     const lastLineIdx = lines.length - 1;
 
     lines.forEach((line, li) => {
@@ -702,8 +703,8 @@ const Engrave = (() => {
             if (it.mods.h) rows[st].dyn.push({ x: r.x, hp: it.mods.h });
             [['pd', 'd'], ['Pd', 'D'], ['pc', 'c'], ['pu', 'u'], ['Pu', 'U']].forEach(([k, kind]) => { if (it.mods[k]) rows[st].ped.push({ x: r.x, kind, r }); });
           });
-          // events for playback + note records (ties carry across barlines per staff/voice)
-          let lastEv = tieCarry[st + vk] || null;
+          // events for playback + note records (ties carry across barlines per staff/voice; einzelne Akkordtöne können gebunden sein)
+          let open = tieCarry[st + vk] || {};
           recs.forEach(r => {
             const it = r.it;
             noteRec[r.id] = r;
@@ -715,15 +716,39 @@ const Engrave = (() => {
               const midis = r.ps.map(q => q.p.midi);
               const startBeat = measureStart[mm.mi] + it.t;
               if (it.grace) { const gd = 0.1, gn = it.grace.length; it.grace.forEach((gc, j) => events.push({ t: Math.max(0, startBeat - (gn - j) * gd), dur: gd, midis: gc.map(p => p.midi), ids: [r.id], st, tie: false, mi: mm.mi, dyn: null, ped: null, pedUp: false, grace: true })); }
-              if (lastEv && lastEv.tie && lastEv.midis.join() === midis.join() && Math.abs(lastEv.t + lastEv.dur - startBeat) < 1e-6) {
-                lastEv.dur += it.len; lastEv.tie = !!it.mods['~']; lastEv.ids.push(r.id);
+              const tiedNow = new Set(r.ps.filter(q => it.mods['~'] || q.p.tie).map(q => q.p.midi));
+              /* Bogen aus einer anderen Stimme desselben Systems (z. B. Ober- in Unterstimme über den Taktstrich) */
+              const pool = tiePool[st] || {};
+              midis.forEach(m => { if (!open[m] && pool[m] && Math.abs(pool[m].t + pool[m].dur - startBeat) < 1e-6) { open[m] = pool[m]; delete pool[m]; } });
+              Object.keys(open).forEach(k => { if (!midis.includes(+k)) { pool[k] = open[k]; tiePool[st] = pool; } });
+              const cont = midis.filter(m => open[m] && Math.abs(open[m].t + open[m].dur - startBeat) < 1e-6);
+              cont.forEach(m => { if (pool[m] === open[m]) delete pool[m]; });
+              const next = {};
+              const contEvs = new Set(cont.map(m => open[m]));
+              if (cont.length === midis.length && contEvs.size === 1 && [...contEvs][0].midis.length === midis.length) {
+                const ev = [...contEvs][0]; ev.dur += it.len; ev.ids.push(r.id); ev.tie = tiedNow.size > 0;
+                midis.forEach(m => { if (tiedNow.has(m)) next[m] = ev; });
               } else {
-                lastEv = { t: startBeat, dur: it.len, midis, ids: [r.id], st, tie: !!it.mods['~'], mi: mm.mi, dyn: it.mods.d || null, ped: it.mods.pd ? 'd' : it.mods.pc ? 'c' : null, pedUp: !!it.mods.pu, st2: it.mods.st, ac: it.mods.ac };
-                events.push(lastEv);
+                cont.forEach(m => {
+                  let ev = open[m];
+                  if (ev.midis.length > 1) {   // ein einzelner Ton läuft weiter: aus dem Akkord lösen
+                    ev.midis = ev.midis.filter(x => x !== m);
+                    const e2 = Object.assign({}, ev, { midis: [m], ids: ev.ids.slice() }); events.push(e2);
+                    Object.keys(open).forEach(k => { if (open[k] === ev && +k === m) open[k] = e2; }); ev = e2;
+                  }
+                  ev.dur += it.len; ev.ids.push(r.id); if (tiedNow.has(m)) next[m] = ev;
+                });
+                const fresh = midis.filter(m => !cont.includes(m));
+                if (fresh.length) {
+                  const ev = { t: startBeat, dur: it.len, midis: fresh, ids: [r.id], st, tie: tiedNow.size > 0, mi: mm.mi, dyn: it.mods.d || null, ped: it.mods.pd ? 'd' : it.mods.pc ? 'c' : null, pedUp: !!it.mods.pu, st2: it.mods.st, ac: it.mods.ac };
+                  events.push(ev); fresh.forEach(m => { if (tiedNow.has(m)) next[m] = ev; });
+                }
               }
-            } else if (!r.hidden) lastEv = null;
+              open = next;
+            } else if (!r.hidden) { if (Object.keys(open).length) tiePool[st] = Object.assign(tiePool[st] || {}, open); open = {}; }
           });
-          tieCarry[st + vk] = lastEv && lastEv.tie ? lastEv : null;
+          tieCarry[st + vk] = Object.keys(open).length ? open : null;
+          if (tieCarry[st + vk]) tiePool[st] = Object.assign(tiePool[st] || {}, open);   // auch für die anderen Stimmen im nächsten Takt
           mm['recs_' + st + vk] = recs;
           });
         });
@@ -743,11 +768,12 @@ const Engrave = (() => {
           const sg = down ? 1 : -1; const mxp = (xa + xb) / 2;
           return `<path class="tie" d="M${f(xa)},${f(y)} Q${f(mxp)},${f(y + sg * h * 2)} ${f(xb)},${f(y)} Q${f(mxp)},${f(y + sg * (h * 2 - th * 2))} ${f(xa)},${f(y)}Z"/>`;
         };
+        const tiedPs = r => r.ps ? r.ps.filter(q => r.it.mods['~'] || q.p.tie) : [];
         list.forEach((r, i) => {
-          if (!r.ps || !r.it.mods['~']) return;
+          if (!r.ps || !tiedPs(r).length) return;
           let nx = list[i + 1]; if (nx && nx.mi - r.mi > 1) nx = null;
           const down = r.dir === 1;
-          r.ps.forEach(q => {
+          tiedPs(r).forEach(q => {
             const yy = yPos(q.pos) + (down ? s * 0.55 : -s * 0.55);
             const xa = r.x + r.hw + s * 0.15;
             const xb = nx && nx.ps ? nx.x - s * 0.15 : (W - s * 0.6);
@@ -759,9 +785,10 @@ const Engrave = (() => {
         if (li > 0) {
           const first = list.find(r => r.ps);
           const prevRecs = lines[li - 1]._lastRec && lines[li - 1]._lastRec[lk];
-          if (first && prevRecs && prevRecs.ps && prevRecs.it.mods['~']) {
+          if (first && prevRecs && prevRecs.ps && tiedPs(prevRecs).length) {
             const down = prevRecs.dir === 1;
-            first.ps.forEach(q => {
+            const tm = new Set(tiedPs(prevRecs).map(q => q.p.midi));
+            first.ps.filter(q => prevRecs.it.mods['~'] || tm.has(q.p.midi)).forEach(q => {
               const yy = yPos(q.pos) + (down ? s * 0.55 : -s * 0.55);
               b.push(tieCurve(line.pre - s * 0.6, first.x - s * 0.15, yy, down));
             });

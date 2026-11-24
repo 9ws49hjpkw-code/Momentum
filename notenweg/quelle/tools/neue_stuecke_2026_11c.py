@@ -54,9 +54,8 @@ P = [
     N('nocturne-37-2', '037-1-BH-002', 'Nocturne G-Dur op. 37 Nr. 2', 'Andantino · Erstausgabe Breitkopf & Härtel', 'G-Dur', 6, 108,
       'Wie eine Bootsfahrt: Wiegende Terzen und Sexten in der rechten Hand wechseln mit einem ruhigen Lied ab.',
       ['Doppelgriffe in Terzen langsam und mit festem Fingersatz', '6/8 in zwei Schlägen wiegen', 'Das ruhige Lied deutlich vom bewegten Teil absetzen'], NOCT),
-    N('nocturne-48-1', '048-1-BH-001', 'Nocturne c-Moll op. 48 Nr. 1', 'Lento · Erstausgabe Breitkopf & Härtel', 'c-Moll', 6, 54,
-      'Das dramatischste Nocturne: eine düstere Melodie, ein Choral, der sich zu gewaltigen Oktaven steigert, und eine aufgewühlte Rückkehr des Anfangs.',
-      ['Anfangsmelodie schlicht und dunkel', 'Choral erst leise, Steigerung über viele Takte planen', 'Oktaven aus dem Arm, nicht aus den Fingern'], NOCT),
+    # op. 48 Nr. 1 entfernt (Prüfung 24.11.2026): Takte 41–46 und 59–60 sind in allen drei Erstausgaben-Kodierungen
+    # rhythmisch unvollständig (z. B. 2¾ Schläge im 4/4-Takt) und ließen sich nicht sicher richtigstellen.
     N('nocturne-55-1', '055-1-BH-001', 'Nocturne f-Moll op. 55 Nr. 1', 'Andante · Erstausgabe Breitkopf & Härtel', 'f-Moll', 4, 66,
       'Eines der zugänglichsten Nocturnes: eine einfache, traurige Melodie über ruhiger Begleitung, ein bewegterer Mittelteil und ein Schluss voller Läufe.',
       ['Melodie singend, Begleitung leise', 'Mittelteil: Triolen gleichmäßig', 'Schlussläufe erst langsam in Gruppen'], NOCT),
@@ -91,8 +90,8 @@ P = [
     N('fantaisie-impromptu', '066-1-Sam', 'Fantaisie-Impromptu cis-Moll op. 66', 'Allegro agitato (posthum) · Erstausgabe Schlesinger, Berlin', 'cis-Moll', 6, 84,
       'Vier gegen drei: Rechts rasen Sechzehntel, links wogen Triolen. Dazwischen ein berühmter, singender Mittelteil in Des-Dur.',
       ['4 gegen 3 zuerst klopfen: „Nicht schwie-rig“ = rechts 4, links 3', 'Rechte Hand allein in Gruppen, Tempo-Treppe ab 50 %', 'Mittelteil ruhig und singend als Erholung'], 'Fantaisie-Impromptu Op.66 Chopin',
-      src=NIFC + '. Takt 3: Der tiefe Oktav-Basston links ist hier als Akkord mit dem ersten Triolenton notiert.',
-      patch={2: {'l': '(C#2 C#3)/8!(!3( G#3/8 C#4/8 E4/8 C#4/8 G#3/8!) C#3/8!( G#3/8 C#4/8 E4/8 C#4/8 G#3/8!)!3)', 'l2': None}}),
+      src=NIFC + '. Takt 3: Der tiefe Basston Cis als eigene Stimme (Achtel) unter der Triole.',
+      patch={2: {'l': 'C#3/8!(!3( G#3/8 C#4/8 E4/8 C#4/8 G#3/8!) C#3/8!( G#3/8 C#4/8 E4/8 C#4/8 G#3/8!)!3)', 'l2': 'C#2/8 x/8 x/h.'}}),
     N('etude-10-3', '010-1b-Sm-003', 'Etüde E-Dur op. 10 Nr. 3 („Tristesse“)', 'Lento ma non troppo · Erstausgabe Schlesinger, Paris', 'E-Dur', 6, 60,
       'Eine der schönsten Melodien Chopins, aber eine echte Etüde: Die rechte Hand spielt Melodie und Begleitung zugleich, der Mittelteil ist ein Sturm aus Doppelgriffen.',
       ['Melodie mit 4. und 5. Finger, Begleitung im selben Arm leise', 'Mittelteil sehr langsam, Doppelgriffe einzeln', 'Nicht zu langsam: „ma non troppo“'], 'Etudes Op.10 Chopin'),

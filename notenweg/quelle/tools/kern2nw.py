@@ -19,10 +19,10 @@ DYNS = {'ppp', 'pp', 'p', 'mp', 'mf', 'f', 'ff', 'fff', 'sf', 'sfz', 'fz', 'fp',
 
 
 class KNote:
-    __slots__ = ('t', 'dur', 'pitches', 'rest', 'hidden', 'mods', 'staff', 'layer', 'trip', 'tie', 'grace', 'line')
+    __slots__ = ('t', 'dur', 'pitches', 'rest', 'hidden', 'mods', 'staff', 'layer', 'trip', 'tie', 'grace', 'line', 'ptie')
 
     def __init__(s, **k):
-        s.mods = {}; s.pitches = []; s.rest = False; s.hidden = False; s.trip = False; s.tie = None; s.grace = False
+        s.mods = {}; s.pitches = []; s.rest = False; s.hidden = False; s.trip = False; s.tie = None; s.grace = False; s.ptie = None
         for a, b in k.items(): setattr(s, a, b)
 
 
@@ -52,13 +52,14 @@ def parse_pitch(sub):
 def parse_token(tok):
     """one **kern token (may be a chord) -> dict"""
     subs = tok.split(' ')
-    out = dict(pitches=[], rest=False, hidden=False, dur=None, mods={}, tie=None, grace=False, durs=[])
+    out = dict(pitches=[], rest=False, hidden=False, dur=None, mods={}, tie=None, grace=False, durs=[], ptie=None)
     ties = []
     for sub in subs:
         if not sub or sub == '.': continue
         if 'q' in sub or 'Q' in sub:
             out['grace'] = True
         d = parse_dur(sub)
+        if d is None and out['dur'] is not None and re.search(r'[a-gA-G]', sub): d = out['dur']   # Akkordton ohne eigene Dauer: Dauer des ersten Tons
         if d is None and not out['grace']: continue
         out['durs'].append(d)
         if out['dur'] is None: out['dur'] = d
@@ -82,6 +83,8 @@ def parse_token(tok):
         elif re.search(r'[S$]', sub): out['mods']['o'] = 'turn'
         if 'z' in sub: out['mods']['ac'] = True
     if ties and all(ties): out['tie'] = True
+    elif any(ties): out['ptie'] = {p for p, t in zip(out['pitches'], ties) if t}   # nur einzelne Akkordtöne gebunden
+    out['gslash'] = 'Q' not in tok
     return out
 
 
@@ -108,7 +111,7 @@ def convert(path, title=None):
     labels = []  # (t, label)
     expansion = None
     tempo = None
-    warn = []; graces = [0]
+    warn = []; graces = [0]; gpend = {}
     started = False
     pending_ped = []
     for ln, line in enumerate(lines):
@@ -189,7 +192,13 @@ def convert(path, title=None):
                 if t == '.': continue
                 info = parse_token(t)
                 if info['grace']:
-                    graces[0] += 1; continue
+                    # Vorschlag: an die nächste Note dieser Spur hängen
+                    if info['pitches']: gpend.setdefault(i, []).append(('&'.join(info['pitches']), info['gslash']))
+                    continue
+                gl = gpend.pop(i, None)
+                if gl:
+                    if info['rest']: graces[0] += sum(len(g.split('&')) for g, _ in gl)
+                    else: info['mods']['gs' if (len(gl) == 1 and gl[0][1]) else 'g'] = '+'.join(g for g, _ in gl)
                 if info['dur'] is None: continue
                 if len(set(info['durs'])) > 1:
                     # chord with mixed durations: keep longest group in this layer, others as extra layer
@@ -200,11 +209,14 @@ def convert(path, title=None):
                     first = True
                     for d, subs in sorted(groups.items(), key=lambda x: -x[0]):
                         inf2 = parse_token(' '.join(subs))
-                        n = KNote(t=T, dur=d, pitches=inf2['pitches'], rest=inf2['rest'], hidden=inf2['hidden'], mods=inf2['mods'], staff=st, layer=layer if first else 9, tie=inf2['tie'], line=ln)
+                        if first:
+                            for gk in ('g', 'gs'):
+                                if gk in info['mods']: inf2['mods'][gk] = info['mods'][gk]
+                        n = KNote(t=T, dur=d, pitches=inf2['pitches'], rest=inf2['rest'], hidden=inf2['hidden'], mods=inf2['mods'], staff=st, layer=layer if first else 9, tie=inf2['tie'], line=ln, ptie=inf2['ptie'])
                         notes.append(n); first = False
                     ends[i] = T + max(info['durs'])
                     continue
-                n = KNote(t=T, dur=info['dur'], pitches=info['pitches'], rest=info['rest'], hidden=info['hidden'], mods=info['mods'], staff=st, layer=layer, tie=info['tie'], line=ln)
+                n = KNote(t=T, dur=info['dur'], pitches=info['pitches'], rest=info['rest'], hidden=info['hidden'], mods=info['mods'], staff=st, layer=layer, tie=info['tie'], line=ln, ptie=info['ptie'])
                 notes.append(n)
                 ends[i] = T + info['dur']
             elif sp['kind'] == '**dynam':
@@ -304,9 +316,13 @@ def build(notes, dyns, peds, bars, clefs, keys, times, labels, expansion, tempo,
                 for v in voices:
                     for o in v:
                         if o.t == n.t and o.dur == n.dur and not o.rest:
+                            ot = set(o.pitches) if o.tie else set(o.ptie or ())
+                            nt = set(n.pitches) if n.tie else set(n.ptie or ())
                             o.pitches = list(o.pitches) + [p for p in n.pitches if p not in o.pitches]
                             for k, val in n.mods.items(): o.mods.setdefault(k, val)
-                            o.tie = bool(o.tie and n.tie)
+                            tied = ot | nt
+                            o.tie = bool(tied) and set(o.pitches) <= tied
+                            o.ptie = None if o.tie else (tied or None)
                             return True
                 return False
             for lay in sorted(layers):
@@ -414,13 +430,18 @@ def disp_time(t):
 TUP_BASES = [F(2), F(1), F(1, 2), F(1, 4), F(1, 8), F(1, 16)]
 
 
+TUP_PREFER_R = False
+
+
 def tup_ratio(d):
-    """Dauer, die weder normal noch Triole ist -> (Verhältnis r = notiert->klingend, Grundwert v), z. B. 1/7 -> (4/7, 1/4)"""
-    for v in TUP_BASES:
-        if v / 2 < d < v:
-            r = d / v
-            if r.denominator <= 32: return r, v
-    return None
+    """Dauer, die weder normal noch Triole ist -> (Verhältnis r = klingend/notiert, notierter Wert v), z. B. 1/7 -> (4/7, 1/4).
+    Bevorzugt das einfachste Verhältnis (kleinster Nenner), auch mit punktierten Grundwerten (3/5 = punktierte Achtel in einer Quintole)."""
+    best = None
+    for v in sorted(DUR_OF):
+        r = d / v
+        if F(1, 2) < r < 1 and r.denominator <= 32:
+            if best is None or r.denominator < best[0].denominator or (r.denominator == best[0].denominator and ((r > best[0]) if TUP_PREFER_R else (v > best[1]))): best = (r, v)
+    return best
 
 
 def note_tok(n, base):
@@ -428,7 +449,10 @@ def note_tok(n, base):
         return ('x/' if n.hidden else 'r/') + base
     ps = sorted(set(n.pitches), key=pitch_key)
     if not ps: return 'x/' + base          # Akkord ohne sichtbare Töne
-    tok = (ps[0] if len(ps) == 1 else '(' + ' '.join(ps) + ')') + '/' + base
+    pt = getattr(n, 'ptie', None) or set()
+    if not n.tie and pt and set(ps) <= pt: n.tie = True; pt = set()
+    if len(ps) == 1: tok = ps[0] + '/' + base
+    else: tok = '(' + ' '.join(p + ('~' if (p in pt and not n.tie) else '') for p in ps) + ')/' + base
     mods = []; mm = n.mods
     for k in ('st', 'ac', 'tn', 'fe'):
         if mm.get(k): mods.append('!' + k)
@@ -448,6 +472,16 @@ def note_tok(n, base):
 
 
 def voice_tokens(v, m0, L):
+    global TUP_PREFER_R
+    try:
+        TUP_PREFER_R = False; return _voice_tokens(v, m0, L)
+    except LyError:
+        TUP_PREFER_R = True
+        try: return _voice_tokens(v, m0, L)
+        finally: TUP_PREFER_R = False
+
+
+def _voice_tokens(v, m0, L):
     v = sorted(v, key=lambda n: n.t)
     toks = []; pos = F(0)
     tg = None   # offene N-tole: dict(r, a, b, span, acc, i0)
@@ -465,7 +499,15 @@ def voice_tokens(v, m0, L):
                 toks.append('x/' + DUR_OF[g / tg['r']]); tg['acc'] += g; pos = o
                 if tg['acc'] == tg['span']: close()
             else:
-                close(); toks.extend(gap_tokens(g)); pos = o
+                close()
+                nr = tup_ratio(n.dur) if to_beats_token(n.dur) is None else None
+                if g not in DUR_OF and nr and (g / nr[0]) in DUR_OF:
+                    # N-tole beginnt mit einer (unsichtbaren) Pause
+                    r_, v_ = nr
+                    tg = dict(r=r_, a=r_.denominator, b=r_.numerator, span=r_.numerator * (v_ / v_.numerator), acc=g, i0=len(toks))
+                    toks.append('x/' + DUR_OF[g / r_]); pos = o
+                else:
+                    toks.extend(gap_tokens(g)); pos = o
         if o < pos: raise LyError('overlap')
         if tg and (n.dur / tg['r']) in DUR_OF and tg['acc'] + n.dur <= tg['span']:
             toks.append(note_tok(n, DUR_OF[n.dur / tg['r']])); tg['acc'] += n.dur; pos = o + n.dur
@@ -477,7 +519,7 @@ def voice_tokens(v, m0, L):
             tr = tup_ratio(n.dur)
             if tr:
                 r, vv = tr
-                tg = dict(r=r, a=r.denominator, b=r.numerator, span=r.numerator * vv, acc=F(0), i0=len(toks))
+                tg = dict(r=r, a=r.denominator, b=r.numerator, span=r.numerator * (vv / vv.numerator), acc=F(0), i0=len(toks))
                 toks.append(note_tok(n, DUR_OF[vv])); tg['acc'] += n.dur; pos = o + n.dur
                 if tg['acc'] == tg['span']: close()
                 continue
@@ -489,7 +531,7 @@ def voice_tokens(v, m0, L):
                 last = k == len(parts) - 1
                 n2 = KNote(t=t0, dur=d, pitches=n.pitches, rest=n.rest, hidden=n.hidden,
                            mods=(dict(n.mods) if k == 0 else {}) if not last else ({kk: vv for kk, vv in n.mods.items() if kk in (')', 'pu')} if k > 0 else dict(n.mods)),
-                           staff=n.staff, layer=n.layer, tie=(True if not last else n.tie), line=n.line)
+                           staff=n.staff, layer=n.layer, tie=(True if not last else n.tie), line=n.line, ptie=(None if not last else n.ptie))
                 if k == 0 and not last: n2.mods.pop(')', None); n2.mods.pop('pu', None)
                 sub = voice_tokens_one(n2)
                 toks.append(sub); t0 += d
@@ -500,6 +542,8 @@ def voice_tokens(v, m0, L):
         if trip: tok += '!T'
         toks.append(tok)
         pos = o + n.dur
+    if tg and pos < L and ((L - pos) / tg['r']) in DUR_OF and tg['acc'] + (L - pos) <= tg['span']:
+        toks.append('x/' + DUR_OF[(L - pos) / tg['r']]); tg['acc'] += L - pos; pos = L
     close()
     if pos < L: toks.extend(gap_tokens(L - pos))
     if pos > L: raise LyError('voice longer than measure')
@@ -536,21 +580,4 @@ def voice_tokens_one(n):
     """ein einzelnes Token ohne Triolen (für zerlegte Dauern)"""
     base = DUR_OF[n.dur]
     if n.rest: return ('x/' if n.hidden else 'r/') + base
-    ps = sorted(set(n.pitches), key=pitch_key)
-    tok = (ps[0] if len(ps) == 1 else '(' + ' '.join(ps) + ')') + '/' + base
-    mm = n.mods; mods = []
-    for k in ('st', 'ac', 'tn', 'fe'):
-        if mm.get(k): mods.append('!' + k)
-    if mm.get('f'): mods.append('!f' + str(mm['f']))
-    if mm.get('o'): mods.append('!o=' + mm['o'])
-    if mm.get('g'): mods.append('!g=' + mm['g'])
-    if mm.get('gs'): mods.append('!gs=' + mm['gs'])
-    if mm.get('d'): mods.append('!d=' + mm['d'])
-    if mm.get('h'): mods.append('!h=' + mm['h'])
-    if mm.get('('): mods.append('!(')
-    if mm.get('pc'): mods.append('!pc')
-    elif mm.get('pd'): mods.append('!pd')
-    if mm.get('pu'): mods.append('!pu')
-    if n.tie: mods.append('!~')
-    if mm.get(')'): mods.append('!)')
-    return tok + ''.join(mods)
+    return note_tok(n, base)

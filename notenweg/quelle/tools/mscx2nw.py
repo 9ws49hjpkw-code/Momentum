@@ -146,7 +146,7 @@ def convert(path):
                                 mods['f'] = ''.join(fs)
                             gl = pend.pop((sid, vi), None)
                             if gl: mods['gs' if (len(gl) == 1 and gl[0][1]) else 'g'] = '+'.join(g for g, _ in gl)
-                            notes.append(KNote(t=T, dur=d, pitches=ps, rest=False, hidden=False, mods=mods, staff=sid, layer=vi, tie=bool(ties) and all(ties), line=mi))
+                            notes.append(KNote(t=T, dur=d, pitches=ps, rest=False, hidden=False, mods=mods, staff=sid, layer=vi, tie=bool(ties) and all(ties), line=mi, ptie=({p for p, t in zip(ps, ties) if t} if any(ties) and not all(ties) else None)))
                         pos += d
                     elif tag == 'Fermata':
                         ferm = True
