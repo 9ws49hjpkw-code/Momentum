@@ -111,3 +111,6 @@ Geschützte Stücke (Einaudi, Tony Ann, Alcocer …) nur mit Kauflink (`inApp: f
   Consolation 3: fehlende Haltebögen in Akkorden). Vorschlagsnoten ergänzt (Moment musical 3, Januar, Für Elise, BWV 933/934, Jägerliedchen,
   Menuett G). Entfernt: Nocturne op. 48/1 und das Duplikat „bwv939“ (= Kleines Präludium C-Dur;
   Fortschritt wird übernommen). „O du fröhliche“ an die Quelle angepasst (Takte 4, 8, 16). Jetzt 164 Stücke.
+- 5.2 (Build 13, 24.11.2026): Kapitelbilder: Kapitel I zeigt Beethoven (Stieler 1820), Kapitel II Königin Charlotte (Gainsborough 1781), beide gemeinfrei
+  (Wikimedia Commons, 800 px breit in `bilder.js`). Hochformat-Gemälde haben `tall: true` und ein höheres Titelbild (`.salon.tall`, mehr Bildausschnitt);
+  der Ausschnitt steht in `pos`. Andere Kapitel unverändert.
