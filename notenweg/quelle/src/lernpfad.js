@@ -35,7 +35,7 @@ const CUR = { chapters: [], folios: [], gloss: [], pools: {} };
    KAPITEL I · Das Fundament
    ========================================================================= */
 CUR.chapters.push({
-  id: 'I', title: 'Das Fundament', sub: 'Tastatur, Hand, Notenwerte, beide Schlüssel – lesen statt nachahmen.', img: 'beethoven',
+  id: 'I', title: 'Das Fundament', sub: 'Tastatur, Hand, Notenwerte, beide Schlüssel – lesen statt nachahmen.', img: 'ancher',
   warm: ['Schultern kreisen, Arme ausschütteln, Hände 10 Sekunden locker hängen lassen.', 'Rechts Fünftonlage C (c¹–g¹): c–d–e–f–g–f–e–d–c, langsam und gebunden, 3×.', 'Links Fünftonlage C (c–g, Finger 5 auf c): dasselbe, 3×.', 'Jeder Finger viermal auf derselben Taste – die anderen Finger bleiben ruhig liegen.'],
   must: ['lesestuecke'], more: [],
   exam: { n: 18, pass: 0.85, items: [['keyName', { black: true }, 2], ['accName', {}, 2], ['halfWhole', {}, 1], ['enharm', {}, 1], ['noteValue', { set: ['w', 'h', 'q'] }, 1], ['measureFill', { set: ['w', 'h', 'q'] }, 2], ['noteName', { clef: 'treble', range: ['C4', 'G5'] }, 3], ['noteName', { clef: 'bass', range: ['F2', 'C4'] }, 3], ['noteKey', { clef: 'treble' }, 1], ['stepSkip', {}, 1], ['ivSize', { max: 5 }, 1], ['finger', {}, 1], ['pool', { id: 'grund' }, 2]] },
@@ -170,7 +170,7 @@ CUR.chapters.push({
    KAPITEL II · Rhythmus und Takt
    ========================================================================= */
 CUR.chapters.push({
-  id: 'II', title: 'Rhythmus und Takt', sub: 'Pausen, Achtel, Punktierung, Taktarten – und richtig üben.', img: 'charlotte',
+  id: 'II', title: 'Rhythmus und Takt', sub: 'Pausen, Achtel, Punktierung, Taktarten – und richtig üben.', img: 'renoir2',
   warm: ['Fünftonlage C beide Hände gleichzeitig (parallel, eine Oktave Abstand), legato.', 'Dasselbe in Achteln gegen ein Metronom auf ♩ = 60 – „1 und 2 und“ laut zählen.', 'Staccato-Viertel auf c–g: kurz und locker aus dem Handgelenk.', 'Fünftonlage G (g¹–d², rechts) und G (G–d, links) einmal auf und ab.'],
   must: ['menuett-g', 'mozart-k2'], more: ['traellerliedchen', 'czerny-821-1', 'ode'],
   exam: { n: 18, pass: 0.85, items: [['noteValue', { set: ['w', 'h', 'q', '8', 'h.', 'q.'], rests: true }, 2], ['measureFill', { time: '4/4', set: ['h', 'q', '8', 'q.'] }, 2], ['measureFill', { time: '3/4', set: ['h', 'q', '8', 'h.'] }, 1], ['counting', { time: '4/4', set: ['q', '8', 'h'] }, 2], ['timeSig', { set: ['4/4', '3/4', '2/4'] }, 2], ['rhythmHear', { set: ['h', 'q', '8'] }, 2], ['symbol', { set: ['tie', 'slur', 'st', 'fe'] }, 2], ['term', { cats: ['Tempo'] }, 2], ['pool', { id: 'methode' }, 3]] },

@@ -582,7 +582,7 @@ const APP = (() => {
     const c = curChapter(); const nl = nextLesson();
     const done = LES.filter(l => isDone(l.id)).length;
     const first = done === 0 && !Object.keys(S.stepAt).length;
-    let h = img(c.img || 'ancher', '', first ? 'Willkommen im Salon' : `Kapitel ${c.id} · ${esc(c.title)}`, first ? 'Ein Weg, Schritt für Schritt: Noten lesen, verstehen, spielen. Jede Lektion öffnet die nächste.' : esc(c.sub), first ? 'Notenweg' : `${done} von ${LES.length} Lektionen`);
+    let h = img('beethoven', '', first ? 'Willkommen im Salon' : `Kapitel ${c.id} · ${esc(c.title)}`, first ? 'Ein Weg, Schritt für Schritt: Noten lesen, verstehen, spielen. Jede Lektion öffnet die nächste.' : esc(c.sub), first ? 'Notenweg' : `${done} von ${LES.length} Lektionen`);
     // Heute
     const items = todayItems();
     const nIdx = items.findIndex(x => !x.done);
@@ -861,7 +861,7 @@ const APP = (() => {
   const RV = { phase: 'list', ids: [] };
   function vReview() {
     const due = dueList();
-    let h = img('friedrich', 'short', 'Wiederholen', 'Gelerntes nach 1, 3, 7, 14 und 30 Tagen abrufen – so bleibt es.', 'Gedächtnis');
+    let h = img('charlotte', 'mid', 'Wiederholen', 'Gelerntes nach 1, 3, 7, 14 und 30 Tagen abrufen – so bleibt es.', 'Gedächtnis');
     if (RV.phase === 'run') return h + `<section class="card"><h2>Wiederholung</h2><p class="small muted">${RV.ids.length} Lektion${RV.ids.length > 1 ? 'en' : ''} · neue Aufgaben, keine bekannten.</p><div id="quiz"></div></section>`;
     const learned = Object.keys(S.srs).filter(id => LBY[id]);
     h += `<section class="card framed"><div class="row-between"><h2>${due.length ? `${due.length} fällig` : 'Alles wiederholt'}</h2>${due.length ? '<button class="btn" data-a="rv-start">Starten</button>' : ''}</div>${due.length ? `<ul class="small">${due.slice(0, 12).map(id => `<li>${LBY[id] ? `Lektion ${id}: ${esc(LBY[id].title)}` : esc(id)} <span class="muted">(Stufe ${S.srs[id].stage} von 5)</span></li>`).join('')}</ul>` : `<p class="muted">${learned.length ? 'Heute ist nichts fällig. Die nächste Wiederholung kommt am ' + fmtD(Object.values(S.srs).filter(s => s.next).map(s => s.next).sort()[0] || today()) + '.' : 'Sobald du die erste Lektion bestanden hast, erscheinen hier deine Wiederholungen.'}</p>`}</section>`;

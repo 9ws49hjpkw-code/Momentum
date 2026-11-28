@@ -131,6 +131,7 @@ main { max-width: 880px; margin: 0 auto; padding-left: max(16px, env(safe-area-i
 .salon .credit { position: absolute; z-index: 1; right: 10px; top: 8px; font-size: .66rem; color: rgba(255,250,235,.75); letter-spacing: .04em; font-style: italic; text-shadow: 0 1px 4px rgba(0,0,0,.6); }
 .salon.short { min-height: 150px; }
 .salon.tall:not(.short) { min-height: clamp(340px, 52vw, 460px); }
+.salon.tall.mid:not(.short) { min-height: clamp(250px, 38vw, 300px); }
 
 /* today */
 .today ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
